@@ -42,7 +42,8 @@ ID  start end length (sec)
 
 **3)** Run provenance.py again.s
 
-##Running the Visualization
+Running the Visualization
+---------------------
 
 **1)** Run localserver.bat.
 

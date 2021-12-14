@@ -24,7 +24,8 @@ Adding New Segments
 --------------------------------
 
 To add new files:
-**1)** New segment files must have the following format:
+
+**1)** New segment files must have the following format and the same names as the orginal segments in "Dataset_X/Segmentation":
 ```
 ID  start end length (sec)
 0 0 112.7 112.7
@@ -34,7 +35,6 @@ ID  start end length (sec)
 4 590.8 636.6 45.8
 ...
 ```
-and the same names as the orginal segments in "Dataset_X/Segmentation".
 
 **2)** Copy the old segments in the "Segmentation" folder somewhere for safekeeping.
 

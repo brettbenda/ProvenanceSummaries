@@ -10,14 +10,14 @@ It converts segment csv files into json and merges all user interaction json int
 
 The python script requires an argument to run and its output piped to a json file. The argument specifies whether a merging proceedure is to be conducted to reduce the number of segments. The merging proceedure naively merges segments >1/24th the total time with an adjacent neighbor segment.
 
-To NOT merge:
+To NOT merge (recomemended):
 ```
-python provenance.py 0 > output.json
+python provenance.py 0 > vis.json
 ```
 
 To merge:
 ```
-python provenance.py 1 > output.json
+python provenance.py 1 > vis.json
 ```
 
 Adding New Segments
@@ -25,7 +25,7 @@ Adding New Segments
 
 To add new files:
 
-**1)** New segment files must have the following format and the same names as the orginal segments in "Dataset_X/Segmentation":
+**1)** New segment files must have the following format and the same file names as the orginal segments in "Dataset_X/Segmentation":
 ```
 ID  start end length (sec)
 0 0 112.7 112.7
@@ -40,7 +40,7 @@ ID  start end length (sec)
 
 **3)** Replace segments in the "Segmentation" folder with new files made in **1)**.
 
-**3)** Run provenance.py again.s
+**3)** Run provenance.py again.
 
 Running the Visualization
 ---------------------

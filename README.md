@@ -1,6 +1,8 @@
-#Brett's Provenance Visualization Tool
+Brett's Provenance Visualization Tool
+===================================
 
-##Preprocessing
+Preprocessing
+------------------------------------
 The python script "provenenace.py" conducts preprocessing on the "Segmentation" and "User Interaction" folders in each "js\ProvSegments\Dataset_X" folder. 
 It converts segment csv files into json and merges all user interaction json into a single file for use with d3.
 
@@ -16,7 +18,8 @@ To merge:
 python provenance.py 1 > output.json
 ```
 
-##Adding New Segments
+Adding New Segments
+--------------------------------
 
 To add new files:
 **1)** New segment files must have the following format:

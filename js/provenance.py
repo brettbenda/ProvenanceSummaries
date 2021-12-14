@@ -1,5 +1,6 @@
 import json
 import csv
+import sys
 
 
 ##docs[set#][#]
@@ -16,6 +17,9 @@ path3 = "_P" #user num
 path4 = "_InteractionsLogs.json"
 path41 = "_20_4_6_Prov_Segments.csv"
 
+mergesegments = int(sys.argv[1])
+print(mergesegments)
+
 def setToString(i):
     if (i==1):
         return "Arms"
@@ -23,6 +27,8 @@ def setToString(i):
         return "Terrorist"
     else:
         return "Disappearance"
+
+
 
 #Open doc JSON
 with open('ProvSegments/Dataset_1/Documents/Documents_Dataset_1.json', encoding="utf8") as file:
@@ -63,6 +69,9 @@ for _set in range(0,3):
             stringjson = json.loads(segment)
 
             min_segment_length = float(json.loads(segments[_set][_id][-1])['end'])/24
+            if mergesegments == 0:
+                min_segment_length = 0
+
 
             segment_start = int(float(stringjson['start']))
             segment_end = int(float(stringjson['end']))

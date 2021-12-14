@@ -32,16 +32,16 @@ var colors = {
 
 //Load Docs
 Promise.all([	
-	d3.json("/js/ProvSegments/Dataset_1/Documents/Documents_Dataset_1.json"),
-	d3.json("/js/ProvSegments/Dataset_2/Documents/Documents_Dataset_2.json"),
-	d3.json("/js/ProvSegments/Dataset_3/Documents/Documents_Dataset_3.json")
+	d3.json("/code/ProvSegments/Dataset_1/Documents/Documents_Dataset_1.json"),
+	d3.json("/code/ProvSegments/Dataset_2/Documents/Documents_Dataset_2.json"),
+	d3.json("/code/ProvSegments/Dataset_3/Documents/Documents_Dataset_3.json")
   ]).then(function(json){
    docs = json
    console.log(docs)
  })
 
   Promise.all([
-   d3.json("/js/vis.json")
+   d3.json("/code/vis.json")
    ]).then(function(json2){
 	//unwrap json
 	orignaljson = Object.assign({},json2)

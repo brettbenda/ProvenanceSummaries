@@ -8,6 +8,7 @@
   * [Preprocessing](#preprocessing)
   * [Adding New Segments](#adding-new-segments)
   * [Running the Visualization](#running-the-visualization)
+
 <small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
 
 ## Visualization Design

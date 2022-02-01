@@ -2,6 +2,12 @@
 
 ## Visualization Design
 
+##### Table of Contents  
+[Headers](#headers)  
+[Emphasis](#emphasis)  
+...snip...    
+<a name="headers"/>
+   
 ### Overview
 Each segment is represented by a card with a unique segment number. A lightblue bar represents the timeline for the entire segment, with a dark blue block showing the relative start and end times for the segment. The length of this bar encodes the duration of the segment.
 Below is a timeline of all actions in the segment to show actions in context to one another.

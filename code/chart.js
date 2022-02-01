@@ -172,9 +172,9 @@ function drawCards(startTime, endTime){
     attr("id",function(d,i){
       return "cardDiv"+ d.pid + "_" +d.number
     })
-    .style("margin-bottom", "15px")
-    .style("margin-left", "15px")
-    .style("margin-right", "15px")
+    // .style("margin-bottom", "15px")
+    // .style("margin-left", "15px")
+    // .style("margin-right", "15px")
     .style("display", "inline-block")
 
 
@@ -224,7 +224,7 @@ function drawCards(startTime, endTime){
 	card.bg = card.append("rect").
     attr("x",5).
     attr("y",5).
-    attr("rx", 5).
+    //attr("rx", 5).
     attr("height", cardHeight-10).
     attr("width",cardWidth-10).
     style("fill","white").
@@ -780,7 +780,7 @@ function segmentTimelineElement(card){
       //snap to mouse when selection and area
       select.attr("x2", function(d,i){
         if(element.clickX1 != -1 && element.clickX2==-1){
-          return (event.offsetX+20)
+          return (event.offsetX)
         }else
           return select.attr("x2")
         })
@@ -791,7 +791,7 @@ function segmentTimelineElement(card){
       var select = d3.select(".selection" + d.pid + "_" +d.number)
       //log first click loc
       if(element.clickX1 == -1){
-        element.clickX1 = event.offsetX+20
+        element.clickX1 = event.offsetX
         select
         .attr("x1", element.clickX1)
         .attr("x2", element.clickX1)
@@ -803,7 +803,7 @@ function segmentTimelineElement(card){
       }
       //handle second click
       else if(element.clickX2 == -1){ 
-        element.clickX2 = event.offsetX+20
+        element.clickX2 = event.offsetX
         select.attr("x2",element.clickX2)
 
         //swap if x1 < x2
@@ -1204,20 +1204,6 @@ function GetAllCounts(data){
   return summary
 }
 
-//Argument: An array
-//Returns:  Counts of each item in the array
-function count(arr){
-	counts = []
-	for(var item of arr){
-		if(!counts[item]){
-			counts[item]=1
-		} else{
-			counts[item]++
-		}
-	}
-	return counts;
-}
-
 //gets counts of interaction types in segment
 function TextToValue(d, type){
 	var data
@@ -1247,7 +1233,7 @@ function TextToValue(d, type){
   return sum
 }
 
-//links segments and interactions
+//return specific segment from segment id, participant id, and dataset number
 function GetSegment(sid, pid, dataset){
 	for(var seg of segments){
 		if(seg.sid == sid && seg.pid==pid && seg.dataset==dataset){
@@ -1256,7 +1242,7 @@ function GetSegment(sid, pid, dataset){
 	}
 }
 
-//returns all segments belonging to a participant
+//returns all segments belonging to a participant in a specific dataset
 function GetSegments(dataset,pid){
 	var segments2 = []
 	for(var seg of segments){
@@ -1334,6 +1320,8 @@ function wrap(text, width) {
 
 function saveSVG(svgEl, name) {
     svgEl.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+    svgEl.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
+
     var svgData = svgEl.outerHTML;
     var preface = '<?xml version="1.0" standalone="no"?>\r\n';
     var svgBlob = new Blob([preface, svgData], {type:"image/svg+xml;charset=utf-8"});
@@ -1348,9 +1336,29 @@ function saveSVG(svgEl, name) {
 
 function saveSVGS(){
   var svgs = d3.selectAll("svg")
+  svgs.attr("style","")
   console.log(svgs._groups[0])
   for(var i=0;i<svgs._groups[0].length;i++){
-    var name = "dataset"+DS+"-pid"+P+"-segment"+(i+1)+"+.svg"
-    saveSVG(svgs._groups[0][i], name)
+    var name = "dataset"+DS+"-pid"+P+"-segment"+(i+1)+".svg"
+    //saveSVG(svgs._groups[0][i], name)
+    console.log(d3.select(svgs._groups[0][i]).node())
+    console.log(i)
+
+    try {
+        var isFileSaverSupported = !!new Blob();
+    } catch (e) {
+        alert("blob not supported");
+    }
+
+    var html = d3.select(svgs._groups[0][i])
+        .attr("title", "name")
+        .attr("version", 1.1)
+        .attr("xmlns", "http://www.w3.org/2000/svg")
+        .node().parentNode.innerHTML;
+
+    var blob = new Blob([html], {type: "image/svg+xml"});
+    saveAs(blob, name);
   }
 }
+
+

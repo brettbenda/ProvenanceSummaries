@@ -1,5 +1,6 @@
 <!DOCTYPE>
-<html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:svg="http://www.w3.org/2000/svg">
 <style>
   div.tooltip { 
     position: absolute;     
@@ -36,6 +37,12 @@
 
   <!-- Latest compiled JavaScript -->
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+
+  <script src="https://cdn.rawgit.com/eligrey/canvas-toBlob.js/f1a01896135ab378aa5c0118eadd81da55e698d8/canvas-toBlob.js"></script>
+  <script src="https://cdn.rawgit.com/eligrey/FileSaver.js/e9d941381475b5df8b7d7691013401e171014e89/FileSaver.min.js"></script>
+
+  <script src="https://eligrey.com/demos/FileSaver.js/Blob.js"></script>
+<script src="https://eligrey.com/demos/FileSaver.js/FileSaver.js"></script>
 
   <link rel="stylesheet" href="style.css">
 
@@ -81,7 +88,8 @@
           <div id="text">
 
             <h1>Provenance Segment Visualization</h1>
-            <h3>Data Processing</h3>
+            <h3><a href="https://github.com/brettbenda/ProvenanceSummaries/">Link to Github Repo</a></h3>
+<!--             <h3>Data Processing</h3>
             <p>Data from provenance logs are segmented. Small segments are grouped into the preceeding segment. Only explicit user action types from the logs are regarded in summarizing each segment (searches, note taking, highlighting, and opening a document).</p>
             
             <h3>Overview</h3>
@@ -96,10 +104,10 @@
 
             <h3>Details on Demand</h3>
             <p> Hovering over the timeline shows time and action details.<br>
-            <!--Long notes/highlighted text are shortened, but can be seen in their entirety by hovering the text.<br>-->
+            Long notes/highlighted text are shortened, but can be seen in their entirety by hovering the text.<br>
             Colored text can be hovered to show the full text.<br>
             Hovering over each bar/icon displays all the interactions of the type with frequencies if the action occured mutliple times.
-            <!--
+
             <h3 style="color:darkgreen">Updates</h3>
             <p style="color:darkgreen">
               <b>-Manual merging/segment separation</b><br>
@@ -111,7 +119,6 @@
             <p style="color:red">
               <b>Continue testing new textual summary patterns, using merging/separation to find patterns not yet accounted for.</b><br>
             -->
-
             </p>
           </div>
           <div id="chart"></div>

@@ -164,7 +164,7 @@ Promise.all([
 function drawCards(startTime, endTime){
 	//draw cards
 	d3.selectAll("#chartArea").remove()
-	d3.select("#chart").style("display", "block").append("div").attr("id","chartArea").style("overflow", "auto").style("white-space", "nowrap")
+	d3.select("#chart").style("display", "block").append("div").attr("id","chartArea")
 
 	console.log(data)
 
@@ -175,7 +175,7 @@ function drawCards(startTime, endTime){
     .style("margin-bottom", "15px")
     .style("margin-left", "15px")
     .style("margin-right", "15px")
-    .style("display", "inline")
+    .style("display", "inline-block")
 
 
 	card = cardDivs.append("svg").

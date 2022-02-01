@@ -54,8 +54,9 @@
 
 <body>
 
-<div id="controls" style="position: fixed; top:0; width:10vw; background-color: white; border:3px solid navy; z-index:1;">
+<div id="controls" class = "col-sm-3 col-lg-2" style="position: fixed; top:0; background-color: white; border:3px solid navy; z-index:1;">
           <form id="controlForm">
+            <h5>Data Selection</h5>
             <b>Dataset:</b><br> 
             1<input type="radio" name="dataset" value=1 checked onclick="loadData()">
             2<input type="radio" name="dataset" value=2 onclick="loadData()">
@@ -63,28 +64,32 @@
             <b>PID:</b><br>
             1<input type="radio" name="pid" value=1 checked onclick="loadData()">
             2<input type="radio" name="pid" value=2 onclick="loadData()">
-            3<input type="radio" name="pid" value=3 onclick="loadData()"><br>
+            3<input type="radio" name="pid" value=3 onclick="loadData()">
             4<input type="radio" name="pid" value=4 onclick="loadData()">
             5<input type="radio" name="pid" value=5 onclick="loadData()">
-            6<input type="radio" name="pid" value=6 onclick="loadData()"><br>
+            6<input type="radio" name="pid" value=6 onclick="loadData()">
             7<input type="radio" name="pid" value=7 onclick="loadData()">
-            8<input type="radio" name="pid" value=8 onclick="loadData()"><br>
+            8<input type="radio" name="pid" value=8 onclick="loadData()"><br><br><br>
 
+            <h5>Card Sizing</h5>
             <b>Card Size:</b><br>
             Width: <input type="number" name="width" oninput="loadData()" value="510" style="width:4em"><br>
-            Height: <input type="number" name="height" oninput="loadData()" value="300"style="width:4em"><br>
+            Height: <input type="number" name="height" oninput="loadData()" value="300"style="width:4em"><br><br><br>
+
+            <h5>Data Editing</h5>
             Detailed View: <input type="checkbox" name="detailed" onclick="loadData()"><br>
-            Show Notes: <input type="checkbox" name="notes" onclick="loadData()"><br>
+            Show Notes: <input type="checkbox" name="notes" onclick="loadData()"><br><br><br>
           </form>
           <!-- <button onclick="loadData()">Load Data</button><br> -->
+          <h5>Save</h5>
           <button onclick="saveData()">Save Data JSON</button><br>
           <button onclick="saveSVGS()">Save SVGS</button><br>
         </div>
   <div class="container-fluid bg-light">
     <div class="row row-space my-auto">
-      <div class="col-sm-2">
+      <div class="col-sm-3 col-lg-2">
       </div>
-      <div class="col-sm-8">
+      <div class="col-sm-9 col-lg-10">
           <div id="text">
 
             <h1>Provenance Segment Visualization</h1>
@@ -123,7 +128,6 @@
           </div>
           <div id="chart"></div>
       </div>
-      <div class="col-sm-2"></div>
     </div>
   </div>
 

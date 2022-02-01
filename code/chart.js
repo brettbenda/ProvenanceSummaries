@@ -12,10 +12,12 @@ var cardDivs
 var cardField
 var cardWidth = 700
 var cardHeight = 300
+var transitionTime = 1000
 var DS = 1
 var P = 1
 var detailed = true
 var showNotes = true
+var moving = false;
 var colors = {
   "Doc_open":"crimson",
   "Documents Opened":"crimson",
@@ -37,7 +39,7 @@ Promise.all([
 	d3.json("/code/ProvSegments/Dataset_3/Documents/Documents_Dataset_3.json")
   ]).then(function(json){
    docs = json
-   console.log(docs)
+   //console.log(docs)
  })
 
   Promise.all([
@@ -57,7 +59,7 @@ Promise.all([
 
 	var startTime = 0;
 	var endTime = participantSegments[participantSegments.length-1].end
-	console.log(endTime)
+	//console.log(endTime)
 	drawCards(startTime, endTime)
 
 	//add separate tooltip div
@@ -73,12 +75,12 @@ Promise.all([
     segments.sort(function(a,b){return a.dataset-b.dataset || a.pid-b.pid || a.start-b.start})
     for(var j=0; j<segments.length;j++)
       segments[j].sid=j
-    console.log(segments)
+    //console.log(segments)
 
     Promise.all([processData()]).then(function(){
       var startTime = 0;
       var endTime = participantSegments[participantSegments.length-1].end
-      console.log(endTime)
+      //console.log(endTime)
       drawCards(startTime, endTime)
     })
   }
@@ -95,7 +97,7 @@ Promise.all([
 
     var startTime = 0;
     var endTime = participantSegments[participantSegments.length-1].end
-    console.log(endTime)
+   // console.log(endTime)
 
     drawCards(startTime, endTime)
  }
@@ -166,7 +168,7 @@ function drawCards(startTime, endTime){
 	d3.selectAll("#chartArea").remove()
 	d3.select("#chart").style("display", "block").append("div").attr("id","chartArea")
 
-	console.log(data)
+	//console.log(data)
 
   cardDivs = d3.select("#chartArea").selectAll("field").data(data).enter().append("div").
     attr("id",function(d,i){
@@ -277,27 +279,87 @@ function drawCards(startTime, endTime){
         return "selection" + d.pid + "_" +d.number
       })
 
+    function makeCardTranslate(d,i){
+      var chart = d3.select("#chartArea").node().getBoundingClientRect()
+      var cols = Math.floor(chart.width/cardWidth)
+      var rows = Math.floor(chart.height/cardHeight)
+
+      i = d.number+1;
+
+      console.log(i + " " + rows +" "+ cols)
+      var x = 0;
+      var y = 0
+      for(var i = 0; i<d.number;i++){
+        y+=1;
+
+        if(y%cols==0){
+          y=0
+          x++
+        }
+      }
+      console.log(x +" "+ y)
+
+      var translate = "translate(";
+      if(y==0){
+        translate+= ((cols-1)*cardWidth)+","+-cardHeight+")"
+      }else{
+        translate+= (-cardWidth)+",0)"
+      }
+      return translate
+    }
+
     card.button3 = textButton(card, 10,40, "⬅", "royalblue", function(d,i){
       if(i==0)
         return
-      var seg = GetSegment(d.number, d.pid, d.dataset)
-      var seg2 = GetSegment(d.number-1, d.pid, d.dataset)
 
-      var scale = d3.scaleLinear().domain([40,cardWidth-40]).range([seg.start,seg.end])
-      var select = d3.select(".selection" + d.pid + "_" +d.number)
+      if(moving)return;
+      moving = true;
 
-      segments.splice(segments.indexOf(GetSegment(i, P,DS)),1)
-      segments.splice(segments.indexOf(GetSegment(i-1, P,DS)),1)
+      //fade out card
+      var moving = d3.select("#cardDiv" + d.pid + "_" + (d.number-1))
+        .transition().duration(transitionTime).style("opacity",0)
 
-      var newSeg = {
-        start:seg2.start,
-        end: seg.end,
-        length: seg.end-seg2.start,
-        dataset: DS,
-        pid:P
-      }
-      segments.push(newSeg)
-      reload()
+      var moving = d3.select("#card" + d.pid + "_" + (d.number-1))
+        .transition().duration(transitionTime).attr("transform", "scale(0.5,0.5)")
+
+      //move card
+      var moving3 = d3.select("#card" + d.pid + "_" + (d.number))
+          .transition().duration(transitionTime).attr("transform", makeCardTranslate)
+
+      //dummy transition on this card to do the card removal on the correct index
+      var thisCard = d3.select("#cardDiv" + d.pid + "_" + (d.number))
+        .transition().duration(transitionTime).style("opacity",100)
+        .on("end",function(d,i){
+              i = d.number-1
+              var seg = GetSegment(d.number-1, d.pid, d.dataset)
+              var seg2 = GetSegment(d.number, d.pid, d.dataset)
+
+              var scale = d3.scaleLinear().domain([10,cardWidth-10]).range([seg.start,seg.end])
+              var select = d3.select(".selection" + d.pid + "_" +d.number)
+
+              segments.splice(segments.indexOf(GetSegment(i, P,DS)),1)
+              segments.splice(segments.indexOf(GetSegment(i+1, P,DS)),1)
+
+              var newSeg = {
+                start:seg.start,
+                end: seg2.end,
+                length: seg2.end-seg.start,
+                dataset: DS,
+                pid:P
+              }
+              segments.push(newSeg)
+
+              reload()
+              moving = false;
+            })
+
+      //move all other cards
+      for(var i = d.number+1; i<segments.length;i++){        
+        var moving3 = d3.select("#card" + d.pid + "_" + i)
+          .transition().duration(transitionTime).attr("transform", makeCardTranslate)
+      }  
+
+
     })
 
     card.button3.buttonHB.on("mouseover",function(){
@@ -327,13 +389,13 @@ function drawCards(startTime, endTime){
       if(selectStart-seg.start<5 || select.attr("x1")<70){
         first = false
         selectStart = seg.start
-        console.log("short start")
+        //console.log("short start")
       }
 
       if(seg.end-selectEnd<5 || select.attr("x2")>cardWidth-60){
         third = false
         selectEnd = seg.end
-        console.log("short end")
+        //console.log("short end")
       }
 
       segments.splice(segments.indexOf(GetSegment(i, P,DS)),1)
@@ -386,26 +448,52 @@ function drawCards(startTime, endTime){
     card.button2 = textButton(card, cardWidth-35,40, "➡", "royalblue", function(d,i){
       if(i==participantSegments.length-1)
         return
-      var seg = GetSegment(d.number, d.pid, d.dataset)
-      var seg2 = GetSegment(d.number+1, d.pid, d.dataset)
 
-      var scale = d3.scaleLinear().domain([10,cardWidth-10]).range([seg.start,seg.end])
-      var select = d3.select(".selection" + d.pid + "_" +d.number)
+      if(moving)return;
+      moving = true;
 
-      segments.splice(segments.indexOf(GetSegment(i, P,DS)),1)
-      segments.splice(segments.indexOf(GetSegment(i+1, P,DS)),1)
+      //fade out card
+      var moving = d3.select("#cardDiv" + d.pid + "_" + (d.number+1))
+        .transition().duration(transitionTime).style("opacity",0)
 
-      var newSeg = {
-        start:seg.start,
-        end: seg2.end,
-        length: seg2.end-seg.start,
-        dataset: DS,
-        pid:P
-      }
-      segments.push(newSeg)
+      //move card
+      var moving3 = d3.select("#card" + d.pid + "_" + (d.number+1))
+          .transition().duration(transitionTime).attr("transform", "translate("+(-cardWidth)+",0) scale(0.5,0.5)")
 
-      reload()
-    })  
+      //dummy transition on this card to do the card removal on the correct index
+      var thisCard = d3.select("#cardDiv" + d.pid + "_" + (d.number))
+        .transition().duration(transitionTime).style("opacity",100)
+        .on("end",function(d,i){
+              i = d.number
+              var seg = GetSegment(d.number, d.pid, d.dataset)
+              var seg2 = GetSegment(d.number+1, d.pid, d.dataset)
+
+              var scale = d3.scaleLinear().domain([10,cardWidth-10]).range([seg.start,seg.end])
+              var select = d3.select(".selection" + d.pid + "_" +d.number)
+
+              segments.splice(segments.indexOf(GetSegment(i, P,DS)),1)
+              segments.splice(segments.indexOf(GetSegment(i+1, P,DS)),1)
+
+              var newSeg = {
+                start:seg.start,
+                end: seg2.end,
+                length: seg2.end-seg.start,
+                dataset: DS,
+                pid:P
+              }
+              segments.push(newSeg)
+
+              reload()
+              moving=false;
+            })
+
+      //move all other cards
+      for(var i = d.number+2; i<segments.length;i++){        
+        var moving3 = d3.select("#card" + d.pid + "_" + i)
+          .transition().duration(transitionTime).attr("transform", makeCardTranslate)
+      }  
+  })
+
     card.button2.buttonHB.on("mouseover",function(){
       tooltip.transition().
         duration(100).
@@ -722,7 +810,7 @@ function timelineElement(card, startTime, endTime){
   element.timeLineBox = card.append("path").
     attr("d",function(d,i){
       var seg = GetSegment(d.number, d.pid, d.dataset)
-      console.log(startTime)
+      //console.log(startTime)
       return d3.line()([[start+scale(seg.start), 20],[start+scale(seg.end),20]])
     }).
     attr("stroke","royalblue").
@@ -922,7 +1010,7 @@ function SummaryToolTip(text, type){
 
 //get html for timeline tooltip
 function TimeToolTip(segment){
-	console.log(segment)
+	//console.log(segment)
   var text ="<p class=\"tooltipP\"><b>"+IntToTime(segment.start) + "-" + IntToTime(segment.end)+"</b> ("+IntToTime(segment.length)+")</p>"
   return text 
 }
@@ -993,13 +1081,13 @@ function segmentify(segments, interactions){
   for(var item of interactions){
   	for(var seg of segments){
       if(item.time < seg.end*10 && item.time>seg.start*10){
-        console.log(seg.sid)
+        //console.log(seg.sid)
         segmented_data[seg.sid].push(item)
       }else if(item.type=="Reading"){
         //include reading if the end is also in the segment
         var endTime = item.time+item.duration
         if(endTime < seg.end*10 && endTime>seg.start*10){
-          console.log(seg.sid)
+          //console.log(seg.sid)
           segmented_data[seg.sid].push(item)
         }
       }
@@ -1082,7 +1170,7 @@ function summarize_segment(segment){
 
   all_interactions.sort(function(a,b){return a.time-b.time})
   var descriptions = []
-  console.log("New Segment")
+  //console.log("New Segment")
   for(var i=0; i<all_interactions.length; i++){
     //if many things were explored, we do not want to find pattern for all of them.
     if(searches.length >5 || opens.length > 15){
@@ -1144,7 +1232,7 @@ function summarize_segment(segment){
     descriptions.push("The user identified some documents of interest.")
 
 
-  console.log(descriptions)
+  //console.log(descriptions)
 
   var summary = {
     interesting : (total_interactions > 0) ? true:false,
@@ -1186,7 +1274,7 @@ function GetAllCounts(data){
   var open_count=0;
 
   for(var seg of data){
-    console.log(search_count)
+    //console.log(search_count)
     search_count+=seg.searches_list.length
     highlight_count+=seg.highlights_list.length
     note_count+=seg.notes_list.length
@@ -1337,7 +1425,7 @@ function saveSVG(svgEl, name) {
 function saveSVGS(){
   var svgs = d3.selectAll("svg")
   svgs.attr("style","")
-  console.log(svgs._groups[0])
+  //console.log(svgs._groups[0])
   for(var i=0;i<svgs._groups[0].length;i++){
     var name = "dataset"+DS+"-pid"+P+"-segment"+(i+1)+".svg"
     //saveSVG(svgs._groups[0][i], name)

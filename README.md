@@ -1,7 +1,7 @@
-#Brett's Provenance Visualization Tool
+# Brett's Provenance Visualization Tool
 
 
-##Preprocessing
+## Preprocessing
 All relevent files are in the "code" folder.
 
 The python script "provenance.py" conducts preprocessing on the "Segmentation" and "User Interaction" folders in each "code\ProvSegments\Dataset_X" folder. 
@@ -19,7 +19,7 @@ To merge:
 python provenance.py 1 > vis.json
 ```
 
-##Adding New Segments
+## Adding New Segments
 
 
 To add new files:
@@ -41,7 +41,7 @@ ID  start end length (sec)
 
 **3)** Run provenance.py again.
 
-##Running the Visualization
+## Running the Visualization
 
 **1)** Run localserver.bat.
 

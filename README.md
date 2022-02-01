@@ -1,12 +1,16 @@
 # Brett's Provenance Visualization Tool
 
-## Visualization Design
+- [Visualization Design](#visualization-design)
+  * [Overview](#overview)
+  * [Zoom and Filter](#zoom-and-filter)
+  * [Details on Demand](#details-on-demand)
+- [Editing Segments](#editing-segments)
+  * [Preprocessing](#preprocessing)
+  * [Adding New Segments](#adding-new-segments)
+  * [Running the Visualization](#running-the-visualization)
+<small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
 
-##### Table of Contents  
-[Headers](#headers)  
-[Emphasis](#emphasis)  
-...snip...    
-<a name="headers"/>
+## Visualization Design
    
 ### Overview
 Each segment is represented by a card with a unique segment number. A lightblue bar represents the timeline for the entire segment, with a dark blue block showing the relative start and end times for the segment. The length of this bar encodes the duration of the segment.

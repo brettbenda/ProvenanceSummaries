@@ -12,7 +12,7 @@ var cardDivs
 var cardField
 var cardWidth = 700
 var cardHeight = 300
-var transitionTime = 1000
+var transitionTime = 750
 var DS = 1
 var P = 1
 var detailed = true
@@ -333,32 +333,33 @@ function drawCards(startTime, endTime){
 
     //d=selected card, next = 0 by default, set to 1 if the right button
     function MergeTargetCardWithPrevious(d, next=0){
-        if(moving)return;
-          moving = true;
+      if(moving)return;
+      moving = true;
 
-        //fade out card being "removed"
-        var moving = d3.select("#cardDiv" + d.pid + "_" + (d.number+next))
-          .transition().duration(transitionTime).style("opacity",0)
+      //fade out card being "removed"
+      var moving = d3.select("#cardDiv" + d.pid + "_" + (d.number+next))
+      .transition().duration(transitionTime).style("opacity",0)
 
-        //move card being "removed"
-        var moving3 = d3.select("#card" + d.pid + "_" + (d.number+next))
-            .transition().duration(transitionTime).attr("transform", function(d,i){
-              return makeCardTranslate(d,i) +" scale(0.5,0.5)"
-            }).on("end",function(d,i){
-                t = d.number-1
-                //perform merge on segment data structures
-                mergeCard(t)
-                reload()
-                moving=false;
-              })
+      //move card being "removed"
+      var moving3 = d3.select("#card" + d.pid + "_" + (d.number+next))
+      .transition().duration(transitionTime).attr("transform", function(d,i){
+        return makeCardTranslate(d,i) +" scale(0.5,0.5)"
+      })
+      .on("end",function(d,i){
+        t = d.number-1
+        //perform merge on segment data structures
+        mergeCard(t)
+        reload()
+        moving=false;
+      })
 
-        //move all other cards
-        for(var i = d.number+1+next; i<segments.length;i++){        
-          var moving3 = d3.select("#card" + d.pid + "_" + i)
-            .transition().duration(transitionTime).attr("transform", makeCardTranslate)
-        }  
+      //move all other cards
+      for(var i = d.number+1+next; i<segments.length;i++){        
+        var moving3 = d3.select("#card" + d.pid + "_" + i)
+        .transition().duration(transitionTime).attr("transform", makeCardTranslate)
+      }  
 
-      }
+    }
 
     card.button3 = textButton(card, 10,40, "⬅", "royalblue", function(d,i){
       if(i==0)
@@ -367,13 +368,13 @@ function drawCards(startTime, endTime){
     })
 
     card.button3.buttonHB.on("mouseover",function(){
-      tooltip.transition().
-        duration(100).
-        style("opacity", 1.0);  
+      tooltip.transition()
+        .duration(100)
+        .style("opacity", 1.0);  
 
-      tooltip.html("<p class=\"tooltipP\">Move <b>this</b> segment into the previous segment.</p>").
-        style("left", (d3.event.pageX) + "px").
-        style("top", (d3.event.pageY - 28) + "px");   
+      tooltip.html("<p class=\"tooltipP\">Move <b>this</b> segment into the previous segment.</p>")
+        .style("left", (d3.event.pageX) + "px")
+        .style("top", (d3.event.pageY - 28) + "px");   
     })  
 
     card.button = textButton(card, (cardWidth/2)-60,70, "Create from Selection", "lightblue", function(d,i){
@@ -438,13 +439,11 @@ function drawCards(startTime, endTime){
     })
 
     card.button.buttonHB.on("mouseover",function(){
-      tooltip.transition().
-        duration(100).
-        style("opacity", 1.0);  
+      tooltip.transition().duration(100).style("opacity", 1.0);  
 
-      tooltip.html("<p class=\"tooltipP\">Create a new segment from the current selection.<br>The remaining unselected time will also be made into their own segments.</p>").
-        style("left", (d3.event.pageX) + "px").
-        style("top", (d3.event.pageY - 28) + "px");   
+      tooltip.html("<p class=\"tooltipP\">Create a new segment from the current selection.<br>The remaining unselected time will also be made into their own segments.</p>")
+        .style("left", (d3.event.pageX) + "px")
+        .style("top", (d3.event.pageY - 28) + "px");   
     })
 
     card.button2 = textButton(card, cardWidth-35,40, "➡", "royalblue", function(d,i){
@@ -452,16 +451,16 @@ function drawCards(startTime, endTime){
         return
 
       MergeTargetCardWithPrevious(d,next=1)
-  })
+    })
 
     card.button2.buttonHB.on("mouseover",function(){
-      tooltip.transition().
-        duration(100).
-        style("opacity", 1.0);  
+      tooltip.transition()
+        .duration(100)
+        .style("opacity", 1.0);  
 
-      tooltip.html("<p class=\"tooltipP\">Move the <b>next</b> segment into this segment.</p>").
-        style("left", (d3.event.pageX) + "px").
-        style("top", (d3.event.pageY - 28) + "px");   
+      tooltip.html("<p class=\"tooltipP\">Move the <b>next</b> segment into this segment.</p>")
+        .style("left", (d3.event.pageX) + "px")
+        .style("top", (d3.event.pageY - 28) + "px");   
     })   			
   }
 
@@ -1133,7 +1132,7 @@ function summarize_segment(segment){
 
   all_interactions.sort(function(a,b){return a.time-b.time})
   var descriptions = []
-  //console.log("New Segment")
+
   for(var i=0; i<all_interactions.length; i++){
     //if many things were explored, we do not want to find pattern for all of them.
     if(searches.length >5 || opens.length > 15){
@@ -1150,7 +1149,8 @@ function summarize_segment(segment){
         if(all_interactions[0].InteractionType=="Search")
           descriptions.push("The user searched for \"" + all_interactions[0].Text+"\".")
 
-        if(all_interactions[i].InteractionType=="Search"){
+      if(all_interactions[i].InteractionType=="Search"){
+
         //Search->open->read pattern
         if(i+2 < all_interactions.length){
           if(all_interactions[i+1].InteractionType=="Doc_open"){
@@ -1259,21 +1259,21 @@ function GetAllCounts(data){
 function TextToValue(d, type){
 	var data
 	switch(type){
-	case "Searches":
-    data = d.searches
-    break;
-  case "Highlights": 
-    data =  d.highlights
-    break;
-  case "Notes":
-    data =  d.notes
-    break;
-  case "Documents Opened":
-    data =  d.opens
-    break;
-  case "Total":
-    return d.total_interactions
-    break;
+  	case "Searches":
+      data = d.searches
+      break;
+    case "Highlights": 
+      data =  d.highlights
+      break;
+    case "Notes":
+      data =  d.notes
+      break;
+    case "Documents Opened":
+      data =  d.opens
+      break;
+    case "Total":
+      return d.total_interactions
+      break;
   }
 
   var key = Object.keys(data)

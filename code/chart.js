@@ -308,58 +308,62 @@ function drawCards(startTime, endTime){
       return translate
     }
 
+    //peforms merge on internal data structure for segments
+    //first: number of first card in the pair to be merge (i.e., selected card number for the right merge button, 1-seleced card number for left merge button)
+    function mergeCard(first){
+      t = first
+      var seg = GetSegment(t, P, DS)
+      var seg2 = GetSegment(t+1,P, DS)
+
+      var scale = d3.scaleLinear().domain([10,cardWidth-10]).range([seg.start,seg.end])
+      var select = d3.select(".selection" + P + "_" +t)
+
+      segments.splice(segments.indexOf(GetSegment(t, P,DS)),1)
+      segments.splice(segments.indexOf(GetSegment(t+1, P,DS)),1)
+
+      var newSeg = {
+        start:seg.start,
+        end: seg2.end,
+        length: seg2.end-seg.start,
+        dataset: DS,
+        pid:P
+      }
+      segments.push(newSeg)
+    }
+
+    //d=selected card, next = 0 by default, set to 1 if the right button
+    function MergeTargetCardWithPrevious(d, next=0){
+        if(moving)return;
+          moving = true;
+
+        //fade out card being "removed"
+        var moving = d3.select("#cardDiv" + d.pid + "_" + (d.number+next))
+          .transition().duration(transitionTime).style("opacity",0)
+
+        //move card being "removed"
+        var moving3 = d3.select("#card" + d.pid + "_" + (d.number+next))
+            .transition().duration(transitionTime).attr("transform", function(d,i){
+              return makeCardTranslate(d,i) +" scale(0.5,0.5)"
+            }).on("end",function(d,i){
+                t = d.number-1
+                //perform merge on segment data structures
+                mergeCard(t)
+                reload()
+                moving=false;
+              })
+
+        //move all other cards
+        for(var i = d.number+1+next; i<segments.length;i++){        
+          var moving3 = d3.select("#card" + d.pid + "_" + i)
+            .transition().duration(transitionTime).attr("transform", makeCardTranslate)
+        }  
+
+      }
+
     card.button3 = textButton(card, 10,40, "⬅", "royalblue", function(d,i){
       if(i==0)
         return
-
-      if(moving)return;
-      moving = true;
-
-      //fade out card
-      var moving = d3.select("#cardDiv" + d.pid + "_" + (d.number-1))
-        .transition().duration(transitionTime).style("opacity",0)
-
-      var moving = d3.select("#card" + d.pid + "_" + (d.number-1))
-        .transition().duration(transitionTime).attr("transform", "scale(0.5,0.5)")
-
-      //move card
-      var moving3 = d3.select("#card" + d.pid + "_" + (d.number))
-          .transition().duration(transitionTime).attr("transform", makeCardTranslate)
-
-      //dummy transition on this card to do the card removal on the correct index
-      var thisCard = d3.select("#cardDiv" + d.pid + "_" + (d.number))
-        .transition().duration(transitionTime).style("opacity",100)
-        .on("end",function(d,i){
-              i = d.number-1
-              var seg = GetSegment(d.number-1, d.pid, d.dataset)
-              var seg2 = GetSegment(d.number, d.pid, d.dataset)
-
-              var scale = d3.scaleLinear().domain([10,cardWidth-10]).range([seg.start,seg.end])
-              var select = d3.select(".selection" + d.pid + "_" +d.number)
-
-              segments.splice(segments.indexOf(GetSegment(i, P,DS)),1)
-              segments.splice(segments.indexOf(GetSegment(i+1, P,DS)),1)
-
-              var newSeg = {
-                start:seg.start,
-                end: seg2.end,
-                length: seg2.end-seg.start,
-                dataset: DS,
-                pid:P
-              }
-              segments.push(newSeg)
-
-              reload()
-              moving = false;
-            })
-
-      //move all other cards
-      for(var i = d.number+1; i<segments.length;i++){        
-        var moving3 = d3.select("#card" + d.pid + "_" + i)
-          .transition().duration(transitionTime).attr("transform", makeCardTranslate)
-      }  
-
-
+      MergeTargetCardWithPrevious(d)
     })
 
     card.button3.buttonHB.on("mouseover",function(){
@@ -367,7 +371,7 @@ function drawCards(startTime, endTime){
         duration(100).
         style("opacity", 1.0);  
 
-      tooltip.html("<p class=\"tooltipP\">Merge this segment with the <b>previous</b> segment.</p>").
+      tooltip.html("<p class=\"tooltipP\">Move <b>this</b> segment into the previous segment.</p>").
         style("left", (d3.event.pageX) + "px").
         style("top", (d3.event.pageY - 28) + "px");   
     })  
@@ -389,13 +393,11 @@ function drawCards(startTime, endTime){
       if(selectStart-seg.start<5 || select.attr("x1")<70){
         first = false
         selectStart = seg.start
-        //console.log("short start")
       }
 
       if(seg.end-selectEnd<5 || select.attr("x2")>cardWidth-60){
         third = false
         selectEnd = seg.end
-        //console.log("short end")
       }
 
       segments.splice(segments.indexOf(GetSegment(i, P,DS)),1)
@@ -449,49 +451,7 @@ function drawCards(startTime, endTime){
       if(i==participantSegments.length-1)
         return
 
-      if(moving)return;
-      moving = true;
-
-      //fade out card
-      var moving = d3.select("#cardDiv" + d.pid + "_" + (d.number+1))
-        .transition().duration(transitionTime).style("opacity",0)
-
-      //move card
-      var moving3 = d3.select("#card" + d.pid + "_" + (d.number+1))
-          .transition().duration(transitionTime).attr("transform", "translate("+(-cardWidth)+",0) scale(0.5,0.5)")
-
-      //dummy transition on this card to do the card removal on the correct index
-      var thisCard = d3.select("#cardDiv" + d.pid + "_" + (d.number))
-        .transition().duration(transitionTime).style("opacity",100)
-        .on("end",function(d,i){
-              i = d.number
-              var seg = GetSegment(d.number, d.pid, d.dataset)
-              var seg2 = GetSegment(d.number+1, d.pid, d.dataset)
-
-              var scale = d3.scaleLinear().domain([10,cardWidth-10]).range([seg.start,seg.end])
-              var select = d3.select(".selection" + d.pid + "_" +d.number)
-
-              segments.splice(segments.indexOf(GetSegment(i, P,DS)),1)
-              segments.splice(segments.indexOf(GetSegment(i+1, P,DS)),1)
-
-              var newSeg = {
-                start:seg.start,
-                end: seg2.end,
-                length: seg2.end-seg.start,
-                dataset: DS,
-                pid:P
-              }
-              segments.push(newSeg)
-
-              reload()
-              moving=false;
-            })
-
-      //move all other cards
-      for(var i = d.number+2; i<segments.length;i++){        
-        var moving3 = d3.select("#card" + d.pid + "_" + i)
-          .transition().duration(transitionTime).attr("transform", makeCardTranslate)
-      }  
+      MergeTargetCardWithPrevious(d,next=1)
   })
 
     card.button2.buttonHB.on("mouseover",function(){
@@ -499,7 +459,7 @@ function drawCards(startTime, endTime){
         duration(100).
         style("opacity", 1.0);  
 
-      tooltip.html("<p class=\"tooltipP\">Merge this segment with the <b>next</b> segment.</p>").
+      tooltip.html("<p class=\"tooltipP\">Move the <b>next</b> segment into this segment.</p>").
         style("left", (d3.event.pageX) + "px").
         style("top", (d3.event.pageY - 28) + "px");   
     })   			
@@ -521,6 +481,7 @@ function drawCards(startTime, endTime){
 
 }
 
+//Adds the card bullets and paragraph of text from the pre-summarized segment
 function cardText(card){
   var element = {}
   var bulletStartY = cardHeight-55
@@ -666,6 +627,7 @@ function cardText(card){
 
 //Arguments: The svg element to draw the bar on, x location, y location, text label, function to determine size of bar
 //Output: void return, item added to input svg
+//example: the mini bars at the bottom for each interaction type
 function barElement(card, x, y, text, symbol, sizefunc){
 	element = {}
 	unselectBar = "royalblue"
@@ -750,6 +712,7 @@ function barElement(card, x, y, text, symbol, sizefunc){
 
 }
 
+//creates merge and create new segment buttons
 function textButton(card, x, y, text, color, func){
 	var element = {}
   element.button = card.append("rect")

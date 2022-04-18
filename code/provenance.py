@@ -104,10 +104,7 @@ for _set in range(0,3):
                 item.update({"end" : int(segment_end)})
                 item.update({"length" : int(segment_end-segment_start)})
                 item.update({"interactionCount" : 0})
-                if _set != 2 or _id != 3:
-                    item.update({"keywords" : segKeys[_set][_id][i]})
-                else:
-                    item.update({"keywords" : []})
+                item.update({"keywords" : segKeys[_set][_id][i]})
                 current_segment_json.append(item)
                 current_segment = current_segment+1
             else: #save intermediary segment
@@ -119,10 +116,7 @@ for _set in range(0,3):
                 item.update({"end" : int(segment_end)})
                 item.update({"length" : int(segment_end-segment_start)})
                 item.update({"interactionCount" : 0})
-                if _set != 2 or _id != 3:
-                    item.update({"keywords" : segKeys[_set][_id][i]})
-                else:
-                    item.update({"keywords" : []})
+                item.update({"keywords" : segKeys[_set][_id][i]})
                 current_segment_json.append(item)
 
                 current_segment = current_segment+1

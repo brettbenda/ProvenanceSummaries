@@ -10,13 +10,16 @@ docs = []
 ##item[set#][participant#][#]
 logs = []
 segments = []
+segKeys = []
 
-path1 = "ProvSegments/Dataset_" 
+path1 = "ProvSegments/Dataset_"
 path2 = "/User Interactions/"
 path21 = "/Segmentation/"
 path3 = "_P" #user num
 path4 = "_InteractionsLogs.json"
 path41 = "_20_4_6_Prov_Segments.csv"
+path22 = "/SegKeys/p"
+path32 = ".csv"
 
 mergesegments = int(sys.argv[1])
 
@@ -35,6 +38,7 @@ with open('ProvSegments/Dataset_3/Documents/Documents_Dataset_3.json', encoding=
 for i in range (1,4): ##3 datasets
     setlogs = []
     setsegments = []
+    setKeywords = []
     for j in range (1,9): ##8 participants
 
         ##Getting log json for dataset/participant
@@ -48,8 +52,14 @@ for i in range (1,4): ##3 datasets
             csvjson = [json.dumps(d) for d in reader]
             setsegments.append(csvjson);
 
+        #Getting keywords associated with segments
+        with open(path1+str(i)+path22+str(j)+path32) as file:
+            reader2 = csv.reader(file)
+            setKeywords.append(list(reader2));
+
     logs.append(setlogs)
     segments.append(setsegments)
+    segKeys.append(setKeywords)
 
 #Create segment JSON, cluster short segments into previous segments
 segment_json = []
@@ -94,6 +104,10 @@ for _set in range(0,3):
                 item.update({"end" : int(segment_end)})
                 item.update({"length" : int(segment_end-segment_start)})
                 item.update({"interactionCount" : 0})
+                if _set != 2 or _id != 3:
+                    item.update({"keywords" : segKeys[_set][_id][i]})
+                else:
+                    item.update({"keywords" : []})
                 current_segment_json.append(item)
                 current_segment = current_segment+1
             else: #save intermediary segment
@@ -105,10 +119,14 @@ for _set in range(0,3):
                 item.update({"end" : int(segment_end)})
                 item.update({"length" : int(segment_end-segment_start)})
                 item.update({"interactionCount" : 0})
+                if _set != 2 or _id != 3:
+                    item.update({"keywords" : segKeys[_set][_id][i]})
+                else:
+                    item.update({"keywords" : []})
                 current_segment_json.append(item)
 
                 current_segment = current_segment+1
-        ##calculate length for resulting sections        
+        ##calculate length for resulting sections
         for segment in current_segment_json:
             segment.update({"length" : int(segment['end']-segment['start'])})
             segment_json.append(segment)

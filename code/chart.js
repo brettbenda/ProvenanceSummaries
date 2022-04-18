@@ -142,6 +142,8 @@ Promise.all([
   	participantData = logs[DS-1][P-1]
   	participantSegments = GetSegments(DS,P)
   	participantData = segmentify(participantSegments, participantData)
+    console.log("participantSegments")
+    console.log(participantSegments)
 
 
   	//Summarize segments, get some more stats
@@ -151,6 +153,7 @@ Promise.all([
   		summary.pid = P;
   		summary.dataset = DS
   		summary.number = i
+      summary.keywords = participantSegments[i].keywords
   		if(summary.interesting)
   			total_interactions += summary.total_interactions;
   		data.push(summary)
@@ -326,7 +329,8 @@ function drawCards(startTime, endTime){
         end: seg2.end,
         length: seg2.end-seg.start,
         dataset: DS,
-        pid:P
+        pid:P,
+        keywords: seg1.keywords + seg2.keywords
       }
       segments.push(newSeg)
     }
@@ -559,6 +563,34 @@ function cardText(card){
       tooltip.transition().
       duration(100).
       style("opacity", 0.0);
+    })
+
+  //Keyword info
+  element.keywordText = card.append("text").
+    attr("x",15).
+    attr("y",function(d,i){
+      return bulletStartY-20*d.displayedInfo
+    }).
+    attr("id", "noteText").
+    html(function(d,i){
+      var keys = d.keywords
+      if(keys.length==0)
+        return
+
+      var text = "• Keywords: "
+      var slicedText = keys[0]
+      for (var i = 1; i < keys.length; i++) {
+        // Add something about cutting off at the edge of the card or something, maybe stick with 35? idk
+        // Add back hover text --- need to look at the SummaryToolTip function (or just not use it)
+        // Function mergecard, maybe modify it to merge the keywords?
+        //      current function deletes old segments and melds them into a new one and just yeets the keywords
+        slicedText += ", " + keys[i]
+      }
+      text += "<tspan style=\"font-weight:bold;fill:"+colors["Notes"]+"\">" + "\""+ slicedText + ((keys[0].length == slicedText.length)?"":"...") +"\""+ "</tspan>."
+
+      d.displayedInfo++
+
+      return text
     })
 
   //Highlight info

@@ -13,9 +13,11 @@ var cardField
 var cardWidth = 700
 var cardHeight = 300
 var transitionTime = 750
+var segI
 var DS = 1
 var P = 1
 var detailed = true
+var prevDocs = []
 var showNotes = true
 var moving = false;
 var colors = {
@@ -39,7 +41,8 @@ Promise.all([
 	d3.json("./code/ProvSegments/Dataset_3/Documents/Documents_Dataset_3.json")
   ]).then(function(json){
    docs = json
-   //console.log(docs)
+   // console.log("here")
+   // console.log(docs)
  })
 
   Promise.all([
@@ -140,15 +143,42 @@ Promise.all([
     cardWidth =  document.querySelector('input[name="width"]').value;
     cardHeight =  document.querySelector('input[name="height"]').value;
   	participantData = logs[DS-1][P-1]
+    // Make the "Text" attribute the title for interactions of type "Doc_open" and "Reading" and add the date
+    for (var i = 0; i<participantData.length; i++){
+      if (participantData[i].InteractionType == "Doc_open" || participantData[i].InteractionType == "Reading"){
+        // Get the number from the ID and then subtract 1 to make it the index
+        docPos = parseInt(participantData[i].Text.substring(participantData[i].Text.indexOf(' ') + 1)) - 1
+        // Get the document set from the ID
+        if (participantData[i].Text.startsWith("Armsdealing")) {
+          docSet = 0
+        }
+        else if (participantData[i].Text.startsWith("TerroristActivity")) {
+          docSet = 1
+        }
+        else if (participantData[i].Text.startsWith("Disappearance")) {
+          docSet = 2
+        }
+
+        // Split the title into the date and actual title
+        rawTitle = docs[docSet][docPos].title
+        newDate = rawTitle.substring(0, rawTitle.indexOf(','))
+        newTitle = rawTitle.substring(rawTitle.indexOf(', ') + 2)
+
+        // Modify the participantData array
+        participantData[i].Text = newTitle
+        participantData[i].Date = newDate
+      }
+    }
   	participantSegments = GetSegments(DS,P)
   	participantData = segmentify(participantSegments, participantData)
-    console.log("participantSegments")
-    console.log(participantSegments)
 
 
   	//Summarize segments, get some more stats
   	var total_interactions = 0;
+    console.log(participantData)
+    prevDocs = []
   	for (var i = 0; i<participantData.length; i++){
+      segI = i
   		var summary = summarize_segment(participantData[i])
   		summary.pid = P;
   		summary.dataset = DS
@@ -158,6 +188,7 @@ Promise.all([
   			total_interactions += summary.total_interactions;
   		data.push(summary)
   	}
+    console.log(data)
 
   	var totalSummary = GetAllCounts(data);
   	//Stats
@@ -517,6 +548,7 @@ function cardText(card){
     attr("id", "openText").
     html(function(d,i){
       var keys =Object.keys(d.opens)
+      console.log(d.opens)
       if(keys==0)
         if(d.displayedInfo==0){
           d.displayedInfo++
@@ -592,6 +624,8 @@ function cardText(card){
 
       return text
     })
+
+
 
   //Highlight info
   element.highlightText = card.append("text").
@@ -1066,7 +1100,6 @@ function segmentify(segments, interactions){
 	var current_segment = []
 	var segment_id = 0
 
-
   for(var seg of segments){
     segmented_data.push([])
     seg.sid = segment_id
@@ -1087,7 +1120,8 @@ function segmentify(segments, interactions){
       }
     }
   }
-
+  console.log("segmented_data")
+  console.log(segmented_data)
 	//push whatever was in the last segment
 	//segmented_data.push(current_segment)
 	return segmented_data
@@ -1098,19 +1132,27 @@ function segmentify(segments, interactions){
 //Returns:  a json object
 function summarize_segment(segment){
 
+///////This is where I sub out "Text" to the meaningful titles, maybe also adding the dates as a new attribute
+
 	var opens = []; //opening
+  var openTitles = []; //Meaningful text titles
+  var openDates = []; //The dates associated with the documents if available
 	var searches = []; //Search
 	var notes = [] //Add note
 	var highlights = [] //Highlight
   var readings = [] //reading
+  var dates = [] //Dates
   var all_interactions = []
   var total_interactions = 0;
 
 	//collect interesting data from logs, removes non-alphanumeric chars to avoid issues
+  console.log("segment")
+  console.log(segment)
 	for(var interaction of segment){
 		switch(interaction['InteractionType']){
 			case "Doc_open":
       opens.push(interaction["Text"])
+      dates.push(interaction["Date"])
       all_interactions.push(interaction)
       total_interactions++
       break
@@ -1130,10 +1172,21 @@ function summarize_segment(segment){
       all_interactions.push(interaction)
       break
       case "Reading":
+      dates.push(interaction["Date"])
       readings.push(interaction)
       break
     }
   }
+
+  // Sort dates
+  var allMonths = ['Jan','Feb','Mar', 'Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  for (i in dates) {
+    // Replace "<month> <year>" with a date object
+    dates[i] = new Date(parseInt(dates[i].split(" ")[1]), allMonths.indexOf(dates[i].split(" ")[0]))
+  }
+  dates.sort(function(a, b){
+      return a - b
+  });
 
   var readings_merged = []
   //merge small reading segments
@@ -1165,70 +1218,204 @@ function summarize_segment(segment){
   all_interactions.sort(function(a,b){return a.time-b.time})
   var descriptions = []
 
-  for(var i=0; i<all_interactions.length; i++){
-    //if many things were explored, we do not want to find pattern for all of them.
-    if(searches.length >5 || opens.length > 15){
-      descriptions.push("The user searched and explored many documents.")
-      break;
-    }else if(searches.length >3 || opens.length > 10){
-      descriptions.push("The user searched and explored several documents.")
-      break;
+  // Get info for how many new documents in segment
+  numNew = 0
+  uInt = []
+
+  // Get array of unique opens within the segment
+  for (i in opens) {
+    if (opens.indexOf(opens[i]) == i) {
+      uInt.push(opens[i])
+    }
+  }
+  // Get array of unique reads in the segment
+  for (i in readings_merged) {
+    if (readings_merged.indexOf(readings_merged[i]) == readings_merged[i] && uInt.includes(readings_merged[i].Text)) {
+      uInt.push(readings_merged[i].Text)
+    }
+  }
+  // Get # of new document interactions
+  for (title in uInt) {
+    if (prevDocs.includes(uInt[title]) == false) {
+      numNew += 1
+      prevDocs.push(uInt[title])
+    }
+  }
+  totalDocInt = uInt.length
+
+  monthNames = ["January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December"];
+
+  // UPDATED DESCRIPTIONS FOR LAS
+  // for(var i=0; i<all_interactions.length; i++){
+    // Describe the user's searches
+    // Get unique searches
+    uSearches = []
+    for (i in searches) {
+      if (searches.indexOf(searches[i]) == i) {
+        uSearches.push(searches[i])
+      }
+    }
+    if(uSearches.length == 0) {
+      descriptions.push("The user made no searches.")
+    }
+    else {
+      if (uSearches.length < 4) {
+        tempDesc = "The user searched for "
+        for (let i = 0; i < uSearches.length - 1; i++) {
+          tempDesc += "\"" + uSearches[i] + "\", "
+        }
+        tempDesc += "and \"" + uSearches[uSearches.length-1] + "\"."
+      }
+      else {
+        tempDesc = "The user made " + uSearches.length + " searches, including "
+        for (let i = 0; i < 2; i++) {
+          tempDesc += "\"" + uSearches[i] + "\", "
+        }
+        tempDesc += "and \"" + uSearches[2] + "\"."
+      }
+      descriptions.push(tempDesc)
     }
 
-    try{
-      //single search action
-      if(all_interactions.length==1)
-        if(all_interactions[0].InteractionType=="Search")
-          descriptions.push("The user searched for \"" + all_interactions[0].Text+"\".")
+    // Number of documents/new documents
+    if(uInt.length == 0) {
+      descriptions.push("They did not explore any documents during this time.")
+    }
+    else if(totalDocInt == 1) {
+      tempDesc = "They "
+      // If all new
+      if(numNew == totalDocInt) {
+        tempDesc += "explored one new document, "
+      }
+      // If none new
+      else if(numNew==0) {
+        tempDesc += "went back to one document they had previously seen, "
+      }
 
-      if(all_interactions[i].InteractionType=="Search"){
-
-        //Search->open->read pattern
-        if(i+2 < all_interactions.length){
-          if(all_interactions[i+1].InteractionType=="Doc_open"){
-            if(all_interactions[i+2].InteractionType=="Reading"&&(all_interactions[i+1].Text==all_interactions[i+2].Text)){
-              descriptions.push("The user searched for \"" + all_interactions[i].Text +"\" then read " + all_interactions[i+1].Text+".")
-            }
-          }
+      // Document date
+      tempDesc += "which was created in " + monthNames[dates[0].getMonth()] + " " + dates[0].getYear() + "."
+    }
+    else {
+      tempDesc = "They "
+      // If all new
+      if(numNew == totalDocInt) {
+        tempDesc += "explored " + totalDocInt + " new documents, "
+        // Document date
+        if (monthNames[dates[0].getMonth()] + " " + dates[0].getFullYear() == monthNames[dates[totalDocInt - 1].getMonth()] + " " + dates[totalDocInt - 1].getFullYear()) {
+          tempDesc += "which were all created in " + monthNames[dates[0].getMonth()] + " " + dates[0].getFullYear() + "."
         }
-
-        //Search->openmany->(maybe) read pattern
-        var docCount = 0;
-        var finalDoc = ""
-        for(var j=i+1; j<all_interactions.length;j++){
-          if(all_interactions[j].InteractionType=="Doc_open"){
-            docCount++
-          }
-          else if(all_interactions[j].InteractionType=="Reading"){
-            finalDoc=all_interactions[j].Text
-            break
-          }
-          else
-            break
+        else {
+            tempDesc += "which were created between " + monthNames[dates[0].getMonth()] + " " + dates[0].getFullYear() + " and " + monthNames[dates[totalDocInt - 1].getMonth()] + " " + dates[totalDocInt - 1].getFullYear() + "."
         }
-
-        if(docCount==1 && finalDoc=="")
-          descriptions.push("The user searched for \"" + all_interactions[i].Text +"\" then opened " + all_interactions[i+1].Text+".")
-        else if(docCount>1 && finalDoc =="")
-          descriptions.push("The user searched for \"" + all_interactions[i].Text +"\" then opened " + docCount +" documents.")
-        else if(docCount>1 && finalDoc !="")
-          descriptions.push("The user searched for \"" + all_interactions[i].Text +"\" then opened " + docCount +" documents before reading " + finalDoc+".")
 
       }
-    }catch{}
+      // If none new
+      else if(numNew==0) {
+        tempDesc += "went back to " + totalDocInt + " documents they had previously seen."
+        // Document date
+        if (monthNames[dates[0].getMonth()] + " " + dates[0].getFullYear() == monthNames[dates[totalDocInt - 1].getMonth()] + " " + dates[totalDocInt - 1].getFullYear()) {
+          tempDesc += "which were all created in " + monthNames[dates[0].getMonth()] + " " + dates[0].getFullYear() + "."
+        }
+        else {
+          tempDesc += "which were created between " + monthNames[dates[0].getMonth()] + " " + dates[0].getFullYear() + " and " + monthNames[dates[totalDocInt - 1].getMonth()] + " " + dates[totalDocInt - 1].getFullYear() + "."
+        }
 
+      }
+      else {
+        tempDesc += "explored " + totalDocInt + " unique documents, " + numNew + " of which had not previously been read. "
+        // Document date
+        if (monthNames[dates[0].getMonth()] + " " + dates[0].getFullYear() == monthNames[dates[totalDocInt - 1].getMonth()] + " " + dates[totalDocInt - 1].getFullYear()) {
+          tempDesc += "Those documents were created between " + monthNames[dates[0].getMonth()] + " " + dates[0].getFullYear() + "."
+        }
+        else {
+          tempDesc += "Those documents were created between " + monthNames[dates[0].getMonth()] + " " + dates[0].getFullYear() + " and " + monthNames[dates[totalDocInt - 1].getMonth()] + " " + dates[totalDocInt - 1].getFullYear() + "."
+        }
+
+      }
+    }
+
+  descriptions.push(tempDesc)
+
+  // Average time per document
+  console.log("Length in minutes:  ")
+  segLength = participantSegments[segI].length / 60
+  avgLen = segLength / totalDocInt
+  roundAvg = Math.round(avgLen * 100) / 100
+  if(roundAvg == 1.00) {
+    descriptions.push("An average of " + roundAvg + " minute was spent on each document.")
+  }
+  else {
+    descriptions.push("An average of " + roundAvg + " minutes were spent on each document.")
   }
 
-  if(searches.length==0 && notes.length==0 && highlights.length==0 && (opens.length!=0 || readings_merged.length!=0))
-    descriptions.push("The user focused on reading documents.")
-  else if(notes.length!=0 || highlights.length!=0)
-    descriptions.push("The user found important information during this time.")
-  else if(opens.length > 0)
-    descriptions.push("The user identified some documents of interest.")
+
+  // TODO: any NER/keyword thing
+
+
+  // // ORIGINAL DESCRIPTIONS
+  // for(var i=0; i<all_interactions.length; i++){
+  //   //if many things were explored, we do not want to find pattern for all of them.
+  //   if(searches.length >5 || opens.length > 15){
+  //     descriptions.push("The user searched and explored many documents.")
+  //     break;
+  //   }else if(searches.length >3 || opens.length > 10){
+  //     descriptions.push("The user searched and explored several documents.")
+  //     break;
+  //   }
+  //
+  //   try{
+  //     //single search action
+  //     if(all_interactions.length==1)
+  //       if(all_interactions[0].InteractionType=="Search")
+  //         descriptions.push("The user searched for \"" + all_interactions[0].Text+"\".")
+  //
+  //     if(all_interactions[i].InteractionType=="Search"){
+  //
+  //       //Search->open->read pattern
+  //       if(i+2 < all_interactions.length){
+  //         if(all_interactions[i+1].InteractionType=="Doc_open"){
+  //           if(all_interactions[i+2].InteractionType=="Reading"&&(all_interactions[i+1].Text==all_interactions[i+2].Text)){
+  //             descriptions.push("The user searched for \"" + all_interactions[i].Text +"\" then read " + all_interactions[i+1].Text+".")
+  //           }
+  //         }
+  //       }
+  //
+  //       //Search->openmany->(maybe) read pattern
+  //       var docCount = 0;
+  //       var finalDoc = ""
+  //       for(var j=i+1; j<all_interactions.length;j++){
+  //         if(all_interactions[j].InteractionType=="Doc_open"){
+  //           docCount++
+  //         }
+  //         else if(all_interactions[j].InteractionType=="Reading"){
+  //           finalDoc=all_interactions[j].Text
+  //           break
+  //         }
+  //         else
+  //           break
+  //       }
+  //
+  //       if(docCount==1 && finalDoc=="")
+  //         descriptions.push("The user searched for \"" + all_interactions[i].Text +"\" then opened " + all_interactions[i+1].Text+".")
+  //       else if(docCount>1 && finalDoc =="")
+  //         descriptions.push("The user searched for \"" + all_interactions[i].Text +"\" then opened " + docCount +" documents.")
+  //       else if(docCount>1 && finalDoc !="")
+  //         descriptions.push("The user searched for \"" + all_interactions[i].Text +"\" then opened " + docCount +" documents before reading " + finalDoc+".")
+  //
+  //     }
+  //   }catch{}
+  //
+  // }
+  //
+  // if(searches.length==0 && notes.length==0 && highlights.length==0 && (opens.length!=0 || readings_merged.length!=0))
+  //   descriptions.push("The user focused on reading documents.")
+  // else if(notes.length!=0 || highlights.length!=0)
+  //   descriptions.push("The user found important information during this time.")
+  // else if(opens.length > 0)
+  //   descriptions.push("The user identified some documents of interest.")
 
 
   //console.log(descriptions)
-
   var summary = {
     interesting : (total_interactions > 0) ? true:false,
     total_interactions: total_interactions,

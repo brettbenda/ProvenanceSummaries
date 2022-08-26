@@ -1,6 +1,7 @@
 var userCounts = [8, 8, 8]
 var json, orignaljson
 var docs;
+var entities;
 var logs;
 var segments;
 var participantData
@@ -38,12 +39,14 @@ var colors = {
 Promise.all([
 	d3.json("./code/ProvSegments/Dataset_1/Documents/Documents_Dataset_1.json"),
 	d3.json("./code/ProvSegments/Dataset_2/Documents/Documents_Dataset_2.json"),
-	d3.json("./code/ProvSegments/Dataset_3/Documents/Documents_Dataset_3.json")
+	d3.json("./code/ProvSegments/Dataset_3/Documents/Documents_Dataset_3.json"),
+  d3.json("./code/ProvSegments/Dataset_1/Documents/Entities_Dataset_1.json")
   ]).then(function(json){
    docs = json
    // console.log("here")
    // console.log(docs)
  })
+
 
   Promise.all([
    d3.json("./code/vis.json")
@@ -56,6 +59,7 @@ Promise.all([
   for(var seg of segments){
     seg.annotation = ""
   }
+
 
 	processData();
 
@@ -151,6 +155,7 @@ Promise.all([
         // Get the document set from the ID
         if (participantData[i].Text.startsWith("Armsdealing")) {
           docSet = 0
+
         }
         else if (participantData[i].Text.startsWith("TerroristActivity")) {
           docSet = 1
@@ -1144,6 +1149,7 @@ function summarize_segment(segment){
   var dates = [] //Dates
   var all_interactions = []
   var total_interactions = 0;
+  var openIDs = []
 
 	//collect interesting data from logs, removes non-alphanumeric chars to avoid issues
   console.log("segment")
@@ -1152,6 +1158,7 @@ function summarize_segment(segment){
 		switch(interaction['InteractionType']){
 			case "Doc_open":
       opens.push(interaction["Text"])
+      openIDs.push(interaction["ID"])
       dates.push(interaction["Date"])
       all_interactions.push(interaction)
       total_interactions++
@@ -1246,6 +1253,8 @@ function summarize_segment(segment){
   monthNames = ["January", "February", "March", "April", "May", "June",
   "July", "August", "September", "October", "November", "December"];
 
+
+
   // UPDATED DESCRIPTIONS FOR LAS
   // for(var i=0; i<all_interactions.length; i++){
     // Describe the user's searches
@@ -1336,6 +1345,108 @@ function summarize_segment(segment){
 
   descriptions.push(tempDesc)
 
+
+  // TODO: any NER/keyword thing
+  // Make NER only happen for dataset 1
+  if (openIDs[0].split(" ")[0] == "Armsdealing") {
+    // Get array of unique open IDs within the segment
+
+    uIDs = []
+    for (i in openIDs) {
+      if (openIDs.indexOf(openIDs[i]) == i) {
+        uIDs.push(openIDs[i].split(" ")[0] + openIDs[i].split(" ")[1])
+      }
+    }
+
+    // Construct list of entities with number of documents they occurred in
+    peopleArr = []
+    peopleCount = []
+    geoArr = []
+    geoCount = []
+    for (const documentID of uIDs) {
+      documentEntities = docs[3].find(o => o.id.toLowerCase() === documentID.toLowerCase());
+      peopleInDoc = documentEntities["People"]
+      geosInDoc = documentEntities["Geos"]
+      for (const person of peopleInDoc) {
+        if (peopleArr.includes(person)) {
+          peopleCount[peopleArr.indexOf(person)] += 1
+        }
+        else {
+          peopleArr.push(person)
+          peopleCount.push(1)
+        }
+      }
+      for (const geo of geosInDoc) {
+        if (geoArr.includes(geo)) {
+          geoCount[geoArr.indexOf(geo)] += 1
+        }
+        else {
+          geoArr.push(geo)
+          geoCount.push(1)
+        }
+      }
+    }
+    // console.log("entities in segment")
+    // console.log(peopleArr)
+    // console.log(peopleCount)
+    // console.log(geoArr)
+    // console.log(geoCount)
+
+    // Get top 3 people and top 3 geos
+    topPeople = []
+    topPeopleCount = []
+    topGeos = []
+    topGeosCount = []
+    for (var i = 0; i < Math.min(2, peopleArr.length); i++) {
+      maxPeople = Math.max.apply(Math, peopleCount)
+      topPeopleCount.push(maxPeople)
+
+      topPeople.push(peopleArr[peopleCount.indexOf(maxPeople)])
+      peopleCount[peopleCount.indexOf(maxPeople)] = 0
+    }
+
+    for (var i = 0; i < Math.min(2, geoArr.length); i++) {
+      maxGeos = Math.max.apply(Math, geoCount)
+      topGeosCount.push(maxGeos)
+      topGeos.push(geoArr[geoCount.indexOf(maxGeos)])
+
+      geoCount[geoCount.indexOf(maxGeos)] = 0
+    }
+
+    tempDesc = ""
+    // Push to descriptions
+    if (topPeople.length == 1) {
+      tempDesc += "The only person referenced in the viewed documents was " + topPeople[0] + "."
+    }
+    if (topPeople.length == 2) {
+      tempDesc += "The most referenced people in the viewed documents were " + topPeople[0] + " and " + topPeople[1] + "."
+    }
+    // if (topPeople.length > 1) {
+    //   tempDesc += "The most commonly referenced people in the viewed documents were " + topPeople[0]
+    //   for (var i = 1; i < topPeople.length; i++) {
+    //     if (i == topPeople.length-1) {
+    //       tempDesc += ", and "
+    //     }
+    //     else {
+    //       tempDesc += ", "
+    //     }
+    //     tempDesc += topPeople[i]
+    //   }
+    //
+    // }
+    descriptions.push(tempDesc)
+
+    tempDesc = ""
+    // Push to descriptions
+    if (topGeos.length == 1) {
+      tempDesc += "The only location referenced in the viewed documents was " + topGeos[0] + "."
+    }
+    if (topGeos.length == 2) {
+      tempDesc += "The most referenced locations in the viewed documents were " + topGeos[0] + " and " + topGeos[1] + "."
+    }
+    descriptions.push(tempDesc)
+  }
+
   // Average time per document
   console.log("Length in minutes:  ")
   segLength = participantSegments[segI].length / 60
@@ -1348,8 +1459,6 @@ function summarize_segment(segment){
     descriptions.push("An average of " + roundAvg + " minutes were spent on each document.")
   }
 
-
-  // TODO: any NER/keyword thing
 
 
   // // ORIGINAL DESCRIPTIONS

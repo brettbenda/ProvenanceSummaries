@@ -149,6 +149,8 @@ Promise.all([
   	participantData = logs[DS-1][P-1]
     // Make the "Text" attribute the title for interactions of type "Doc_open" and "Reading" and add the date
     for (var i = 0; i<participantData.length; i++){
+      console.log("participantData")
+      console.log(participantData[i])
       if (participantData[i].InteractionType == "Doc_open" || participantData[i].InteractionType == "Reading"){
         // Get the number from the ID and then subtract 1 to make it the index
         docPos = parseInt(participantData[i].Text.substring(participantData[i].Text.indexOf(' ') + 1)) - 1
@@ -165,12 +167,17 @@ Promise.all([
         }
 
         // Split the title into the date and actual title
+        console.log("docs")
+        console.log(docs)
+        console.log(docSet)
+        console.log(docPos)
         rawTitle = docs[docSet][docPos].title
         newDate = rawTitle.substring(0, rawTitle.indexOf(','))
         newTitle = rawTitle.substring(rawTitle.indexOf(', ') + 2)
 
         // Modify the participantData array
-        participantData[i].Text = newTitle
+        // participantData[i].Text = newTitle
+        //TODO: Line of code above works but breaks identifying the docset upon going back, can't find the reference to this value to change it need to ask Brett
         participantData[i].Date = newDate
       }
     }
@@ -180,7 +187,6 @@ Promise.all([
 
   	//Summarize segments, get some more stats
   	var total_interactions = 0;
-    console.log(participantData)
     prevDocs = []
   	for (var i = 0; i<participantData.length; i++){
       segI = i
@@ -193,7 +199,7 @@ Promise.all([
   			total_interactions += summary.total_interactions;
   		data.push(summary)
   	}
-    console.log(data)
+    // console.log(data)
 
   	var totalSummary = GetAllCounts(data);
   	//Stats
@@ -207,7 +213,6 @@ function drawCards(startTime, endTime){
 	d3.selectAll("#chartArea").remove()
 	d3.select("#chart").style("display", "block").append("div").attr("id","chartArea")
 
-	//console.log(data)
 
   cardDivs = d3.select("#chartArea").selectAll("field").data(data).enter().append("div").
     attr("id",function(d,i){
@@ -553,7 +558,7 @@ function cardText(card){
     attr("id", "openText").
     html(function(d,i){
       var keys =Object.keys(d.opens)
-      console.log(d.opens)
+      // console.log(d.opens)
       if(keys==0)
         if(d.displayedInfo==0){
           d.displayedInfo++
@@ -1125,8 +1130,8 @@ function segmentify(segments, interactions){
       }
     }
   }
-  console.log("segmented_data")
-  console.log(segmented_data)
+  // console.log("segmented_data")
+  // console.log(segmented_data)
 	//push whatever was in the last segment
 	//segmented_data.push(current_segment)
 	return segmented_data
@@ -1152,8 +1157,8 @@ function summarize_segment(segment){
   var openIDs = []
 
 	//collect interesting data from logs, removes non-alphanumeric chars to avoid issues
-  console.log("segment")
-  console.log(segment)
+  // console.log("segment")
+  // console.log(segment)
 	for(var interaction of segment){
 		switch(interaction['InteractionType']){
 			case "Doc_open":
@@ -1448,7 +1453,7 @@ function summarize_segment(segment){
   }
 
   // Average time per document
-  console.log("Length in minutes:  ")
+  // console.log("Length in minutes:  ")
   segLength = participantSegments[segI].length / 60
   avgLen = segLength / totalDocInt
   roundAvg = Math.round(avgLen * 100) / 100
@@ -1720,8 +1725,8 @@ function saveSVGS(){
   for(var i=0;i<svgs._groups[0].length;i++){
     var name = "dataset"+DS+"-pid"+P+"-segment"+(i+1)+".svg"
     //saveSVG(svgs._groups[0][i], name)
-    console.log(d3.select(svgs._groups[0][i]).node())
-    console.log(i)
+    // console.log(d3.select(svgs._groups[0][i]).node())
+    // console.log(i)
 
     try {
         var isFileSaverSupported = !!new Blob();

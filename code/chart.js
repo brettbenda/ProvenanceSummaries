@@ -1263,8 +1263,9 @@ function summarize_segment(segment){
   // UPDATED DESCRIPTIONS FOR LAS
   // for(var i=0; i<all_interactions.length; i++){
     // Describe the user's searches
-    // Get unique searches
-    uSearches = []
+    // First we need to get unique searches
+  uSearches = []
+  //remove duplicates from searches array
     for (i in searches) {
       if (searches.indexOf(searches[i]) == i) {
         uSearches.push(searches[i])
@@ -1273,22 +1274,26 @@ function summarize_segment(segment){
     if(uSearches.length == 0) {
       descriptions.push("The user made no searches.")
     }
-    else {
-      if (uSearches.length < 4) {
-        tempDesc = "The user searched for "
-        for (let i = 0; i < uSearches.length - 1; i++) {
-          tempDesc += "\"" + uSearches[i] + "\", "
-        }
-        tempDesc += "and \"" + uSearches[uSearches.length-1] + "\"."
-      }
-      else {
-        tempDesc = "The user made " + uSearches.length + " searches, including "
-        for (let i = 0; i < 2; i++) {
-          tempDesc += "\"" + uSearches[i] + "\", "
-        }
-        tempDesc += "and \"" + uSearches[2] + "\"."
-      }
+    else if (uSearches.length == 1) {
+      tempDesc = "The user searched for ";
+          tempDesc += '"' + uSearches[0] + '". ';
       descriptions.push(tempDesc)
+    } else {
+      if (uSearches.length < 3) {
+        tempDesc = "The user searched for ";
+        for (let i = 0; i < uSearches.length - 1; i++) {
+          tempDesc += '"' + uSearches[i] + '", ';
+        }
+        tempDesc += 'and "' + uSearches[uSearches.length - 1] + '".';
+      } else {
+        tempDesc =
+          "The user made " + uSearches.length + " unique searches, including ";
+        for (let i = 0; i < 2; i++) {
+          tempDesc += '"' + uSearches[i] + '", ';
+        }
+        tempDesc += 'and "' + uSearches[2] + '".';
+      }
+      descriptions.push(tempDesc);
     }
 
     // Number of documents/new documents

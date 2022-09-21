@@ -144,8 +144,8 @@ Promise.all([
   	P = document.querySelector('input[name="pid"]:checked').value;
   	detailed = document.querySelector('input[name="detailed"]').checked;
     showNotes = document.querySelector('input[name="notes"]').checked;
-    cardWidth =  document.querySelector('input[name="width"]').value;
-    cardHeight =  document.querySelector('input[name="height"]').value;
+    cardWidth = 510;
+    cardHeight = 300;
   	participantData = logs[DS-1][P-1]
     // Make the "Text" attribute the title for interactions of type "Doc_open" and "Reading" and add the date
     for (var i = 0; i<participantData.length; i++){

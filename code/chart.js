@@ -1463,17 +1463,31 @@ function summarize_segment(segment){
   avgLen = segLength / totalDocInt
   roundAvg = Math.round(avgLen * 100) / 100
   if(roundAvg == 1.00) {
-    descriptions.push("Each document recieved attention for an average of " + IntToTime(roundAvg*60) + " minute.")
+    descriptions.push(
+      "Of the " +
+        totalDocInt +
+        " documents open, each document recieved attention for an average of " +
+        IntToTime(roundAvg * 60) +
+        " minute."
+    );
   } else if (roundAvg < 1.00) {
     descriptions.push(
-      "Each document recieved attention for an average of " +
+      "Of the " +
+        totalDocInt +
+        " documents open, each document recieved attention for an average of " +
         IntToTime(roundAvg * 60) +
         " seconds."
     );
 
   }
     else {
-    descriptions.push("Each document recieved attention for an average of " + IntToTime(roundAvg*60) + " minutes.")
+    descriptions.push(
+      "Of the " +
+        totalDocInt +
+        " documents open, each document recieved attention for an average of " +
+        IntToTime(roundAvg * 60) +
+        " minutes."
+    );
   }
 
 

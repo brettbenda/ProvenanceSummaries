@@ -1344,7 +1344,7 @@ function summarize_segment(segment){
         tempDesc += "explored " + totalDocInt + " unique documents, " + numNew + " of which had not previously been read. "
         // Document date
         if (monthNames[dates[0].getMonth()] + " " + dates[0].getFullYear() == monthNames[dates[totalDocInt - 1].getMonth()] + " " + dates[totalDocInt - 1].getFullYear()) {
-          tempDesc += "Those documents were created between " + monthNames[dates[0].getMonth()] + " " + dates[0].getFullYear() + "."
+          tempDesc += "Those documents were created in " + monthNames[dates[0].getMonth()] + " " + dates[0].getFullYear() + "."
         }
         else {
           tempDesc += "Those documents were created between " + monthNames[dates[0].getMonth()] + " " + dates[0].getFullYear() + " and " + monthNames[dates[totalDocInt - 1].getMonth()] + " " + dates[totalDocInt - 1].getFullYear() + "."
@@ -1463,10 +1463,17 @@ function summarize_segment(segment){
   avgLen = segLength / totalDocInt
   roundAvg = Math.round(avgLen * 100) / 100
   if(roundAvg == 1.00) {
-    descriptions.push("An average of " + roundAvg + " minute was spent on each document.")
+    descriptions.push("Each document recieved attention for an average of " + IntToTime(roundAvg*60) + " minute.")
+  } else if (roundAvg < 1.00) {
+    descriptions.push(
+      "Each document recieved attention for an average of " +
+        IntToTime(roundAvg * 60) +
+        " seconds."
+    );
+
   }
-  else {
-    descriptions.push("An average of " + roundAvg + " minutes were spent on each document.")
+    else {
+    descriptions.push("Each document recieved attention for an average of " + IntToTime(roundAvg*60) + " minutes.")
   }
 
 

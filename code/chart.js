@@ -144,8 +144,8 @@ Promise.all([
   	P = document.querySelector('input[name="pid"]:checked').value;
   	detailed = document.querySelector('input[name="detailed"]').checked;
     showNotes = document.querySelector('input[name="notes"]').checked;
-    cardWidth =  document.querySelector('input[name="width"]').value;
-    cardHeight =  document.querySelector('input[name="height"]').value;
+    cardWidth = 510;
+    cardHeight = 300;
   	participantData = logs[DS-1][P-1]
     // Make the "Text" attribute the title for interactions of type "Doc_open" and "Reading" and add the date
     for (var i = 0; i<participantData.length; i++){
@@ -281,10 +281,10 @@ function drawCards(startTime, endTime){
 	card.label = card.append("text").
     attr("x",15).
     attr("y",25).
-    style("font-weight", "bold").
     text(function(d){
-      var segment =  GetSegment(d.number, d.pid, d.dataset)
-  	  return "Segment #" + (d.number+1) + " [" + IntToTime(segment.start) + ", " + IntToTime(segment.end) + "]"
+      var segment = GetSegment(d.number, d.pid, d.dataset)
+      // console.log(segment)
+  	  return "Segment #" + (d.number+1) + " " + IntToTime(segment.end-segment.start) + " minutes"
   	})
 
   card.divider = card.append("line")
@@ -303,401 +303,425 @@ function drawCards(startTime, endTime){
 
     card.segmentTimeline = segmentTimelineElement(card);
 
-    card.divider2 = card.append("line")
-      .attr("x1",10)
-      .attr("y1",100)
-      .attr("x2",cardWidth-10)
-      .attr("y2",100)
-      .attr("stroke-width",1)
-      .attr("stroke","grey")
+    // card.divider2 = card.append("line")
+    //   .attr("x1",10)
+    //   .attr("y1",100)
+    //   .attr("x2",cardWidth-10)
+    //   .attr("y2",100)
+    //   .attr("stroke-width",1)
+    //   .attr("stroke","grey")
 
-    card.selectionBox = card.append("line")
-      .attr("x1",-1)
-      .attr("y1",20)
-      .attr("x2",-1)
-      .attr("y2",20)
-      .attr("stroke-width",3)
-      .attr("stroke","darkblue")
-      .style("stroke-opacity","0.0")
-      .attr("class", function(d,i){
-        return "selection" + d.pid + "_" +d.number
-      })
+    // card.selectionBox = card.append("line")
+    //   .attr("x1",-1)
+    //   .attr("y1",20)
+    //   .attr("x2",-1)
+    //   .attr("y2",20)
+    //   .attr("stroke-width",3)
+    //   .attr("stroke","darkblue")
+    //   .style("stroke-opacity","0.0")
+    //   .attr("class", function(d,i){
+    //     return "selection" + d.pid + "_" +d.number
+    //   })
 
-    function makeCardTranslate(d,i){
-      var chart = d3.select("#chartArea").node().getBoundingClientRect()
-      var cols = Math.floor(chart.width/cardWidth)
-      var rows = Math.floor(chart.height/cardHeight)
+    // function makeCardTranslate(d,i){
+    //   var chart = d3.select("#chartArea").node().getBoundingClientRect()
+    //   var cols = Math.floor(chart.width/cardWidth)
+    //   var rows = Math.floor(chart.height/cardHeight)
 
-      i = d.number+1;
+    //   i = d.number+1;
 
-      console.log(i + " " + rows +" "+ cols)
-      var x = 0;
-      var y = 0
-      for(var i = 0; i<d.number;i++){
-        y+=1;
+    //   console.log(i + " " + rows +" "+ cols)
+    //   var x = 0;
+    //   var y = 0
+    //   for(var i = 0; i<d.number;i++){
+    //     y+=1;
 
-        if(y%cols==0){
-          y=0
-          x++
-        }
-      }
-      console.log(x +" "+ y)
+    //     if(y%cols==0){
+    //       y=0
+    //       x++
+    //     }
+    //   }
+    //   console.log(x +" "+ y)
 
-      var translate = "translate(";
-      if(y==0){
-        translate+= ((cols-1)*cardWidth)+","+-cardHeight+")"
-      }else{
-        translate+= (-cardWidth)+",0)"
-      }
-      return translate
-    }
+    //   var translate = "translate(";
+    //   if(y==0){
+    //     translate+= ((cols-1)*cardWidth)+","+-cardHeight+")"
+    //   }else{
+    //     translate+= (-cardWidth)+",0)"
+    //   }
+    //   return translate
+    // }
 
-    //peforms merge on internal data structure for segments
-    //first: number of first card in the pair to be merge (i.e., selected card number for the right merge button, 1-seleced card number for left merge button)
-    function mergeCard(first){
-      t = first
-      var seg = GetSegment(t, P, DS)
-      var seg2 = GetSegment(t+1,P, DS)
+    // //peforms merge on internal data structure for segments
+    // //first: number of first card in the pair to be merge (i.e., selected card number for the right merge button, 1-seleced card number for left merge button)
+    // function mergeCard(first){
+    //   t = first
+    //   var seg = GetSegment(t, P, DS)
+    //   var seg2 = GetSegment(t+1,P, DS)
 
-      var scale = d3.scaleLinear().domain([10,cardWidth-10]).range([seg.start,seg.end])
-      var select = d3.select(".selection" + P + "_" +t)
+    //   var scale = d3.scaleLinear().domain([10,cardWidth-10]).range([seg.start,seg.end])
+    //   var select = d3.select(".selection" + P + "_" +t)
 
-      segments.splice(segments.indexOf(GetSegment(t, P,DS)),1)
-      segments.splice(segments.indexOf(GetSegment(t+1, P,DS)),1)
+    //   segments.splice(segments.indexOf(GetSegment(t, P,DS)),1)
+    //   segments.splice(segments.indexOf(GetSegment(t+1, P,DS)),1)
 
-      var newSeg = {
-        start:seg.start,
-        end: seg2.end,
-        length: seg2.end-seg.start,
-        dataset: DS,
-        pid:P,
-        keywords: seg1.keywords + seg2.keywords
-      }
-      segments.push(newSeg)
-    }
+    //   var newSeg = {
+    //     start:seg.start,
+    //     end: seg2.end,
+    //     length: seg2.end-seg.start,
+    //     dataset: DS,
+    //     pid:P,
+    //     keywords: seg1.keywords + seg2.keywords
+    //   }
+    //   segments.push(newSeg)
+    // }
 
-    //d=selected card, next = 0 by default, set to 1 if the right button
-    function MergeTargetCardWithPrevious(d, next=0){
-      if(moving)return;
-      moving = true;
+    // function MergeTargetCardWithPrevious(d, next=0){
+    //   if(moving)return;
+    //   moving = true;
 
-      //fade out card being "removed"
-      var moving = d3.select("#cardDiv" + d.pid + "_" + (d.number+next))
-      .transition().duration(transitionTime).style("opacity",0)
+    //   //fade out card being "removed"
+    //   var moving = d3.select("#cardDiv" + d.pid + "_" + (d.number+next))
+    //   .transition().duration(transitionTime).style("opacity",0)
 
-      //move card being "removed"
-      var moving3 = d3.select("#card" + d.pid + "_" + (d.number+next))
-      .transition().duration(transitionTime).attr("transform", function(d,i){
-        return makeCardTranslate(d,i) +" scale(0.5,0.5)"
-      })
-      .on("end",function(d,i){
-        t = d.number-1
-        //perform merge on segment data structures
-        mergeCard(t)
-        reload()
-        moving=false;
-      })
+    //   //move card being "removed"
+    //   var moving3 = d3.select("#card" + d.pid + "_" + (d.number+next))
+    //   .transition().duration(transitionTime).attr("transform", function(d,i){
+    //     return makeCardTranslate(d,i) +" scale(0.5,0.5)"
+    //   })
+    //   .on("end",function(d,i){
+    //     t = d.number-1
+    //     //perform merge on segment data structures
+    //     mergeCard(t)
+    //     reload()
+    //     moving=false;
+    //   })
 
-      //move all other cards
-      for(var i = d.number+1+next; i<segments.length;i++){
-        var moving3 = d3.select("#card" + d.pid + "_" + i)
-        .transition().duration(transitionTime).attr("transform", makeCardTranslate)
-      }
+    //   //move all other cards
+    //   for(var i = d.number+1+next; i<segments.length;i++){
+    //     var moving3 = d3.select("#card" + d.pid + "_" + i)
+    //     .transition().duration(transitionTime).attr("transform", makeCardTranslate)
+    //   }
 
-    }
+    // }
 
-    card.button3 = textButton(card, 10,40, "⬅", "royalblue", function(d,i){
-      if(i==0)
-        return
-      MergeTargetCardWithPrevious(d)
-    })
+    // card.button3 = textButton(card, 10,40, "⬅", "royalblue", function(d,i){
+    //   if(i==0)
+    //     return
+    //   MergeTargetCardWithPrevious(d)
+    // })
 
-    card.button3.buttonHB.on("mouseover",function(){
-      tooltip.transition()
-        .duration(100)
-        .style("opacity", 1.0);
+    // card.button3.buttonHB.on("mouseover",function(){
+    //   tooltip.transition()
+    //     .duration(100)
+    //     .style("opacity", 1.0);
 
-      tooltip.html("<p class=\"tooltipP\">Move <b>this</b> segment into the previous segment.</p>")
-        .style("left", (d3.event.pageX) + "px")
-        .style("top", (d3.event.pageY - 28) + "px");
-    })
+    //   tooltip.html("<p class=\"tooltipP\">Move <b>this</b> segment into the previous segment.</p>")
+    //     .style("left", (d3.event.pageX) + "px")
+    //     .style("top", (d3.event.pageY - 28) + "px");
+    // })
 
-    card.button = textButton(card, (cardWidth/2)-60,70, "Create from Selection", "lightblue", function(d,i){
-      var seg = GetSegment(d.number, d.pid, d.dataset)
-      var scale = d3.scaleLinear().domain([40,cardWidth-40]).range([seg.start,seg.end])
-      var select = d3.select(".selection" + d.pid + "_" +d.number)
+    // card.button = textButton(card, (cardWidth/2)-60,70, "Create from Selection", "lightblue", function(d,i){
+    //   var seg = GetSegment(d.number, d.pid, d.dataset)
+    //   var scale = d3.scaleLinear().domain([40,cardWidth-40]).range([seg.start,seg.end])
+    //   var select = d3.select(".selection" + d.pid + "_" +d.number)
 
-      var selectStart = Math.floor(scale(select.attr("x1")))
-      var selectEnd = Math.floor(scale(select.attr("x2")))
+    //   var selectStart = Math.floor(scale(select.attr("x1")))
+    //   var selectEnd = Math.floor(scale(select.attr("x2")))
 
-      if(select.attr("x1") <0|| select.attr("x2") <0){
-        return
-      }
+    //   if(select.attr("x1") <0|| select.attr("x2") <0){
+    //     return
+    //   }
 
-      var first = true
-      var third = true
-      if(selectStart-seg.start<5 || select.attr("x1")<70){
-        first = false
-        selectStart = seg.start
-      }
+    //   var first = true
+    //   var third = true
+    //   if(selectStart-seg.start<5 || select.attr("x1")<70){
+    //     first = false
+    //     selectStart = seg.start
+    //   }
 
-      if(seg.end-selectEnd<5 || select.attr("x2")>cardWidth-60){
-        third = false
-        selectEnd = seg.end
-      }
+    //   if(seg.end-selectEnd<5 || select.attr("x2")>cardWidth-60){
+    //     third = false
+    //     selectEnd = seg.end
+    //   }
 
-      segments.splice(segments.indexOf(GetSegment(i, P,DS)),1)
+    //   segments.splice(segments.indexOf(GetSegment(i, P,DS)),1)
 
-      var newSeg = {
-        start: seg.start,
-        end: selectStart,
-        length: selectStart-seg.start,
-        dataset: DS,
-        pid:P
-      }
-      if(first)
-        segments.push(newSeg)
+    //   var newSeg = {
+    //     start: seg.start,
+    //     end: selectStart,
+    //     length: selectStart-seg.start,
+    //     dataset: DS,
+    //     pid:P
+    //   }
+    //   if(first)
+    //     segments.push(newSeg)
 
-      var newSeg = {
-        start: selectStart,
-        end: selectEnd,
-        length: selectEnd-selectStart,
-        dataset: DS,
-        pid:P
-      }
-      segments.push(newSeg)
+    //   var newSeg = {
+    //     start: selectStart,
+    //     end: selectEnd,
+    //     length: selectEnd-selectStart,
+    //     dataset: DS,
+    //     pid:P
+    //   }
+    //   segments.push(newSeg)
 
-      var newSeg = {
-        start: selectEnd,
-        end: seg.end,
-        length: seg.end-selectEnd,
-        dataset: DS,
-        pid:P
-      }
-      if(third)
-        segments.push(newSeg)
+    //   var newSeg = {
+    //     start: selectEnd,
+    //     end: seg.end,
+    //     length: seg.end-selectEnd,
+    //     dataset: DS,
+    //     pid:P
+    //   }
+    //   if(third)
+    //     segments.push(newSeg)
 
-      reload()
-      select.attr("x1", -1)
-      select.attr("x2", -1)
+    //   reload()
+    //   select.attr("x1", -1)
+    //   select.attr("x2", -1)
 
-    })
+    // })
 
-    card.button.buttonHB.on("mouseover",function(){
-      tooltip.transition().duration(100).style("opacity", 1.0);
+    // card.button.buttonHB.on("mouseover",function(){
+    //   tooltip.transition().duration(100).style("opacity", 1.0);
 
-      tooltip.html("<p class=\"tooltipP\">Create a new segment from the current selection.<br>The remaining unselected time will also be made into their own segments.</p>")
-        .style("left", (d3.event.pageX) + "px")
-        .style("top", (d3.event.pageY - 28) + "px");
-    })
+    //   tooltip.html("<p class=\"tooltipP\">Create a new segment from the current selection.<br>The remaining unselected time will also be made into their own segments.</p>")
+    //     .style("left", (d3.event.pageX) + "px")
+    //     .style("top", (d3.event.pageY - 28) + "px");
+    // })
 
-    card.button2 = textButton(card, cardWidth-35,40, "➡", "royalblue", function(d,i){
-      if(i==participantSegments.length-1)
-        return
+    // card.button2 = textButton(card, cardWidth-35,40, "➡", "royalblue", function(d,i){
+    //   if(i==participantSegments.length-1)
+    //     return
 
-      MergeTargetCardWithPrevious(d,next=1)
-    })
+    //   MergeTargetCardWithPrevious(d,next=1)
+    // })
 
-    card.button2.buttonHB.on("mouseover",function(){
-      tooltip.transition()
-        .duration(100)
-        .style("opacity", 1.0);
+    // card.button2.buttonHB.on("mouseover",function(){
+    //   tooltip.transition()
+    //     .duration(100)
+    //     .style("opacity", 1.0);
 
-      tooltip.html("<p class=\"tooltipP\">Move the <b>next</b> segment into this segment.</p>")
-        .style("left", (d3.event.pageX) + "px")
-        .style("top", (d3.event.pageY - 28) + "px");
-    })
+    //   tooltip.html("<p class=\"tooltipP\">Move the <b>next</b> segment into this segment.</p>")
+    //     .style("left", (d3.event.pageX) + "px")
+    //     .style("top", (d3.event.pageY - 28) + "px");
+    // })
+    
+    var barY = cardHeight-20
+    
+    //interaction bars
+    card.search = barElement(card, 15, barY, "Searches", "🔎", function(d){ return 25*(d.local_search_ratio) })
+    
+    card.highlight = barElement(card, 50, barY, "Highlights", "📑", function(d){ return 25*(d.local_highlight_ratio) })
+    
+    card.notes = barElement(card, 85, barY, "Notes", "✏", function(d){ return 25*(d.local_note_ratio) })
+    
+    card.open = barElement(card, 120, barY, "Documents Opened", "📖", function(d){ return 25*(d.local_open_ratio) })
+    
+    card.total = barElement(card, 155, barY, "Total", "Total", function(d){ return 25*(d.interaction_rate) })
+    
+    
   }
-
-  var barY = cardHeight-20
-
-	//interaction bars
-	card.search = barElement(card, 15, barY, "Searches", "🔎", function(d){ return 25*(d.local_search_ratio) })
-
-	card.highlight = barElement(card, 50, barY, "Highlights", "📑", function(d){ return 25*(d.local_highlight_ratio) })
-
-	card.notes = barElement(card, 85, barY, "Notes", "✏", function(d){ return 25*(d.local_note_ratio) })
-
-	card.open = barElement(card, 120, barY, "Documents Opened", "📖", function(d){ return 25*(d.local_open_ratio) })
-
-	card.total = barElement(card, 155, barY, "Total", "Total", function(d){ return 25*(d.interaction_rate) })
-
-
 }
 
 //Adds the card bullets and paragraph of text from the pre-summarized segment
 function cardText(card){
   var element = {}
-  var bulletStartY = cardHeight-55
-  element.descriptionText = card.append("text").
-    attr("x",15).
-    attr("y",function(d,i){
-      return detailed?120:50
-    }).
-    attr("id", "descriptionText").
-    html(function(d,i){
-      if(d.descriptions.length == 0)
-        return
-
-      var text = ""
-      for(var text2 of d.descriptions)
-        text+= text2+"<br> "
-
-      //d.displayedInfo++
-       return text
-    }).
-    call(wrap,cardWidth-15)
-
-
-  //open info
-  element.searchText = card.append("text").
-    attr("x",15).
-    attr("y",function(d,i){
-      return bulletStartY-20*d.displayedInfo
-    }).
-    attr("id", "openText").
-    html(function(d,i){
-      var keys =Object.keys(d.opens)
-      // console.log(d.opens)
-      if(keys==0)
-        if(d.displayedInfo==0){
-          d.displayedInfo++
-          return "• No documents were explored."
-        }
-        else
-          return
-
-      var text = "• The user explored "+ keys.length + " document" + ((keys.length==1)?"":"s") + "."
-      d.displayedInfo++
-      return text
-    })
-
-  //Note info
-  element.noteText = card.append("text").
-    attr("x",15).
-    attr("y",function(d,i){
-      return bulletStartY-20*d.displayedInfo
-    }).
-    attr("id", "noteText").
-    html(function(d,i){
-      var keys =Object.keys(d.notes)
-      if(keys.length==0)
-        return
-
-      var text = "• The user noted "
-      var slicedText = keys[0].slice(0,35)
-      text += "<tspan style=\"font-weight:bold;fill:"+colors["Notes"]+"\">" + "\""+ slicedText + ((keys[0].length == slicedText.length)?"":"...") +"\""+ "</tspan>."
-
-      d.displayedInfo++
-
-      return text
-    }).
-    on("mouseover",function(d,i){
-      tooltip.transition().
-      duration(100).
-      style("opacity", 1.0);
-
-      tooltip.html(SummaryToolTip(Object.keys(d.notes)[0],"Full Note")).
-      style("left", (d3.event.pageX) + "px").
-      style("top", (d3.event.pageY - 28) + "px");
-    }).
-    on("mouseout",function(d,i){
-      tooltip.transition().
-      duration(100).
-      style("opacity", 0.0);
-    })
-
-  //Keyword info
-  element.keywordText = card.append("text").
-    attr("x",15).
-    attr("y",function(d,i){
-      return bulletStartY-20*d.displayedInfo
-    }).
-    attr("id", "noteText").
-    html(function(d,i){
-      var keys = d.keywords
-      if(keys.length==0)
-        return
-
-      var text = "• Keywords: "
-      var slicedText = keys[0]
-      for (var i = 1; i < keys.length; i++) {
-        // Add something about cutting off at the edge of the card or something, maybe stick with 35? idk
-        // Add back hover text --- need to look at the SummaryToolTip function (or just not use it)
-        // Function mergecard, maybe modify it to merge the keywords?
-        //      current function deletes old segments and melds them into a new one and just yeets the keywords
-        slicedText += ", " + keys[i]
-      }
-      text += "<tspan style=\"font-weight:bold;fill:"+colors["Notes"]+"\">" + "\""+ slicedText + ((keys[0].length == slicedText.length)?"":"...") +"\""+ "</tspan>."
-
-      d.displayedInfo++
-
-      return text
-    })
-
-
-
-  //Highlight info
-  element.highlightText = card.append("text").
-    attr("x",15).
-    attr("y",function(d,i){
-      return bulletStartY-20*d.displayedInfo
-    }).
-    attr("id", "highlightText").
-    html(function(d,i){
-      var keys =Object.keys(d.highlights)
-      if(keys.length==0)
-        return
-
-      var slicedText = keys[0].slice(0,35)
-      var text = "• The user highlighted " + "<tspan style=\"font-weight:bold;fill:"+colors["Highlight"]+"\">" + "\""+ slicedText + ((keys[0].length == slicedText.length)?"":"...") + "\""+"</tspan>."
-
-      d.displayedInfo++
-
-      return text
-    }).
-    on("mouseover",function(d,i){
-      tooltip.transition().
-      duration(100).
-      style("opacity", 1.0);
-
-      tooltip.html(SummaryToolTip(Object.keys(d.highlights)[0],"Full Highlight")).
-      style("left", (d3.event.pageX) + "px").
-      style("top", (d3.event.pageY - 28) + "px");
-    }).
-    on("mouseout",function(d,i){
-      tooltip.transition().
-      duration(100)
-      .style("opacity", 0.0);
-    })
-
-    element.searchText = card.append("text").
-      attr("x",15).
-      attr("y",function(d,i){
-        return bulletStartY-20*d.displayedInfo
-      }).
-      attr("id", "searchText").
-      html(function(d,i){
-        var keys =Object.keys(d.searches)
-        if(keys.length==0)
-          return
-        var text = "• The user searched for "
-        for(var i=0; i<(Math.min(3,keys.length)); i++){
-          if(i==(Math.min(3,keys.length)-1) && keys.length!=1)
-            text += "and "
-
-          text += "<tspan style=\"font-weight:bold;fill:"+colors["Search"]+"\">" +keys[i]+"</tspan>"
-
-          if(i!=(Math.min(3,keys.length)-1))
-            text+=", "
-        }
-        d.displayedInfo++
-        text += "."
-        return text
+  var bulletStartY = cardHeight - 55
+  if (!detailed) {
+    element.descriptionText = card
+      .append("text")
+      .attr("x", 15)
+      .attr("y", function (d, i) {
+        return 50;
       })
+      .attr("id", "descriptionText")
+      .html(function (d, i) {
+        if (d.descriptions.length == 0) return;
 
-    return element
+        var text = "";
+        for (var text2 of d.descriptions) text += text2 + "<br> ";
+
+        //d.displayedInfo++
+        return text;
+      })
+      .call(wrap, cardWidth - 15);
+  } else {
+    //open info
+    element.searchText = card
+      .append("text")
+      .attr("x", 15)
+      .attr("y", function (d, i) {
+        return bulletStartY - 20 * d.displayedInfo;
+      })
+      .attr("id", "openText")
+      .html(function (d, i) {
+        var keys = Object.keys(d.opens);
+        // console.log(d.opens)
+        if (keys == 0)
+          if (d.displayedInfo == 0) {
+            d.displayedInfo++;
+            return "• No documents were explored.";
+          } else return;
+
+        var text =
+          "• The user explored " +
+          keys.length +
+          " document" +
+          (keys.length == 1 ? "" : "s") +
+          ".";
+        d.displayedInfo++;
+        return text;
+      });
+
+    //Note info
+    element.noteText = card
+      .append("text")
+      .attr("x", 15)
+      .attr("y", function (d, i) {
+        return bulletStartY - 20 * d.displayedInfo;
+      })
+      .attr("id", "noteText")
+      .html(function (d, i) {
+        var keys = Object.keys(d.notes);
+        if (keys.length == 0) return;
+
+        var text = "• The user noted ";
+        var slicedText = keys[0].slice(0, 35);
+        text +=
+          '<tspan style="font-weight:bold;fill:' +
+          colors["Notes"] +
+          '">' +
+          '"' +
+          slicedText +
+          (keys[0].length == slicedText.length ? "" : "...") +
+          '"' +
+          "</tspan>.";
+
+        d.displayedInfo++;
+
+        return text;
+      })
+      .on("mouseover", function (d, i) {
+        tooltip.transition().duration(100).style("opacity", 1.0);
+
+        tooltip
+          .html(SummaryToolTip(Object.keys(d.notes)[0], "Full Note"))
+          .style("left", d3.event.pageX + "px")
+          .style("top", d3.event.pageY - 28 + "px");
+      })
+      .on("mouseout", function (d, i) {
+        tooltip.transition().duration(100).style("opacity", 0.0);
+      });
+
+    //Keyword info
+    element.keywordText = card
+      .append("text")
+      .attr("x", 15)
+      .attr("y", function (d, i) {
+        return bulletStartY - 20 * d.displayedInfo;
+      })
+      .attr("id", "noteText")
+      .html(function (d, i) {
+        var keys = d.keywords;
+        if (keys.length == 0) return;
+
+        var text = "• Keywords: ";
+        var slicedText = keys[0];
+        for (var i = 1; i < keys.length; i++) {
+          // Add something about cutting off at the edge of the card or something, maybe stick with 35? idk
+          // Add back hover text --- need to look at the SummaryToolTip function (or just not use it)
+          // Function mergecard, maybe modify it to merge the keywords?
+          //      current function deletes old segments and melds them into a new one and just yeets the keywords
+          slicedText += ", " + keys[i];
+        }
+        text +=
+          '<tspan style="font-weight:bold;fill:' +
+          colors["Notes"] +
+          '">' +
+          '"' +
+          slicedText +
+          (keys[0].length == slicedText.length ? "" : "...") +
+          '"' +
+          "</tspan>.";
+
+        d.displayedInfo++;
+
+        return text;
+      });
+
+    //Highlight info
+    element.highlightText = card
+      .append("text")
+      .attr("x", 15)
+      .attr("y", function (d, i) {
+        return bulletStartY - 20 * d.displayedInfo;
+      })
+      .attr("id", "highlightText")
+      .html(function (d, i) {
+        var keys = Object.keys(d.highlights);
+        if (keys.length == 0) return;
+
+        var slicedText = keys[0].slice(0, 35);
+        var text =
+          "• The user highlighted " +
+          '<tspan style="font-weight:bold;fill:' +
+          colors["Highlight"] +
+          '">' +
+          '"' +
+          slicedText +
+          (keys[0].length == slicedText.length ? "" : "...") +
+          '"' +
+          "</tspan>.";
+
+        d.displayedInfo++;
+
+        return text;
+      })
+      .on("mouseover", function (d, i) {
+        tooltip.transition().duration(100).style("opacity", 1.0);
+
+        tooltip
+          .html(SummaryToolTip(Object.keys(d.highlights)[0], "Full Highlight"))
+          .style("left", d3.event.pageX + "px")
+          .style("top", d3.event.pageY - 28 + "px");
+      })
+      .on("mouseout", function (d, i) {
+        tooltip.transition().duration(100).style("opacity", 0.0);
+      });
+
+    element.searchText = card
+      .append("text")
+      .attr("x", 15)
+      .attr("y", function (d, i) {
+        return bulletStartY - 20 * d.displayedInfo;
+      })
+      .attr("id", "searchText")
+      .html(function (d, i) {
+        var keys = Object.keys(d.searches);
+        if (keys.length == 0) return;
+        var text = "• The user searched for ";
+        for (var i = 0; i < Math.min(3, keys.length); i++) {
+          if (i == Math.min(3, keys.length) - 1 && keys.length != 1)
+            text += "and ";
+
+          text +=
+            '<tspan style="font-weight:bold;fill:' +
+            colors["Search"] +
+            '">' +
+            keys[i] +
+            "</tspan>";
+
+          if (i != Math.min(3, keys.length) - 1) text += ", ";
+        }
+        d.displayedInfo++;
+        text += ".";
+        return text;
+      });
+
+    return element;
   }
+}
 
 
 //Arguments: The svg element to draw the bar on, x location, y location, text label, function to determine size of bar
@@ -895,55 +919,55 @@ function segmentTimelineElement(card){
   element.clickX2 = -1;
 
   element.segmentSelectionBG = card.append("path").
-    attr("d", d3.line()([[40,60],[cardWidth-40,60]])).
+    attr("d", d3.line()([[40,45],[cardWidth-40,45]])).
     attr("stroke","lightgrey").
     attr("stroke-width", 10)
-    .on("mousemove",function(d,i){
-      tooltip.style("left", (d3.event.pageX) + "px").
-      style("top", (d3.event.pageY - 28) + "px");
+  //   .on("mousemove",function(d,i){
+  //     tooltip.style("left", (d3.event.pageX) + "px").
+  //     style("top", (d3.event.pageY - 28) + "px");
 
-      var select = d3.select(".selection" + d.pid + "_" +d.number)
-      //snap to mouse when selection and area
-      select.attr("x2", function(d,i){
-        if(element.clickX1 != -1 && element.clickX2==-1){
-          return (event.offsetX)
-        }else
-          return select.attr("x2")
-        })
-    }).
-    on("mousedown",function(d,i){
-      var seg = GetSegment(d.number, d.pid, d.dataset)
-      var scale = d3.scaleLinear().domain([40,cardWidth-40]).range([seg.start,seg.end])
-      var select = d3.select(".selection" + d.pid + "_" +d.number)
-      //log first click loc
-      if(element.clickX1 == -1){
-        element.clickX1 = event.offsetX
-        select
-        .attr("x1", element.clickX1)
-        .attr("x2", element.clickX1)
-        .attr("y1",45)
-        .attr("y2",45)
-        .style("stroke-opacity", "0.5")
-        .style("stroke-width", 15)
-        .style("stroke", "black")
-      }
-      //handle second click
-      else if(element.clickX2 == -1){
-        element.clickX2 = event.offsetX
-        select.attr("x2",element.clickX2)
+  //     var select = d3.select(".selection" + d.pid + "_" +d.number)
+  //     //snap to mouse when selection and area
+  //     select.attr("x2", function(d,i){
+  //       if(element.clickX1 != -1 && element.clickX2==-1){
+  //         return (event.offsetX)
+  //       }else
+  //         return select.attr("x2")
+  //       })
+  //   }).
+  //   on("mousedown",function(d,i){
+  //     var seg = GetSegment(d.number, d.pid, d.dataset)
+  //     var scale = d3.scaleLinear().domain([40,cardWidth-40]).range([seg.start,seg.end])
+  //     var select = d3.select(".selection" + d.pid + "_" +d.number)
+  //     //log first click loc
+  //     if(element.clickX1 == -1){
+  //       element.clickX1 = event.offsetX
+  //       select
+  //       .attr("x1", element.clickX1)
+  //       .attr("x2", element.clickX1)
+  //       .attr("y1",45)
+  //       .attr("y2",45)
+  //       .style("stroke-opacity", "0.5")
+  //       .style("stroke-width", 15)
+  //       .style("stroke", "black")
+  //     }
+  //     //handle second click
+  //     else if(element.clickX2 == -1){
+  //       element.clickX2 = event.offsetX
+  //       select.attr("x2",element.clickX2)
 
-        //swap if x1 < x2
-        if(Number(select.attr("x1"))>Number(select.attr("x2"))){
-          var temp = select.attr("x2")
-          select.attr("x2",select.attr("x1"))
-          select.attr("x1",temp)
-        }
+  //       //swap if x1 < x2
+  //       if(Number(select.attr("x1"))>Number(select.attr("x2"))){
+  //         var temp = select.attr("x2")
+  //         select.attr("x2",select.attr("x1"))
+  //         select.attr("x1",temp)
+  //       }
 
-        //reset
-        element.clickX1=-1
-        element.clickX2=-1
-      }
-    })
+  //       //reset
+  //       element.clickX1=-1
+  //       element.clickX2=-1
+  //     }
+  //   })
 
   element.segmentTimelineBG = card.append("path").
     attr("d", d3.line()([[40,45],[cardWidth-40,45]])).
@@ -1263,8 +1287,9 @@ function summarize_segment(segment){
   // UPDATED DESCRIPTIONS FOR LAS
   // for(var i=0; i<all_interactions.length; i++){
     // Describe the user's searches
-    // Get unique searches
-    uSearches = []
+    // First we need to get unique searches
+  uSearches = []
+  //remove duplicates from searches array
     for (i in searches) {
       if (searches.indexOf(searches[i]) == i) {
         uSearches.push(searches[i])
@@ -1273,22 +1298,26 @@ function summarize_segment(segment){
     if(uSearches.length == 0) {
       descriptions.push("The user made no searches.")
     }
-    else {
-      if (uSearches.length < 4) {
-        tempDesc = "The user searched for "
-        for (let i = 0; i < uSearches.length - 1; i++) {
-          tempDesc += "\"" + uSearches[i] + "\", "
-        }
-        tempDesc += "and \"" + uSearches[uSearches.length-1] + "\"."
-      }
-      else {
-        tempDesc = "The user made " + uSearches.length + " searches, including "
-        for (let i = 0; i < 2; i++) {
-          tempDesc += "\"" + uSearches[i] + "\", "
-        }
-        tempDesc += "and \"" + uSearches[2] + "\"."
-      }
+    else if (uSearches.length == 1) {
+      tempDesc = "The user searched for ";
+          tempDesc += '"' + uSearches[0] + '". ';
       descriptions.push(tempDesc)
+    } else {
+      if (uSearches.length < 3) {
+        tempDesc = "The user searched for ";
+        for (let i = 0; i < uSearches.length - 1; i++) {
+          tempDesc += '"' + uSearches[i] + '", ';
+        }
+        tempDesc += 'and "' + uSearches[uSearches.length - 1] + '".';
+      } else {
+        tempDesc =
+          "The user made " + uSearches.length + " unique searches, including ";
+        for (let i = 0; i < 2; i++) {
+          tempDesc += '"' + uSearches[i] + '", ';
+        }
+        tempDesc += 'and "' + uSearches[2] + '".';
+      }
+      descriptions.push(tempDesc);
     }
 
     // Number of documents/new documents
@@ -1339,7 +1368,7 @@ function summarize_segment(segment){
         tempDesc += "explored " + totalDocInt + " unique documents, " + numNew + " of which had not previously been read. "
         // Document date
         if (monthNames[dates[0].getMonth()] + " " + dates[0].getFullYear() == monthNames[dates[totalDocInt - 1].getMonth()] + " " + dates[totalDocInt - 1].getFullYear()) {
-          tempDesc += "Those documents were created between " + monthNames[dates[0].getMonth()] + " " + dates[0].getFullYear() + "."
+          tempDesc += "Those documents were created in " + monthNames[dates[0].getMonth()] + " " + dates[0].getFullYear() + "."
         }
         else {
           tempDesc += "Those documents were created between " + monthNames[dates[0].getMonth()] + " " + dates[0].getFullYear() + " and " + monthNames[dates[totalDocInt - 1].getMonth()] + " " + dates[totalDocInt - 1].getFullYear() + "."
@@ -1458,10 +1487,31 @@ function summarize_segment(segment){
   avgLen = segLength / totalDocInt
   roundAvg = Math.round(avgLen * 100) / 100
   if(roundAvg == 1.00) {
-    descriptions.push("An average of " + roundAvg + " minute was spent on each document.")
+    descriptions.push(
+      "Of the " +
+        totalDocInt +
+        " documents open, each document recieved attention for an average of " +
+        IntToTime(roundAvg * 60) +
+        " minute."
+    );
+  } else if (roundAvg < 1.00) {
+    descriptions.push(
+      "Of the " +
+        totalDocInt +
+        " documents open, each document recieved attention for an average of " +
+        IntToTime(roundAvg * 60) +
+        " seconds."
+    );
+
   }
-  else {
-    descriptions.push("An average of " + roundAvg + " minutes were spent on each document.")
+    else {
+    descriptions.push(
+      "Of the " +
+        totalDocInt +
+        " documents open, each document recieved attention for an average of " +
+        IntToTime(roundAvg * 60) +
+        " minutes."
+    );
   }
 
 

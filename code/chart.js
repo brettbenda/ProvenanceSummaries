@@ -303,211 +303,209 @@ function drawCards(startTime, endTime){
 
     card.segmentTimeline = segmentTimelineElement(card);
 
-    card.divider2 = card.append("line")
-      .attr("x1",10)
-      .attr("y1",100)
-      .attr("x2",cardWidth-10)
-      .attr("y2",100)
-      .attr("stroke-width",1)
-      .attr("stroke","grey")
+    // card.divider2 = card.append("line")
+    //   .attr("x1",10)
+    //   .attr("y1",100)
+    //   .attr("x2",cardWidth-10)
+    //   .attr("y2",100)
+    //   .attr("stroke-width",1)
+    //   .attr("stroke","grey")
 
-    card.selectionBox = card.append("line")
-      .attr("x1",-1)
-      .attr("y1",20)
-      .attr("x2",-1)
-      .attr("y2",20)
-      .attr("stroke-width",3)
-      .attr("stroke","darkblue")
-      .style("stroke-opacity","0.0")
-      .attr("class", function(d,i){
-        return "selection" + d.pid + "_" +d.number
-      })
+    // card.selectionBox = card.append("line")
+    //   .attr("x1",-1)
+    //   .attr("y1",20)
+    //   .attr("x2",-1)
+    //   .attr("y2",20)
+    //   .attr("stroke-width",3)
+    //   .attr("stroke","darkblue")
+    //   .style("stroke-opacity","0.0")
+    //   .attr("class", function(d,i){
+    //     return "selection" + d.pid + "_" +d.number
+    //   })
 
-    function makeCardTranslate(d,i){
-      var chart = d3.select("#chartArea").node().getBoundingClientRect()
-      var cols = Math.floor(chart.width/cardWidth)
-      var rows = Math.floor(chart.height/cardHeight)
+    // function makeCardTranslate(d,i){
+    //   var chart = d3.select("#chartArea").node().getBoundingClientRect()
+    //   var cols = Math.floor(chart.width/cardWidth)
+    //   var rows = Math.floor(chart.height/cardHeight)
 
-      i = d.number+1;
+    //   i = d.number+1;
 
-      console.log(i + " " + rows +" "+ cols)
-      var x = 0;
-      var y = 0
-      for(var i = 0; i<d.number;i++){
-        y+=1;
+    //   console.log(i + " " + rows +" "+ cols)
+    //   var x = 0;
+    //   var y = 0
+    //   for(var i = 0; i<d.number;i++){
+    //     y+=1;
 
-        if(y%cols==0){
-          y=0
-          x++
-        }
-      }
-      console.log(x +" "+ y)
+    //     if(y%cols==0){
+    //       y=0
+    //       x++
+    //     }
+    //   }
+    //   console.log(x +" "+ y)
 
-      var translate = "translate(";
-      if(y==0){
-        translate+= ((cols-1)*cardWidth)+","+-cardHeight+")"
-      }else{
-        translate+= (-cardWidth)+",0)"
-      }
-      return translate
-    }
+    //   var translate = "translate(";
+    //   if(y==0){
+    //     translate+= ((cols-1)*cardWidth)+","+-cardHeight+")"
+    //   }else{
+    //     translate+= (-cardWidth)+",0)"
+    //   }
+    //   return translate
+    // }
 
-    //peforms merge on internal data structure for segments
-    //first: number of first card in the pair to be merge (i.e., selected card number for the right merge button, 1-seleced card number for left merge button)
-    function mergeCard(first){
-      t = first
-      var seg = GetSegment(t, P, DS)
-      var seg2 = GetSegment(t+1,P, DS)
+    // //peforms merge on internal data structure for segments
+    // //first: number of first card in the pair to be merge (i.e., selected card number for the right merge button, 1-seleced card number for left merge button)
+    // function mergeCard(first){
+    //   t = first
+    //   var seg = GetSegment(t, P, DS)
+    //   var seg2 = GetSegment(t+1,P, DS)
 
-      var scale = d3.scaleLinear().domain([10,cardWidth-10]).range([seg.start,seg.end])
-      var select = d3.select(".selection" + P + "_" +t)
+    //   var scale = d3.scaleLinear().domain([10,cardWidth-10]).range([seg.start,seg.end])
+    //   var select = d3.select(".selection" + P + "_" +t)
 
-      segments.splice(segments.indexOf(GetSegment(t, P,DS)),1)
-      segments.splice(segments.indexOf(GetSegment(t+1, P,DS)),1)
+    //   segments.splice(segments.indexOf(GetSegment(t, P,DS)),1)
+    //   segments.splice(segments.indexOf(GetSegment(t+1, P,DS)),1)
 
-      var newSeg = {
-        start:seg.start,
-        end: seg2.end,
-        length: seg2.end-seg.start,
-        dataset: DS,
-        pid:P,
-        keywords: seg1.keywords + seg2.keywords
-      }
-      segments.push(newSeg)
-    }
+    //   var newSeg = {
+    //     start:seg.start,
+    //     end: seg2.end,
+    //     length: seg2.end-seg.start,
+    //     dataset: DS,
+    //     pid:P,
+    //     keywords: seg1.keywords + seg2.keywords
+    //   }
+    //   segments.push(newSeg)
+    // }
 
-    //d=selected card, next = 0 by default, set to 1 if the right button
-    function MergeTargetCardWithPrevious(d, next=0){
-      if(moving)return;
-      moving = true;
+    // function MergeTargetCardWithPrevious(d, next=0){
+    //   if(moving)return;
+    //   moving = true;
 
-      //fade out card being "removed"
-      var moving = d3.select("#cardDiv" + d.pid + "_" + (d.number+next))
-      .transition().duration(transitionTime).style("opacity",0)
+    //   //fade out card being "removed"
+    //   var moving = d3.select("#cardDiv" + d.pid + "_" + (d.number+next))
+    //   .transition().duration(transitionTime).style("opacity",0)
 
-      //move card being "removed"
-      var moving3 = d3.select("#card" + d.pid + "_" + (d.number+next))
-      .transition().duration(transitionTime).attr("transform", function(d,i){
-        return makeCardTranslate(d,i) +" scale(0.5,0.5)"
-      })
-      .on("end",function(d,i){
-        t = d.number-1
-        //perform merge on segment data structures
-        mergeCard(t)
-        reload()
-        moving=false;
-      })
+    //   //move card being "removed"
+    //   var moving3 = d3.select("#card" + d.pid + "_" + (d.number+next))
+    //   .transition().duration(transitionTime).attr("transform", function(d,i){
+    //     return makeCardTranslate(d,i) +" scale(0.5,0.5)"
+    //   })
+    //   .on("end",function(d,i){
+    //     t = d.number-1
+    //     //perform merge on segment data structures
+    //     mergeCard(t)
+    //     reload()
+    //     moving=false;
+    //   })
 
-      //move all other cards
-      for(var i = d.number+1+next; i<segments.length;i++){
-        var moving3 = d3.select("#card" + d.pid + "_" + i)
-        .transition().duration(transitionTime).attr("transform", makeCardTranslate)
-      }
+    //   //move all other cards
+    //   for(var i = d.number+1+next; i<segments.length;i++){
+    //     var moving3 = d3.select("#card" + d.pid + "_" + i)
+    //     .transition().duration(transitionTime).attr("transform", makeCardTranslate)
+    //   }
 
-    }
+    // }
 
-    card.button3 = textButton(card, 10,40, "⬅", "royalblue", function(d,i){
-      if(i==0)
-        return
-      MergeTargetCardWithPrevious(d)
-    })
+    // card.button3 = textButton(card, 10,40, "⬅", "royalblue", function(d,i){
+    //   if(i==0)
+    //     return
+    //   MergeTargetCardWithPrevious(d)
+    // })
 
-    card.button3.buttonHB.on("mouseover",function(){
-      tooltip.transition()
-        .duration(100)
-        .style("opacity", 1.0);
+    // card.button3.buttonHB.on("mouseover",function(){
+    //   tooltip.transition()
+    //     .duration(100)
+    //     .style("opacity", 1.0);
 
-      tooltip.html("<p class=\"tooltipP\">Move <b>this</b> segment into the previous segment.</p>")
-        .style("left", (d3.event.pageX) + "px")
-        .style("top", (d3.event.pageY - 28) + "px");
-    })
+    //   tooltip.html("<p class=\"tooltipP\">Move <b>this</b> segment into the previous segment.</p>")
+    //     .style("left", (d3.event.pageX) + "px")
+    //     .style("top", (d3.event.pageY - 28) + "px");
+    // })
 
-    card.button = textButton(card, (cardWidth/2)-60,70, "Create from Selection", "lightblue", function(d,i){
-      var seg = GetSegment(d.number, d.pid, d.dataset)
-      var scale = d3.scaleLinear().domain([40,cardWidth-40]).range([seg.start,seg.end])
-      var select = d3.select(".selection" + d.pid + "_" +d.number)
+    // card.button = textButton(card, (cardWidth/2)-60,70, "Create from Selection", "lightblue", function(d,i){
+    //   var seg = GetSegment(d.number, d.pid, d.dataset)
+    //   var scale = d3.scaleLinear().domain([40,cardWidth-40]).range([seg.start,seg.end])
+    //   var select = d3.select(".selection" + d.pid + "_" +d.number)
 
-      var selectStart = Math.floor(scale(select.attr("x1")))
-      var selectEnd = Math.floor(scale(select.attr("x2")))
+    //   var selectStart = Math.floor(scale(select.attr("x1")))
+    //   var selectEnd = Math.floor(scale(select.attr("x2")))
 
-      if(select.attr("x1") <0|| select.attr("x2") <0){
-        return
-      }
+    //   if(select.attr("x1") <0|| select.attr("x2") <0){
+    //     return
+    //   }
 
-      var first = true
-      var third = true
-      if(selectStart-seg.start<5 || select.attr("x1")<70){
-        first = false
-        selectStart = seg.start
-      }
+    //   var first = true
+    //   var third = true
+    //   if(selectStart-seg.start<5 || select.attr("x1")<70){
+    //     first = false
+    //     selectStart = seg.start
+    //   }
 
-      if(seg.end-selectEnd<5 || select.attr("x2")>cardWidth-60){
-        third = false
-        selectEnd = seg.end
-      }
+    //   if(seg.end-selectEnd<5 || select.attr("x2")>cardWidth-60){
+    //     third = false
+    //     selectEnd = seg.end
+    //   }
 
-      segments.splice(segments.indexOf(GetSegment(i, P,DS)),1)
+    //   segments.splice(segments.indexOf(GetSegment(i, P,DS)),1)
 
-      var newSeg = {
-        start: seg.start,
-        end: selectStart,
-        length: selectStart-seg.start,
-        dataset: DS,
-        pid:P
-      }
-      if(first)
-        segments.push(newSeg)
+    //   var newSeg = {
+    //     start: seg.start,
+    //     end: selectStart,
+    //     length: selectStart-seg.start,
+    //     dataset: DS,
+    //     pid:P
+    //   }
+    //   if(first)
+    //     segments.push(newSeg)
 
-      var newSeg = {
-        start: selectStart,
-        end: selectEnd,
-        length: selectEnd-selectStart,
-        dataset: DS,
-        pid:P
-      }
-      segments.push(newSeg)
+    //   var newSeg = {
+    //     start: selectStart,
+    //     end: selectEnd,
+    //     length: selectEnd-selectStart,
+    //     dataset: DS,
+    //     pid:P
+    //   }
+    //   segments.push(newSeg)
 
-      var newSeg = {
-        start: selectEnd,
-        end: seg.end,
-        length: seg.end-selectEnd,
-        dataset: DS,
-        pid:P
-      }
-      if(third)
-        segments.push(newSeg)
+    //   var newSeg = {
+    //     start: selectEnd,
+    //     end: seg.end,
+    //     length: seg.end-selectEnd,
+    //     dataset: DS,
+    //     pid:P
+    //   }
+    //   if(third)
+    //     segments.push(newSeg)
 
-      reload()
-      select.attr("x1", -1)
-      select.attr("x2", -1)
+    //   reload()
+    //   select.attr("x1", -1)
+    //   select.attr("x2", -1)
 
-    })
+    // })
 
-    card.button.buttonHB.on("mouseover",function(){
-      tooltip.transition().duration(100).style("opacity", 1.0);
+    // card.button.buttonHB.on("mouseover",function(){
+    //   tooltip.transition().duration(100).style("opacity", 1.0);
 
-      tooltip.html("<p class=\"tooltipP\">Create a new segment from the current selection.<br>The remaining unselected time will also be made into their own segments.</p>")
-        .style("left", (d3.event.pageX) + "px")
-        .style("top", (d3.event.pageY - 28) + "px");
-    })
+    //   tooltip.html("<p class=\"tooltipP\">Create a new segment from the current selection.<br>The remaining unselected time will also be made into their own segments.</p>")
+    //     .style("left", (d3.event.pageX) + "px")
+    //     .style("top", (d3.event.pageY - 28) + "px");
+    // })
 
-    card.button2 = textButton(card, cardWidth-35,40, "➡", "royalblue", function(d,i){
-      if(i==participantSegments.length-1)
-        return
+    // card.button2 = textButton(card, cardWidth-35,40, "➡", "royalblue", function(d,i){
+    //   if(i==participantSegments.length-1)
+    //     return
 
-      MergeTargetCardWithPrevious(d,next=1)
-    })
+    //   MergeTargetCardWithPrevious(d,next=1)
+    // })
 
-    card.button2.buttonHB.on("mouseover",function(){
-      tooltip.transition()
-        .duration(100)
-        .style("opacity", 1.0);
+    // card.button2.buttonHB.on("mouseover",function(){
+    //   tooltip.transition()
+    //     .duration(100)
+    //     .style("opacity", 1.0);
 
-      tooltip.html("<p class=\"tooltipP\">Move the <b>next</b> segment into this segment.</p>")
-        .style("left", (d3.event.pageX) + "px")
-        .style("top", (d3.event.pageY - 28) + "px");
-    })
-  }
+    //   tooltip.html("<p class=\"tooltipP\">Move the <b>next</b> segment into this segment.</p>")
+    //     .style("left", (d3.event.pageX) + "px")
+    //     .style("top", (d3.event.pageY - 28) + "px");
+    // })
 
   var barY = cardHeight-20
 
@@ -523,6 +521,7 @@ function drawCards(startTime, endTime){
 	card.total = barElement(card, 155, barY, "Total", "Total", function(d){ return 25*(d.interaction_rate) })
 
 
+}
 }
 
 //Adds the card bullets and paragraph of text from the pre-summarized segment
@@ -895,55 +894,55 @@ function segmentTimelineElement(card){
   element.clickX2 = -1;
 
   element.segmentSelectionBG = card.append("path").
-    attr("d", d3.line()([[40,60],[cardWidth-40,60]])).
+    attr("d", d3.line()([[40,45],[cardWidth-40,45]])).
     attr("stroke","lightgrey").
     attr("stroke-width", 10)
-    .on("mousemove",function(d,i){
-      tooltip.style("left", (d3.event.pageX) + "px").
-      style("top", (d3.event.pageY - 28) + "px");
+  //   .on("mousemove",function(d,i){
+  //     tooltip.style("left", (d3.event.pageX) + "px").
+  //     style("top", (d3.event.pageY - 28) + "px");
 
-      var select = d3.select(".selection" + d.pid + "_" +d.number)
-      //snap to mouse when selection and area
-      select.attr("x2", function(d,i){
-        if(element.clickX1 != -1 && element.clickX2==-1){
-          return (event.offsetX)
-        }else
-          return select.attr("x2")
-        })
-    }).
-    on("mousedown",function(d,i){
-      var seg = GetSegment(d.number, d.pid, d.dataset)
-      var scale = d3.scaleLinear().domain([40,cardWidth-40]).range([seg.start,seg.end])
-      var select = d3.select(".selection" + d.pid + "_" +d.number)
-      //log first click loc
-      if(element.clickX1 == -1){
-        element.clickX1 = event.offsetX
-        select
-        .attr("x1", element.clickX1)
-        .attr("x2", element.clickX1)
-        .attr("y1",45)
-        .attr("y2",45)
-        .style("stroke-opacity", "0.5")
-        .style("stroke-width", 15)
-        .style("stroke", "black")
-      }
-      //handle second click
-      else if(element.clickX2 == -1){
-        element.clickX2 = event.offsetX
-        select.attr("x2",element.clickX2)
+  //     var select = d3.select(".selection" + d.pid + "_" +d.number)
+  //     //snap to mouse when selection and area
+  //     select.attr("x2", function(d,i){
+  //       if(element.clickX1 != -1 && element.clickX2==-1){
+  //         return (event.offsetX)
+  //       }else
+  //         return select.attr("x2")
+  //       })
+  //   }).
+  //   on("mousedown",function(d,i){
+  //     var seg = GetSegment(d.number, d.pid, d.dataset)
+  //     var scale = d3.scaleLinear().domain([40,cardWidth-40]).range([seg.start,seg.end])
+  //     var select = d3.select(".selection" + d.pid + "_" +d.number)
+  //     //log first click loc
+  //     if(element.clickX1 == -1){
+  //       element.clickX1 = event.offsetX
+  //       select
+  //       .attr("x1", element.clickX1)
+  //       .attr("x2", element.clickX1)
+  //       .attr("y1",45)
+  //       .attr("y2",45)
+  //       .style("stroke-opacity", "0.5")
+  //       .style("stroke-width", 15)
+  //       .style("stroke", "black")
+  //     }
+  //     //handle second click
+  //     else if(element.clickX2 == -1){
+  //       element.clickX2 = event.offsetX
+  //       select.attr("x2",element.clickX2)
 
-        //swap if x1 < x2
-        if(Number(select.attr("x1"))>Number(select.attr("x2"))){
-          var temp = select.attr("x2")
-          select.attr("x2",select.attr("x1"))
-          select.attr("x1",temp)
-        }
+  //       //swap if x1 < x2
+  //       if(Number(select.attr("x1"))>Number(select.attr("x2"))){
+  //         var temp = select.attr("x2")
+  //         select.attr("x2",select.attr("x1"))
+  //         select.attr("x1",temp)
+  //       }
 
-        //reset
-        element.clickX1=-1
-        element.clickX2=-1
-      }
-    })
+  //       //reset
+  //       element.clickX1=-1
+  //       element.clickX2=-1
+  //     }
+  //   })
 
   element.segmentTimelineBG = card.append("path").
     attr("d", d3.line()([[40,45],[cardWidth-40,45]])).

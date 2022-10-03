@@ -506,197 +506,222 @@ function drawCards(startTime, endTime){
     //     .style("left", (d3.event.pageX) + "px")
     //     .style("top", (d3.event.pageY - 28) + "px");
     // })
-
-  var barY = cardHeight-20
-
-	//interaction bars
-	card.search = barElement(card, 15, barY, "Searches", "🔎", function(d){ return 25*(d.local_search_ratio) })
-
-	card.highlight = barElement(card, 50, barY, "Highlights", "📑", function(d){ return 25*(d.local_highlight_ratio) })
-
-	card.notes = barElement(card, 85, barY, "Notes", "✏", function(d){ return 25*(d.local_note_ratio) })
-
-	card.open = barElement(card, 120, barY, "Documents Opened", "📖", function(d){ return 25*(d.local_open_ratio) })
-
-	card.total = barElement(card, 155, barY, "Total", "Total", function(d){ return 25*(d.interaction_rate) })
-
-
-}
+    
+    var barY = cardHeight-20
+    
+    //interaction bars
+    card.search = barElement(card, 15, barY, "Searches", "🔎", function(d){ return 25*(d.local_search_ratio) })
+    
+    card.highlight = barElement(card, 50, barY, "Highlights", "📑", function(d){ return 25*(d.local_highlight_ratio) })
+    
+    card.notes = barElement(card, 85, barY, "Notes", "✏", function(d){ return 25*(d.local_note_ratio) })
+    
+    card.open = barElement(card, 120, barY, "Documents Opened", "📖", function(d){ return 25*(d.local_open_ratio) })
+    
+    card.total = barElement(card, 155, barY, "Total", "Total", function(d){ return 25*(d.interaction_rate) })
+    
+    
+  }
 }
 
 //Adds the card bullets and paragraph of text from the pre-summarized segment
 function cardText(card){
   var element = {}
-  var bulletStartY = cardHeight-55
-  element.descriptionText = card.append("text").
-    attr("x",15).
-    attr("y",function(d,i){
-      return detailed?120:50
-    }).
-    attr("id", "descriptionText").
-    html(function(d,i){
-      if(d.descriptions.length == 0)
-        return
-
-      var text = ""
-      for(var text2 of d.descriptions)
-        text+= text2+"<br> "
-
-      //d.displayedInfo++
-       return text
-    }).
-    call(wrap,cardWidth-15)
-
-
-  //open info
-  element.searchText = card.append("text").
-    attr("x",15).
-    attr("y",function(d,i){
-      return bulletStartY-20*d.displayedInfo
-    }).
-    attr("id", "openText").
-    html(function(d,i){
-      var keys =Object.keys(d.opens)
-      // console.log(d.opens)
-      if(keys==0)
-        if(d.displayedInfo==0){
-          d.displayedInfo++
-          return "• No documents were explored."
-        }
-        else
-          return
-
-      var text = "• The user explored "+ keys.length + " document" + ((keys.length==1)?"":"s") + "."
-      d.displayedInfo++
-      return text
-    })
-
-  //Note info
-  element.noteText = card.append("text").
-    attr("x",15).
-    attr("y",function(d,i){
-      return bulletStartY-20*d.displayedInfo
-    }).
-    attr("id", "noteText").
-    html(function(d,i){
-      var keys =Object.keys(d.notes)
-      if(keys.length==0)
-        return
-
-      var text = "• The user noted "
-      var slicedText = keys[0].slice(0,35)
-      text += "<tspan style=\"font-weight:bold;fill:"+colors["Notes"]+"\">" + "\""+ slicedText + ((keys[0].length == slicedText.length)?"":"...") +"\""+ "</tspan>."
-
-      d.displayedInfo++
-
-      return text
-    }).
-    on("mouseover",function(d,i){
-      tooltip.transition().
-      duration(100).
-      style("opacity", 1.0);
-
-      tooltip.html(SummaryToolTip(Object.keys(d.notes)[0],"Full Note")).
-      style("left", (d3.event.pageX) + "px").
-      style("top", (d3.event.pageY - 28) + "px");
-    }).
-    on("mouseout",function(d,i){
-      tooltip.transition().
-      duration(100).
-      style("opacity", 0.0);
-    })
-
-  //Keyword info
-  element.keywordText = card.append("text").
-    attr("x",15).
-    attr("y",function(d,i){
-      return bulletStartY-20*d.displayedInfo
-    }).
-    attr("id", "noteText").
-    html(function(d,i){
-      var keys = d.keywords
-      if(keys.length==0)
-        return
-
-      var text = "• Keywords: "
-      var slicedText = keys[0]
-      for (var i = 1; i < keys.length; i++) {
-        // Add something about cutting off at the edge of the card or something, maybe stick with 35? idk
-        // Add back hover text --- need to look at the SummaryToolTip function (or just not use it)
-        // Function mergecard, maybe modify it to merge the keywords?
-        //      current function deletes old segments and melds them into a new one and just yeets the keywords
-        slicedText += ", " + keys[i]
-      }
-      text += "<tspan style=\"font-weight:bold;fill:"+colors["Notes"]+"\">" + "\""+ slicedText + ((keys[0].length == slicedText.length)?"":"...") +"\""+ "</tspan>."
-
-      d.displayedInfo++
-
-      return text
-    })
-
-
-
-  //Highlight info
-  element.highlightText = card.append("text").
-    attr("x",15).
-    attr("y",function(d,i){
-      return bulletStartY-20*d.displayedInfo
-    }).
-    attr("id", "highlightText").
-    html(function(d,i){
-      var keys =Object.keys(d.highlights)
-      if(keys.length==0)
-        return
-
-      var slicedText = keys[0].slice(0,35)
-      var text = "• The user highlighted " + "<tspan style=\"font-weight:bold;fill:"+colors["Highlight"]+"\">" + "\""+ slicedText + ((keys[0].length == slicedText.length)?"":"...") + "\""+"</tspan>."
-
-      d.displayedInfo++
-
-      return text
-    }).
-    on("mouseover",function(d,i){
-      tooltip.transition().
-      duration(100).
-      style("opacity", 1.0);
-
-      tooltip.html(SummaryToolTip(Object.keys(d.highlights)[0],"Full Highlight")).
-      style("left", (d3.event.pageX) + "px").
-      style("top", (d3.event.pageY - 28) + "px");
-    }).
-    on("mouseout",function(d,i){
-      tooltip.transition().
-      duration(100)
-      .style("opacity", 0.0);
-    })
-
-    element.searchText = card.append("text").
-      attr("x",15).
-      attr("y",function(d,i){
-        return bulletStartY-20*d.displayedInfo
-      }).
-      attr("id", "searchText").
-      html(function(d,i){
-        var keys =Object.keys(d.searches)
-        if(keys.length==0)
-          return
-        var text = "• The user searched for "
-        for(var i=0; i<(Math.min(3,keys.length)); i++){
-          if(i==(Math.min(3,keys.length)-1) && keys.length!=1)
-            text += "and "
-
-          text += "<tspan style=\"font-weight:bold;fill:"+colors["Search"]+"\">" +keys[i]+"</tspan>"
-
-          if(i!=(Math.min(3,keys.length)-1))
-            text+=", "
-        }
-        d.displayedInfo++
-        text += "."
-        return text
+  var bulletStartY = cardHeight - 55
+  if (!detailed) {
+    element.descriptionText = card
+      .append("text")
+      .attr("x", 15)
+      .attr("y", function (d, i) {
+        return 50;
       })
+      .attr("id", "descriptionText")
+      .html(function (d, i) {
+        if (d.descriptions.length == 0) return;
 
-    return element
+        var text = "";
+        for (var text2 of d.descriptions) text += text2 + "<br> ";
+
+        //d.displayedInfo++
+        return text;
+      })
+      .call(wrap, cardWidth - 15);
+  } else {
+    //open info
+    element.searchText = card
+      .append("text")
+      .attr("x", 15)
+      .attr("y", function (d, i) {
+        return bulletStartY - 20 * d.displayedInfo;
+      })
+      .attr("id", "openText")
+      .html(function (d, i) {
+        var keys = Object.keys(d.opens);
+        // console.log(d.opens)
+        if (keys == 0)
+          if (d.displayedInfo == 0) {
+            d.displayedInfo++;
+            return "• No documents were explored.";
+          } else return;
+
+        var text =
+          "• The user explored " +
+          keys.length +
+          " document" +
+          (keys.length == 1 ? "" : "s") +
+          ".";
+        d.displayedInfo++;
+        return text;
+      });
+
+    //Note info
+    element.noteText = card
+      .append("text")
+      .attr("x", 15)
+      .attr("y", function (d, i) {
+        return bulletStartY - 20 * d.displayedInfo;
+      })
+      .attr("id", "noteText")
+      .html(function (d, i) {
+        var keys = Object.keys(d.notes);
+        if (keys.length == 0) return;
+
+        var text = "• The user noted ";
+        var slicedText = keys[0].slice(0, 35);
+        text +=
+          '<tspan style="font-weight:bold;fill:' +
+          colors["Notes"] +
+          '">' +
+          '"' +
+          slicedText +
+          (keys[0].length == slicedText.length ? "" : "...") +
+          '"' +
+          "</tspan>.";
+
+        d.displayedInfo++;
+
+        return text;
+      })
+      .on("mouseover", function (d, i) {
+        tooltip.transition().duration(100).style("opacity", 1.0);
+
+        tooltip
+          .html(SummaryToolTip(Object.keys(d.notes)[0], "Full Note"))
+          .style("left", d3.event.pageX + "px")
+          .style("top", d3.event.pageY - 28 + "px");
+      })
+      .on("mouseout", function (d, i) {
+        tooltip.transition().duration(100).style("opacity", 0.0);
+      });
+
+    //Keyword info
+    element.keywordText = card
+      .append("text")
+      .attr("x", 15)
+      .attr("y", function (d, i) {
+        return bulletStartY - 20 * d.displayedInfo;
+      })
+      .attr("id", "noteText")
+      .html(function (d, i) {
+        var keys = d.keywords;
+        if (keys.length == 0) return;
+
+        var text = "• Keywords: ";
+        var slicedText = keys[0];
+        for (var i = 1; i < keys.length; i++) {
+          // Add something about cutting off at the edge of the card or something, maybe stick with 35? idk
+          // Add back hover text --- need to look at the SummaryToolTip function (or just not use it)
+          // Function mergecard, maybe modify it to merge the keywords?
+          //      current function deletes old segments and melds them into a new one and just yeets the keywords
+          slicedText += ", " + keys[i];
+        }
+        text +=
+          '<tspan style="font-weight:bold;fill:' +
+          colors["Notes"] +
+          '">' +
+          '"' +
+          slicedText +
+          (keys[0].length == slicedText.length ? "" : "...") +
+          '"' +
+          "</tspan>.";
+
+        d.displayedInfo++;
+
+        return text;
+      });
+
+    //Highlight info
+    element.highlightText = card
+      .append("text")
+      .attr("x", 15)
+      .attr("y", function (d, i) {
+        return bulletStartY - 20 * d.displayedInfo;
+      })
+      .attr("id", "highlightText")
+      .html(function (d, i) {
+        var keys = Object.keys(d.highlights);
+        if (keys.length == 0) return;
+
+        var slicedText = keys[0].slice(0, 35);
+        var text =
+          "• The user highlighted " +
+          '<tspan style="font-weight:bold;fill:' +
+          colors["Highlight"] +
+          '">' +
+          '"' +
+          slicedText +
+          (keys[0].length == slicedText.length ? "" : "...") +
+          '"' +
+          "</tspan>.";
+
+        d.displayedInfo++;
+
+        return text;
+      })
+      .on("mouseover", function (d, i) {
+        tooltip.transition().duration(100).style("opacity", 1.0);
+
+        tooltip
+          .html(SummaryToolTip(Object.keys(d.highlights)[0], "Full Highlight"))
+          .style("left", d3.event.pageX + "px")
+          .style("top", d3.event.pageY - 28 + "px");
+      })
+      .on("mouseout", function (d, i) {
+        tooltip.transition().duration(100).style("opacity", 0.0);
+      });
+
+    element.searchText = card
+      .append("text")
+      .attr("x", 15)
+      .attr("y", function (d, i) {
+        return bulletStartY - 20 * d.displayedInfo;
+      })
+      .attr("id", "searchText")
+      .html(function (d, i) {
+        var keys = Object.keys(d.searches);
+        if (keys.length == 0) return;
+        var text = "• The user searched for ";
+        for (var i = 0; i < Math.min(3, keys.length); i++) {
+          if (i == Math.min(3, keys.length) - 1 && keys.length != 1)
+            text += "and ";
+
+          text +=
+            '<tspan style="font-weight:bold;fill:' +
+            colors["Search"] +
+            '">' +
+            keys[i] +
+            "</tspan>";
+
+          if (i != Math.min(3, keys.length) - 1) text += ", ";
+        }
+        d.displayedInfo++;
+        text += ".";
+        return text;
+      });
+
+    return element;
   }
+}
 
 
 //Arguments: The svg element to draw the bar on, x location, y location, text label, function to determine size of bar

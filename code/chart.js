@@ -12,7 +12,7 @@ var card
 var cardDivs
 var cardField
 var cardWidth = 700
-var cardHeight = 300
+var cardHeight = 200
 var transitionTime = 750
 var segI
 var DS = 1
@@ -146,7 +146,7 @@ Promise.all([
   	detailed = document.querySelector('input[name="detailed"]').checked;
     showNotes = document.querySelector('input[name="notes"]').checked;
     cardWidth = 510;
-    cardHeight = 300;
+    cardHeight = 200;
   	participantData = logs[DS-1][P-1]
     // Make the "Text" attribute the title for interactions of type "Doc_open" and "Reading" and add the date
     for (var i = 0; i<participantData.length; i++){
@@ -294,7 +294,7 @@ function drawCards(startTime, endTime){
     text(function(d){
       var segment = GetSegment(d.number, d.pid, d.dataset)
       // console.log(segment)
-  	  return "Segment #" + (d.number+1) + " " + IntToTime(segment.end-segment.start) + " minutes"
+  	  return "Segment #" + (d.number+1) + " | " + IntToTime(segment.end-segment.start) + " minutes"
   	})
 
   card.divider = card.append("line")
@@ -537,7 +537,7 @@ function drawCards(startTime, endTime){
 //Adds the card bullets and paragraph of text from the pre-summarized segment
 function cardText(card){
   var element = {}
-  var bulletStartY = cardHeight - 55
+  var bulletStartY = 150 ;// (0.55*cardHeight)
   if (!detailed) {
     element.descriptionText = card
       .append("text")

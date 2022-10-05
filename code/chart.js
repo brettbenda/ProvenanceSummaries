@@ -32,7 +32,8 @@ var colors = {
   "Highlights":"#ab8300",
   "Reading":"pink",
   "barBG": "lightgrey",
-  "Total": "darkslategrey"
+  "Average-neg":"blue",
+  "Average-pos": "orange",
 }
 
 //Load Docs
@@ -203,9 +204,18 @@ Promise.all([
 
   	var totalSummary = GetAllCounts(data);
   	//Stats
+    var exp_avg_interaction_rate = total_interactions / participantData.length //get the average number of interactions expected per segment
+    var maxDiff = 0;
   	for(var seg of data){
-  		seg.interaction_rate = Math.max(0,(seg.total_interactions / total_interactions));
-  	}
+      seg.interaction_rate = Math.max(0, (seg.total_interactions / total_interactions));
+      seg.interaction_diff_from_average = seg.total_interactions - exp_avg_interaction_rate;
+      maxDiff = Math.max(maxDiff, Math.abs(seg.interaction_diff_from_average)) //Determine the maximum expected interaction rate difference for all segments.
+    }
+    // Assign a ratio value for bar chart
+    for (var seg of data) {
+      seg.interaction_ratio_from_average = seg.interaction_diff_from_average / maxDiff
+    }
+
 }
 
 function drawCards(startTime, endTime){
@@ -518,7 +528,7 @@ function drawCards(startTime, endTime){
     
     card.open = barElement(card, 120, barY, "Documents Opened", "📖", function(d){ return 25*(d.local_open_ratio) })
     
-    card.total = barElement(card, 155, barY, "Total", "Total", function(d){ return 25*(d.interaction_rate) })
+    card.total = centerBarElement(card,155,barY,"Average","Avg.",function (d) {return 12.5 * d.interaction_ratio_from_average;});
     
     
   }
@@ -756,7 +766,109 @@ function barElement(card, x, y, text, symbol, sizefunc){
     attr("y",y-5).
     style("user-select","none").
     html(symbol).
-    style("font-size", function(){return (text=="Total"?12:18)}).
+    style("font-size", function(){return (text=="Average"?12:18)}).
+    call(wrap, 385)
+
+	//invisible box over bar and lable, to handle interactions for both rects of the bar
+	element.selectionArea = card.append("rect").
+    attr("x",x).
+    attr("y",y-25).
+    attr("height", 25+10).
+    attr("width",25).
+    attr("class", "selectionArea"+text.replace(/\s+/g, '')).
+    style("opacity", 0).
+    on("mouseover",function(d,i){
+      var selectID = "#card" + d.pid+"_"+i
+
+      d3.select(selectID).select(".barBar"+text.replace(/\s+/g, '')).
+        style("fill", colors[text]).
+        style("fill-opacity", "0.7")
+
+      d3.select(selectID).selectAll(".barBG"+text.replace(/\s+/g, '')).
+        style("fill", colors["barBG"]).
+        style("fill-opacity", "0.7")
+
+      tooltip.transition().
+        duration(100).
+        style("opacity", 1.0);
+
+      tooltip.html(BarToolTipText(d,text)).
+        style("left", (d3.event.pageX) + "px").
+        style("top", (d3.event.pageY - 28) + "px");
+    }).
+    on("mouseout",function(d,i){
+      var selectID = "#card" + d.pid+"_"+i
+
+      d3.select(selectID).selectAll(".barBar"+text.replace(/\s+/g, '')).
+        style("fill", colors[text]).
+        style("fill-opacity", null)
+
+      d3.select(selectID).selectAll(".barBG"+text.replace(/\s+/g, '')).
+        style("fill", colors["barBG"]).
+        style("fill-opacity", null)
+
+
+      tooltip.transition().
+        duration(100).
+        style("opacity", 0);
+    }).
+    on("mousemove",function(){
+      tooltip.style("left", (d3.event.pageX) + "px")
+        .style("top", (d3.event.pageY - 28) + "px");
+  })
+
+  return element
+
+}
+function centerBarElement(card, x, y, text, symbol, sizefunc) {
+  element = {}
+  unselectBar = "royalblue"
+  unselectBG = "lightblue"
+
+  element.bg = card
+    .append("line")
+    .attr("x1", x)
+    .attr("y1", y + 5)
+    .attr("x2", x + 25)
+    .attr("y2", y + 5)
+    .attr("stroke-width", 8)
+    .attr("stroke-opacity", "0.5")
+    .attr("class", "barBG" + text.replace(/\s+/g, ""))
+    .style("stroke", "#dddddd");
+
+  element.bar = card
+    .append("line")
+    .attr("x1", function (d, i) {
+      return sizefunc(d) > 0 ? x + 12.5 : x + sizefunc(d) + 12.5;
+    })
+    .attr("y1", y + 5)
+    .attr("x2", function (d, i) {
+      return sizefunc(d) > 0 ? x + 12.5 + sizefunc(d) : x + 12.5;
+    })
+    .attr("y2", y + 5)
+    .attr("stroke-width", 5)
+    .attr("class", "barBar" + text.replace(/\s+/g, ""))
+    .style("stroke", function (d, i) {
+      return sizefunc(d) > 0 ? colors[text + "-pos"] : colors[text + "-neg"];
+    });
+
+  element.center = card
+    .append("line")
+    .attr("x1", x + 12.5)
+    .attr("y1", y + 0)
+    .attr("x2", x + 12.5)
+    .attr("y2", y + 10)
+    .attr("stroke-width", 2)
+    .attr("stroke-opacity", "0.9")
+    .attr("class", "center" + text.replace(/\s+/g, ''))
+    .style("stroke", "#000000");
+
+  element.text = card.append("text").
+    attr("x",x).
+    attr("y",y-5).
+    style("user-select","none").
+    html(symbol).
+    style("font-size", function(){return (text=="Average"?12:18)}).
     call(wrap, 385)
 
 	//invisible box over bar and lable, to handle interactions for both rects of the bar
@@ -1029,6 +1141,34 @@ function segmentTimelineElement(card){
   return element
   }
 
+function conditionalQuality(segment){
+  var documentInteractionsPerSegment = Math.abs(segment.interaction_ratio_from_average)
+  var isPositive = segment.interaction_ratio_from_average > 0 ? true : false
+  var quality = ""
+  if (documentInteractionsPerSegment > 0.75) {
+    if (isPositive) {
+      quality =
+        "<span>User opened <strong>many more</strong> documents than usual</span>";
+    } else {
+      quality =
+        "<span>User opened <strong>many fewer</strong> documents than usual</span>";
+    }
+  } else if (documentInteractionsPerSegment > 0.1) {
+    if (isPositive) {
+      quality =
+        "<span>User opened <strong>more</strong> documents than usual</span>";
+    } else {
+      quality =
+        "<span>User opened <strong>fewer</strong> documents than usual</span>";
+    }
+  } else{
+    quality =
+      "<span>User open the <strong>usual</strong> number of documents in this segment</span>";
+  }
+  return quality
+}
+
+
 //get html for action bar tooltips
 function BarToolTipText(d, type){
   var title = "<b>"+type+" (" + TextToValue(d,type) + ")"
@@ -1047,8 +1187,9 @@ function BarToolTipText(d, type){
     case "Documents Opened":
     data = d.opens
     break
-    case "Total":
-    return title
+    case "Average":
+      var quality = conditionalQuality(d);
+    return quality+"<b> Total: (" + TextToValue(d,type) + ")"
   }
   title+= ":</b> <br>"
   var keys = Object.keys(data)
@@ -1654,7 +1795,7 @@ function TextToValue(d, type){
     case "Documents Opened":
       data =  d.opens
       break;
-    case "Total":
+    case "Average":
       return d.total_interactions
       break;
   }

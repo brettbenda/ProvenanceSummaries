@@ -288,14 +288,38 @@ function drawCards(startTime, endTime){
     style("stroke-width", 3)
 
 	//segment label
-	card.label = card.append("text").
-    attr("x",15).
-    attr("y",25).
-    text(function(d){
-      var segment = GetSegment(d.number, d.pid, d.dataset)
+	card.label = card
+    .append("text")
+    .attr("x", 15)
+    .attr("y", 25)
+    .text(function (d) {
+      var segment = GetSegment(d.number, d.pid, d.dataset);
       // console.log(segment)
-  	  return "#" + (d.number+1) + " | " + IntToTime(segment.end-segment.start) + " minutes"
-  	})
+      return (
+        "#" +
+        (d.number + 1) +
+        " | " +
+        IntToTime(segment.end - segment.start) +
+        " minutes"
+      );
+    })
+    .on("mouseover", function (d, i) {
+      var seg = GetSegment(d.number, d.pid, d.dataset);
+      tooltip.transition().duration(100).style("opacity", 1.0);
+
+      tooltip
+        .html(TimeToolTip(seg))
+        .style("left", d3.event.pageX + "px")
+        .style("top", d3.event.pageY - 28 + "px");
+    })
+    .on("mouseout", function (d, i) {
+      tooltip.transition().duration(100).style("opacity", 0.0);
+    })
+    .on("mousemove", function (d, i) {
+      tooltip
+        .style("left", d3.event.pageX + "px")
+        .style("top", d3.event.pageY - 28 + "px");
+    });
 
   card.divider = card.append("line")
         .attr("x1",10)

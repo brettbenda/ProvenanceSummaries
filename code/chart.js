@@ -294,7 +294,7 @@ function drawCards(startTime, endTime){
     text(function(d){
       var segment = GetSegment(d.number, d.pid, d.dataset)
       // console.log(segment)
-  	  return "Segment #" + (d.number+1) + " | " + IntToTime(segment.end-segment.start) + " minutes"
+  	  return "#" + (d.number+1) + " | " + IntToTime(segment.end-segment.start) + " minutes"
   	})
 
   card.divider = card.append("line")

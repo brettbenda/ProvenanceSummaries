@@ -3,25 +3,6 @@
   xmlns="http://www.w3.org/1999/xhtml"
   xmlns:svg="http://www.w3.org/2000/svg"
 >
-  <style>
-    div.tooltip {
-      position: absolute;
-      text-align: center;
-      max-width: 500px;
-      display: flex;
-      flex-direction: column;
-      padding: 2px;
-      background: white;
-      border: 3px solid navy;
-      border-radius: 5px;
-      pointer-events: none;
-      text-align: left;
-    }
-
-    .tooltipP {
-      margin-bottom: 0;
-    }
-  </style>
   <head>
     <title>Provenance</title>
 
@@ -55,13 +36,6 @@
     <div
       id="controls"
       class="col-sm-3 col-lg-2"
-      style="
-        position: fixed;
-        top: 0;
-        background-color: white;
-        border: 3px solid navy;
-        z-index: 1;
-      "
     >
       <form id="controlForm">
         <h5>Data Selection</h5>
@@ -108,7 +82,17 @@
           name="detailed"
           id="detailBtn"
           onclick="loadData()"
-        /><br />
+        />
+        <label id="iconKey">
+          <ul>
+            <li>🔎 - The number of searches performed by the user in a segment compared to the total number of searches over the whole session.</li>
+            <li>🔖 - The text highlighted by the user. Shows number of events</li>
+            <li>📝 - The notes made in the segment. Shows number of notes made.</li>
+            <li>🦄 - The documents opened by user. Shows the ratio of new documents opened compared to the total documents opened in segment</li>
+            <li>📖 - The standard deviation in number of documents opened. Average calculated from the sum of all document open events divided by the number of segments.</li>
+          </ul>
+        </label>
+        <br />
         Show Notes:
         <input
           type="checkbox"
@@ -129,10 +113,10 @@
             <h1>Provenance Segment Visualization</h1>
             <!-- <h3><a href="https://github.com/brettbenda/ProvenanceSummaries/">Link to Github Repo</a></h3> -->
             <!--             <h3>Data Processing</h3>
-            <p>Data from provenance logs are segmented. Small segments are grouped into the preceeding segment. Only explicit user action types from the logs are regarded in summarizing each segment (searches, note taking, highlighting, and opening a document).</p>
+            <p>Data from provenance logs are segmented. Small segments are grouped into the proceeding segment. Only explicit user action types from the logs are regarded in summarizing each segment (searches, note taking, highlighting, and opening a document).</p>
 
             <h3>Overview</h3>
-            <p>Each segment is represented by a card with a unique segment number. A lightblue bar represents the timeline for the entire segment, with a dark blue block showing the relative start and end times for the segment. The length of this bar encodes the duration of the segment.<br>
+            <p>Each segment is represented by a card with a unique segment number. A light blue bar represents the timeline for the entire segment, with a dark blue block showing the relative start and end times for the segment. The length of this bar encodes the duration of the segment.<br>
             Below is a timeline of all actions in the segment to show actions in context to one another. <br>
             A textual summary of important actions in the segment is provided. <br>
             Key information about searching, note taking, highlighting, and document opening is included. Bars showing the relative frequency of each action are shown for each segment. A "Total" activity bar shows how much of the total activity among all segments occurs in the individual segment.</p>
@@ -145,7 +129,7 @@
             <p> Hovering over the timeline shows time and action details.<br>
             Long notes/highlighted text are shortened, but can be seen in their entirety by hovering the text.<br>
             Colored text can be hovered to show the full text.<br>
-            Hovering over each bar/icon displays all the interactions of the type with frequencies if the action occured mutliple times.
+            Hovering over each bar/icon displays all the interactions of the type with frequencies if the action occurred multiple times.
 
             <h3 style="color:darkgreen">Updates</h3>
             <p style="color:darkgreen">

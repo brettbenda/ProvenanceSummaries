@@ -546,13 +546,13 @@ function drawCards(startTime, endTime){
     //interaction bars
     card.search = barElement(card, 15, barY, "Searches", "🔎", function(d){ return 25*(d.local_search_ratio) })
     
-    card.highlight = barElement(card, 50, barY, "Highlights", "📑", function(d){ return 25*(d.local_highlight_ratio) })
+    card.highlight = barElement(card, 50, barY, "Highlights", "🔖", function(d){ return 25*(d.local_highlight_ratio) })
     
-    card.notes = barElement(card, 85, barY, "Notes", "✏", function(d){ return 25*(d.local_note_ratio) })
+    card.notes = barElement(card, 85, barY, "Notes", "📝", function(d){ return 25*(d.local_note_ratio) })
     
-    card.open = barElement(card, 120, barY, "Documents Opened", "📖", function(d){ return 25*(d.local_open_ratio) })
+    card.open = barElement(card, 120, barY, "Documents Opened", "🦄", function(d){ return 25*(d.local_open_ratio) })
     
-    card.total = centerBarElement(card,155,barY,"Average","Avg.",function (d) {return 12.5 * d.interaction_ratio_from_average;});
+    card.total = centerBarElement(card,155,barY,"Average","📖",function (d) {return 12.5 * d.interaction_ratio_from_average;});
     
     
   }
@@ -891,7 +891,7 @@ function centerBarElement(card, x, y, text, symbol, sizefunc) {
     attr("y",y-5).
     style("user-select","none").
     html(symbol).
-    style("font-size", function(){return (text=="Average"?12:18)}).
+    style("font-size", function(){return (text=="Total"?12:18)}). //Set the font size of the icon - 18 is for icons 12 is for text
     call(wrap, 385)
 
 	//invisible box over bar and lable, to handle interactions for both rects of the bar

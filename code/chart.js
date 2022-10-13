@@ -575,10 +575,9 @@ function cardText(card){
           } else return;
 
         var text =
-          "• The user explored " +
+          "• Explored " +
           keys.length +
-          " document" +
-          (keys.length == 1 ? "" : "s") +
+          (keys.length == 1 ? " document" : " different documents") +
           ".";
         d.displayedInfo++;
         return text;
@@ -596,7 +595,7 @@ function cardText(card){
         var keys = Object.keys(d.notes);
         if (keys.length == 0) return;
 
-        var text = "• The user noted ";
+        var text = "• Noted ";
         var slicedText = keys[0].slice(0, 35);
         text +=
           '<tspan style="font-weight:bold;fill:' +
@@ -674,7 +673,7 @@ function cardText(card){
 
         var slicedText = keys[0].slice(0, 35);
         var text =
-          "• The user highlighted " +
+          "• Highlighted " +
           '<tspan style="font-weight:bold;fill:' +
           colors["Highlight"] +
           '">' +
@@ -710,7 +709,7 @@ function cardText(card){
       .html(function (d, i) {
         var keys = Object.keys(d.searches);
         if (keys.length == 0) return;
-        var text = "• The user searched for ";
+        var text = "• Searched for ";
         for (var i = 0; i < Math.min(3, keys.length); i++) {
           if (i == Math.min(3, keys.length) - 1 && keys.length != 1)
             text += "and ";
@@ -1148,22 +1147,22 @@ function conditionalQuality(segment){
   if (documentInteractionsPerSegment > 0.75) {
     if (isPositive) {
       quality =
-        "<span>User opened <strong>many more</strong> documents than usual</span>";
+        "<span>opened <strong>many more</strong> documents than usual</span>";
     } else {
       quality =
-        "<span>User opened <strong>many fewer</strong> documents than usual</span>";
+        "<span>opened <strong>many fewer</strong> documents than usual</span>";
     }
   } else if (documentInteractionsPerSegment > 0.1) {
     if (isPositive) {
       quality =
-        "<span>User opened <strong>more</strong> documents than usual</span>";
+        "<span>opened <strong>more</strong> documents than usual</span>";
     } else {
       quality =
-        "<span>User opened <strong>fewer</strong> documents than usual</span>";
+        "<span>opened <strong>fewer</strong> documents than usual</span>";
     }
   } else{
     quality =
-      "<span>User open the <strong>usual</strong> number of documents in this segment</span>";
+      "<span>opened the <strong>usual</strong> number of documents in this segment</span>";
   }
   return quality
 }

@@ -20,6 +20,7 @@ var P = 1
 var detailed = true
 var prevDocs = []
 var showNotes = true
+var showTimeline = false;
 var moving = false;
 var colors = {
   "Doc_open":"crimson",
@@ -145,6 +146,7 @@ Promise.all([
   	P = document.querySelector('input[name="pid"]:checked').value;
   	detailed = document.querySelector('input[name="detailed"]').checked;
     showNotes = document.querySelector('input[name="notes"]').checked;
+    showTimeline = document.querySelector('input[name="timeline"]').checked;
     cardWidth = 510;
     cardHeight = 200;
   	participantData = logs[DS-1][P-1]
@@ -335,7 +337,9 @@ function drawCards(startTime, endTime){
 
   if(detailed){
 
-    card.segmentTimeline = segmentTimelineElement(card);
+    if (showTimeline) {
+      card.segmentTimeline = segmentTimelineElement(card);
+    }
 
     // card.divider2 = card.append("line")
     //   .attr("x1",10)

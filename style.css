@@ -35,6 +35,10 @@ div.tooltip {
    list-style-type:none;
 }
 
+#iconKey hr {
+    margin: 4px;
+}
+
 input[type=checkbox] + label {
     display: none;
 }

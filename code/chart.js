@@ -583,7 +583,7 @@ function cardText(card){
         //d.displayedInfo++
         return text;
       })
-      .call(wrap, cardWidth - 15);
+      .call(wrap, cardWidth - 25);
   } else {
     //open info
     element.searchText = card

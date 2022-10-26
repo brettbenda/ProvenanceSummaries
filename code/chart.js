@@ -229,7 +229,7 @@ function drawOverview() {
     .select("#overview")
     .append("p")
     .html(
-          "They focused on <strong>12</strong> main topics in this analysis session, exploring <strong>24%</strong> of the dataset. The topics that received the most attention were <strong>minski, leonid, and lagos</strong>. They started searching for <strong>disease</strong>, before transitioning to <strong>dubai</strong> and finally looking for <strong>burj</strong>. The segment with the newest content was <strong>4</strong>. Segment <strong>5</strong> was the longest period where they opened <strong>many more documents</strong> than usual. The shortest segment (#<strong>2</strong>) focused almost entirely on <strong>Kenya</strong>. They conducted <strong>13</strong> searches throughout their session, especially in segment <strong>5</strong>."
+      "They focused on <strong>12</strong> main topics in this analysis session, exploring <strong>24%</strong> of the dataset. The topics that received the most attention were <strong>minski, leonid, and lagos</strong>. They started searching for <strong>disease</strong>, before transitioning to <strong>dubai</strong> and finally looking for <strong>burj</strong>. The segment with the newest content was <strong>4</strong>. Segment <strong>5</strong> was the longest period where they opened <strong>many more documents</strong> than usual. They conducted < strong > 13</strong > searches throughout their session, especially in segment < strong > 5</strong >."
     );
   }
 

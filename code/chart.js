@@ -221,6 +221,21 @@ Promise.all([
 
   }
 
+  /**
+   * This is the overview paragraph that would describe what's going on at a high level - no segments. 
+   * It would report on things like:
+   *    Longest Segment
+   *    Shortest Segment
+   *    How did they find topics (mostly search lead or serendipity lead?)
+   *    Hub and spoke or more linear?
+   *    Number of topics explored
+   *    Most explored topic - Most repeatedly explored topics
+   *    Least explored topic
+   *    Number of searches
+   *    Number of unique documents opened / vs number of documents opened in total / vs number of documents in the dataset (percent of dataset explored)
+   *    Most common interaction type
+   *    Most common interaction sequences
+   */
 function drawOverview() {
   d3.select("#overview")
     .selectAll("p")

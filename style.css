@@ -45,3 +45,12 @@ input[type=checkbox] + label {
 input[type=checkbox]:checked + label {
   display: block;
 } 
+
+#overview{
+   max-width: 100em;
+    margin: 10px auto;
+    border: beige;
+    border-style: dotted;
+    padding: 1em;
+    background-color: wheat;
+}

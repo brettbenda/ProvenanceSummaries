@@ -207,6 +207,7 @@ Promise.all([
   	var totalSummary = GetAllCounts(data);
   	//Stats
     var exp_avg_interaction_rate = total_interactions / participantData.length //get the average number of interactions expected per segment
+    drawOverview();
     var maxDiff = 0;
   	for(var seg of data){
       seg.interaction_rate = Math.max(0, (seg.total_interactions / total_interactions));
@@ -218,7 +219,19 @@ Promise.all([
       seg.interaction_ratio_from_average = seg.interaction_diff_from_average / maxDiff
     }
 
-}
+  }
+
+function drawOverview() {
+  d3.select("#overview")
+    .selectAll("p")
+    .remove()
+  overview = d3
+    .select("#overview")
+    .append("p")
+    .html(
+          "They focused on <strong>12</strong> main topics in this analysis session, exploring <strong>24%</strong> of the dataset. The topics that received the most attention were <strong>minski, leonid, and lagos</strong>. They started searching for <strong>disease</strong>, before transitioning to <strong>dubai</strong> and finally looking for <strong>burj</strong>. The segment with the newest content was <strong>4</strong>. Segment <strong>5</strong> was the longest period where they opened <strong>many more documents</strong> than usual. The shortest segment (#<strong>2</strong>) focused almost entirely on <strong>Kenya</strong>. They conducted <strong>13</strong> searches throughout their session, especially in segment <strong>5</strong>."
+    );
+  }
 
 function drawCards(startTime, endTime){
 	//draw cards

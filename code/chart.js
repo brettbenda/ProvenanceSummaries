@@ -237,6 +237,34 @@ Promise.all([
    *    Most common interaction sequences
    */
 function drawOverview() {
+  function applyHTMLHighlight(text) {
+    return "<span class='highlightHTML'>" + text + "</span>"
+  }
+  function applyHTMLHighlightSegment(value) {
+    return "<span class='highlightSegment'>#" + value + "</span>"
+  }
+  function topicsToHighlightText(listOfTopics, numberOfTopics = 3) {
+    output = "";
+    for (word = 0; word < numberOfTopics - 1; word++) {
+      output += applyHTMLHighlight( listOfTopics[word]) +", "
+    }
+    output +=
+      "and " + applyHTMLHighlight(listOfTopics[numberOfTopics - 1]);
+    return output
+  }
+  
+  let superlatives = {
+    topicCount: 12,
+    dataCoverage: 0.23843,
+    topics: ["minski", "lenid", "lagos", "marigold"],
+    breakpointSearches: ["disease", "dubai", "burj"],
+    newSeg: 4,
+    longSeg: 5,
+    openRate: "many more documents",
+    totalSearch: 13,
+    mostSearchSeg: 5
+  };
+
   d3.select("#overview")
     .selectAll("p")
     .remove()
@@ -244,9 +272,17 @@ function drawOverview() {
     .select("#overview")
     .append("p")
     .html(
-      "They focused on <strong>12</strong> main topics in this analysis session, exploring <strong>24%</strong> of the dataset. The topics that received the most attention were <strong>minski, leonid, and lagos</strong>. They started searching for <strong>disease</strong>, before transitioning to <strong>dubai</strong> and finally looking for <strong>burj</strong>. The segment with the newest content was <strong>4</strong>. Segment <strong>5</strong> was the longest period where they opened <strong>many more documents</strong> than usual. They conducted < strong > 13</strong > searches throughout their session, especially in segment < strong > 5</strong >."
+      "They focused on <strong>" +
+        superlatives["topicCount"] +
+        "</strong> main topics in this analysis session, exploring <strong>" +
+        Math.round(100 * superlatives["dataCoverage"]) +
+        "%</strong> of the dataset. The topics that received the most attention were <strong>" +
+        topicsToHighlightText(superlatives["topics"]) +
+        "</strong>. They started searching for <strong>" +
+        applyHTMLHighlight(superlatives["breakpointSearches"][0]) +
+        "</strong>, before transitioning to <strong>"+applyHTMLHighlight(superlatives["breakpointSearches"][1])+"</strong> and finally looking for <strong>"+applyHTMLHighlight(superlatives["breakpointSearches"][2])+"</strong>. The segment with the newest content was <strong>"+applyHTMLHighlightSegment(superlatives["newSeg"])+"</strong>. Segment <strong>"+applyHTMLHighlightSegment(superlatives["longSeg"])+"</strong> was the longest period where they opened <strong>"+superlatives["openRate"]+"</strong> than usual. They conducted <strong>"+superlatives["totalSearch"]+"</strong> searches throughout their session, especially in segment <strong>"+applyHTMLHighlightSegment(superlatives["mostSearchSeg"])+"</strong>."
     );
-  }
+}
 
 function drawCards(startTime, endTime){
 	//draw cards

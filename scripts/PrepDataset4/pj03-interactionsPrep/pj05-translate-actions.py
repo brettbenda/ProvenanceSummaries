@@ -22,7 +22,8 @@ def typeTranslate(event, eventTypeKey = "action"):
     etype = event[eventTypeKey]
     #convert time to miliseconds
     ajdTime = datetime.strptime(event['time'],oTimeFormat)
-    event["time"] = ajdTime.microsecond
+    event["time"] = ajdTime.hour*3600000+ajdTime.minute * \
+        60000+ajdTime.second*1000+ajdTime.microsecond/1000
     # print(event)
     if(etype == "query"):
         event['InteractionType'] = "Search"

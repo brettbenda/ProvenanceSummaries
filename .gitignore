@@ -2,3 +2,5 @@
 scripts/.ipynb_checkpoints
 code/ProvSegments/Dataset_4
 code/ProvSegments/Pandajam-raw-logs-from-las
+scripts/*/Dataset_4
+scripts/newData/tfidf_d4.json

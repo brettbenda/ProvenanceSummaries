@@ -4,3 +4,6 @@ code/ProvSegments/Dataset_4
 code/ProvSegments/Pandajam-raw-logs-from-las
 scripts/*/Dataset_4
 scripts/newData/tfidf_d4.json
+scripts/NER/Documents_Dataset_4.json
+scripts/NER/.ipynb_checkpoints/*
+scripts/NER/Entities_Dataset_4.json

@@ -152,8 +152,8 @@ Promise.all([
   	participantData = logs[DS-1][P-1]
     // Make the "Text" attribute the title for interactions of type "Doc_open" and "Reading" and add the date
     for (var i = 0; i<participantData.length; i++){
-      console.log("participantData")
-      console.log(participantData[i])
+      // console.log("participantData")
+      // console.log(participantData[i])
       if (participantData[i].InteractionType == "Doc_open" || participantData[i].InteractionType == "Reading"){
         // Get the number from the ID and then subtract 1 to make it the index
         docPos = parseInt(participantData[i].Text.substring(participantData[i].Text.indexOf(' ') + 1)) - 1
@@ -170,10 +170,10 @@ Promise.all([
         }
 
         // Split the title into the date and actual title
-        console.log("docs")
-        console.log(docs)
-        console.log(docSet)
-        console.log(docPos)
+        // console.log("docs")
+        // console.log(docs)
+        // console.log(docSet)
+        // console.log(docPos)
         rawTitle = docs[docSet][docPos].title
         newDate = rawTitle.substring(0, rawTitle.indexOf(','))
         newTitle = rawTitle.substring(rawTitle.indexOf(', ') + 2)

@@ -2095,14 +2095,28 @@ function ListToCounts(list){
 }
 
 //Given an int representing seconds, gives a mm:ss string back
-function IntToTime(int){
-	var min = Math.floor(int/60)
-	var sec = Math.floor(int%60)
+function IntToTime(int) {
+  // console.log(DS, int)
+  if (DS == 4) {
+    int = int /100
+  }
+  if (int < 3600) {
+    	var min = Math.floor(int / 60);
+      var sec = Math.floor(int % 60);
 
-	if(sec.toString().length==1)
-		sec = "0"+sec.toString()
+      if (sec.toString().length == 1) sec = "0" + sec.toString();
 
-	return min+":"+sec
+      return min + ":" + sec;
+  } else {
+    // console.log("longer than an hour!")
+    var hour = Math.floor(int / 3600);
+    var min = Math.floor((int - (3600 * hour)) / 60);
+    if (min.toString().length == 1) min = "0" + min.toString();
+    var sec = Math.floor(int % 60);
+    if (sec.toString().length == 1) sec = "0" + sec.toString();
+    return hour + ":" + min + ":" + sec;
+
+  }
 }
 
 function GetInteraction(segmentID, interactionNum){

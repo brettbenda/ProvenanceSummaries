@@ -150,23 +150,23 @@ async function startup() {
     .then(async (responses) => {
       for (const response of responses) {
         // console.log(response.json())
-        console.log(`${response.url}: ${response.status}`);
+        // console.log(`${response.url}: ${response.status}`); //Shows the response for each data file should be the file name and 200
         await response.json().then((data) => {
           docs.push(data);
-          console.log(docs);
+          // console.log(docs);
         });
       }
-      console.log(docs)
+      console.log("datasets are loaded:", docs) //Shows that the data is loaded
       Promise.all([await fetch("./code/vis.json")])
         .then(async (mainSegPromise) => {
-          console.log(mainSegPromise);
+          // console.log(mainSegPromise);
           for (const res of mainSegPromise) {
-            console.log(res);
+            // console.log(`${res.url}: ${res.status}`); //Shows the response for each data file should be the file name and 200
             await res.json().then((json2) => {
               //unwrap json
               orignaljson = Object.assign({}, json2);
               json = json2;
-              console.log(json2);
+              console.log("segmentation is loaded:",json2);
               logs = json2.interactionLogs;
               segments = json2.segments;
               for (var seg of segments) {
@@ -177,7 +177,7 @@ async function startup() {
           processData()
           var startTime = 0;
           var endTime = participantSegments[participantSegments.length - 1].end;
-          console.log(endTime);
+          // console.log(endTime);
           drawCards(startTime, endTime);
   
           //add separate tooltip div

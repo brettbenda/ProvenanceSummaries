@@ -178,6 +178,7 @@ async function startup() {
           var startTime = 0;
           var endTime = participantSegments[participantSegments.length - 1].end;
           // console.log(endTime);
+          drawOverview();
           drawCards(startTime, endTime);
   
           //add separate tooltip div
@@ -260,6 +261,7 @@ startup()
    // console.log(endTime)
     
     if (DS == 4 && P >= 8 || DS < 4) {
+      drawOverview();
       drawCards(startTime, endTime)
     } else {
       drawNoData()
@@ -371,7 +373,6 @@ startup()
   	var totalSummary = GetAllCounts(data);
   	//Stats
     var exp_avg_interaction_rate = total_interactions / participantData.length //get the average number of interactions expected per segment
-    drawOverview();
     var maxDiff = 0;
   	for(var seg of data){
       seg.interaction_rate = Math.max(0, (seg.total_interactions / total_interactions));

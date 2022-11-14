@@ -259,7 +259,11 @@ startup()
     var endTime = participantSegments[participantSegments.length-1].end
    // console.log(endTime)
 
+    if (DS == 4 && P >= 8 || DS < 4) {
     drawCards(startTime, endTime)
+    } else {
+      drawNoData()
+    }
  }
 
  function saveData(){
@@ -381,6 +385,17 @@ startup()
 
   }
 
+function drawNoData() {
+  console.log("Current Combination is not available")
+  d3.selectAll("#chartArea").remove();
+  d3.select("#chart")
+    .style("display", "block")
+    .append("div")
+    .attr("id", "chartArea")
+    .append("h3")
+    .attr("class", "errorNote")
+    .html("<strong>No data for the currently selected combination </strong>")
+}
   /**
    * This is the overview paragraph that would describe what's going on at a high level - no segments. 
    * It would report on things like:

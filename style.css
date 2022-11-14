@@ -55,6 +55,16 @@ input[type=checkbox]:checked + label {
     background-color: wheat;
 }
 
+.errorNote{
+    color: darkred;
+    padding: 1%;
+    background-color: peachpuff;
+    border-radius: 12px;
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
 .highlightHTML{
 color: steelblue;
     padding: 3px;

@@ -387,6 +387,12 @@ startup()
 
 function drawNoData() {
   console.log("Current Combination is not available")
+  d3.selectAll("#overview p").remove();
+  d3.select("#overview")
+    .append("p")
+    .attr("class", "errorNote")
+    .attr("style", "background-color:wheat")
+    .html("No summary");
   d3.selectAll("#chartArea").remove();
   d3.select("#chart")
     .style("display", "block")

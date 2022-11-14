@@ -44,7 +44,7 @@ var json, orignaljson
 // console.log(docs)
 // setTimeout(console.log(docs),10000)
 var entities;
-var logs;
+// var logs;
 var segments;
 var participantData
 var participantSegments
@@ -138,6 +138,7 @@ var colors = {
 
 async function startup() {
   docs = []
+  logs=[]
   const fetch_d1 = await fetch('./code/ProvSegments/Dataset_1/Documents/Documents_Dataset_1.json')
   const fetch_d2 = await fetch("./code/ProvSegments/Dataset_2/Documents/Documents_Dataset_2.json")
   const fetch_d3 = await fetch("./code/ProvSegments/Dataset_3/Documents/Documents_Dataset_3.json")
@@ -156,44 +157,76 @@ async function startup() {
         });
       }
       console.log(docs)
+      Promise.all([await fetch("./code/vis.json")])
+        .then(async (mainSegPromise) => {
+          console.log(mainSegPromise);
+          for (const res of mainSegPromise) {
+            console.log(res);
+            await res.json().then((json2) => {
+              //unwrap json
+              orignaljson = Object.assign({}, json2);
+              json = json2;
+              console.log(json2);
+              logs = json2.interactionLogs;
+              segments = json2.segments;
+              for (var seg of segments) {
+                seg.annotation = "";
+              }
+            });
+          }
+          processData()
+          var startTime = 0;
+          var endTime = participantSegments[participantSegments.length - 1].end;
+          console.log(endTime);
+          drawCards(startTime, endTime);
+  
+          //add separate tooltip div
+          tooltip = d3
+            .select("body")
+            .append("div")
+            .attr("class", "tooltip")
+            .style("opacity", 0);
+        })
+ 
+
     })
     .catch((error) => {
-      console.error(`Failed to fetch: ${error}`);
+      console.error(`error encountered in startup: ${error}`);
     })
     // .then(
   //   processData()
   // )
   
 
-  Promise.all([
-    d3.json("./code/vis.json")
-  ]).then(function (json2) {
-    //unwrap json
-    orignaljson = Object.assign({}, json2)
-    json = json2
-    logs = json2[0].interactionLogs
-    segments = json2[0].segments
-    for (var seg of segments) {
-      seg.annotation = ""
-    }
+  // Promise.all([
+  //   d3.json("./code/vis.json")
+  // ]).then(function (json2) {
+  //   //unwrap json
+  //   orignaljson = Object.assign({}, json2)
+  //   json = json2
+  //   logs = json2[0].interactionLogs
+  //   segments = json2[0].segments
+  //   for (var seg of segments) {
+  //     seg.annotation = ""
+  //   }
 
 
-    processData();
+    // processData();
 
 
-    var startTime = 0;
-    var endTime = participantSegments[participantSegments.length-1].end
-    console.log(endTime)
-    drawCards(startTime, endTime)
+    // var startTime = 0;
+    // var endTime = participantSegments[participantSegments.length-1].end
+    // console.log(endTime)
+    // drawCards(startTime, endTime)
 
-    //add separate tooltip div
-    tooltip = d3.select("body").append("div")
-      .attr("class", "tooltip")
-      .style("opacity", 0)
+    // //add separate tooltip div
+    // tooltip = d3.select("body").append("div")
+    //   .attr("class", "tooltip")
+    //   .style("opacity", 0)
 
 
 
-  })
+  // })
 }
 
 startup()
@@ -214,8 +247,8 @@ startup()
 
   function loadData(){
     json = Object.assign({},orignaljson)
-    logs = json[0].interactionLogs
-    segments = json[0].segments
+    logs = json.interactionLogs
+    segments = json.segments
     participantData = []
     participantSegments = []
     data=[]
@@ -272,6 +305,7 @@ startup()
     for (var i = 0; i<participantData.length; i++){
       // console.log("participantData")
       // console.log(participantData[i])
+      if (DS < 3) {
       if (participantData[i].InteractionType == "Doc_open" || participantData[i].InteractionType == "Reading"){
         // Get the number from the ID and then subtract 1 to make it the index
         docPos = parseInt(participantData[i].Text.substring(participantData[i].Text.indexOf(' ') + 1)) - 1
@@ -285,11 +319,7 @@ startup()
         }
         else if (participantData[i].Text.startsWith("Disappearance")) {
           docSet = 2
-        } else if (participantData[i].Text.startsWith("panda")) {
-           docSet = 3;
         }
-
-        if (docSet < 3) {
           
           
           // Split the title into the date and actual title
@@ -301,8 +331,12 @@ startup()
           newDate = rawTitle.substring(0, rawTitle.indexOf(','))
           newTitle = rawTitle.substring(rawTitle.indexOf(', ') + 2)
           
-        } else {
-          newDate = "2022"
+      } else {
+        docSet = 3;
+        if (participantData[i].InteractionType == "Reading") {
+          docPos = 3 //TODO Make this work better 
+        }
+          newDate = "November 2022";
         }
         // Modify the participantData array
         // participantData[i].Text = newTitle
@@ -1573,14 +1607,16 @@ function summarize_segment(segment){
   }
 
   // Sort dates
-  var allMonths = ['Jan','Feb','Mar', 'Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  for (i in dates) {
-    // Replace "<month> <year>" with a date object
-    dates[i] = new Date(parseInt(dates[i].split(" ")[1]), allMonths.indexOf(dates[i].split(" ")[0]))
+  var allMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  if (DS < 3) {
+    for (i in dates) {
+      // Replace "<month> <year>" with a date object
+      dates[i] = new Date(parseInt(dates[i].split(" ")[1]), allMonths.indexOf(dates[i].split(" ")[0]))
+    }
+    dates.sort(function(a, b){
+        return a - b
+    });
   }
-  dates.sort(function(a, b){
-      return a - b
-  });
 
   var readings_merged = []
   //merge small reading segments
@@ -1692,9 +1728,10 @@ function summarize_segment(segment){
       else if(numNew==0) {
         tempDesc += "went back to one document they had previously seen, "
       }
-
-      // Document date
-      tempDesc += "which was created in " + monthNames[dates[0].getMonth()] + " " + dates[0].getYear() + "."
+      if (DS < 3) {
+        // Document date
+        tempDesc += "which was created in " + monthNames[dates[0].getMonth()] + " " + dates[0].getYear() + "."
+      }
     }
     else {
       tempDesc = "They "

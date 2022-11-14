@@ -1,6 +1,48 @@
+// async function loadJSONDatasets() {
+//   files = ["./code/ProvSegments/Dataset_1/Documents/Documents_Dataset_1.json",
+// "./code/ProvSegments/Dataset_2/Documents/Documents_Dataset_2.json",
+// "./code/ProvSegments/Dataset_3/Documents/Documents_Dataset_3.json",
+// "./code/ProvSegments/Dataset_1/Documents/Entities_Dataset_1.json"]
+
+//   result = [];
+//   files.forEach(function (n) {
+//     var content = fetch(n).then((c) => {
+//       console.log(c);
+//       return c.json()
+//     })
+//     result.push(content)
+//   })
+//   // fetch(
+//   //   "./code/ProvSegments/Dataset_1/Documents/Documents_Dataset_1.json"
+//   // ).then(
+//   //   docs1 => { return docs1.json(); }
+
+//   // ).then( jsonDocs1 => console.log(jsonDocs1))
+//   // let docs2 = await fetch(
+//   //   "./code/ProvSegments/Dataset_2/Documents/Documents_Dataset_2.json"
+//   // );
+//   // let docs3 = await fetch(
+//   //   "./code/ProvSegments/Dataset_3/Documents/Documents_Dataset_3.json"
+//   // );
+//   // let ents1 = await fetch("./code/ProvSegments/Dataset_1/Documents/Entities_Dataset_1.json")
+//   // docsj2 = docs2.json();
+//   // docsj3 = docs3.json();
+//   // entsj1 = ents1.json();
+
+//   // ])
+//   // let result = [docsj1, docsj2, docsj3, entsj1];
+//   // alert(result)
+//   return result;
+// }
+
 var userCounts = [8, 8, 8]
 var json, orignaljson
-var docs;
+// loadJSONDatasets((rtrned) => {
+//   let docs = rtrned
+// }
+// )
+// console.log(docs)
+// setTimeout(console.log(docs),10000)
 var entities;
 var logs;
 var segments;
@@ -37,48 +79,124 @@ var colors = {
   "Average-pos": "orange",
 }
 
-//Load Docs
-Promise.all([
-	d3.json("./code/ProvSegments/Dataset_1/Documents/Documents_Dataset_1.json"),
-	d3.json("./code/ProvSegments/Dataset_2/Documents/Documents_Dataset_2.json"),
-	d3.json("./code/ProvSegments/Dataset_3/Documents/Documents_Dataset_3.json"),
-  d3.json("./code/ProvSegments/Dataset_1/Documents/Entities_Dataset_1.json")
-  ]).then(function(json){
-   docs = json
-   // console.log("here")
-   // console.log(docs)
- })
 
+//Load Docs
+
+// Promise.all([
+//   d3.json("./code/ProvSegments/Dataset_1/Documents/Documents_Dataset_1.json"),
+//   d3.json("./code/ProvSegments/Dataset_2/Documents/Documents_Dataset_2.json"),
+//   d3.json("./code/ProvSegments/Dataset_3/Documents/Documents_Dataset_3.json"),
+//   d3.json("./code/ProvSegments/Dataset_1/Documents/Entities_Dataset_1.json"),
+//   // d3.json("./code/ProvSegments/Dataset_4/Documents/Documents_Dataset_4.json")
+//   // d3.json("./code/ProvSegments/Dataset_4/Documents/Entities_Dataset_4.json")
+// ]).then(function (json) {
+//   docs = json;
+//   //  console.log("here")
+//   //  console.log(docs)
+// });
+
+
+
+// function slow(id, cb) {
+//   console.log("calling d3.json for promise id:" + id)
+//   console.log(cb)
+//   fetch(id)
+//     .then((content) => { return content.json() })
+//   // setTimeout(function () {
+//   //   cb(Math.round(Math.random()), id);
+//   // }, Math.random() * 3000);
+// }
+
+//  files = ["./code/ProvSegments/Dataset_1/Documents/Documents_Dataset_1.json",
+// "./code/ProvSegments/Dataset_2/Documents/Documents_Dataset_2.json",
+// "./code/ProvSegments/Dataset_3/Documents/Documents_Dataset_3.json",
+// "./code/ProvSegments/Dataset_1/Documents/Entities_Dataset_1.json"]
+
+// var promises = [];
+// for (var i = 0; i < files.length; i++) {
+//   console.log("setting json get promise for:" + files[i])
+//   var prom = new Promise((resolve, reject) => {
+//     slow(files[i], function (err, res) {
+//       if (err) reject(err);
+//       else resolve(res);
+//     });
+//   });
+//   promises.push(prom);
+//   console.log(promises)
+// }
+// Promise.all(promises)
+// // Promise.allSettled(promises)
+// // Promise.race(promises)
+//   .then((res) => {
+//     console.log("Success:", res);
+//     docs = []
+//   })
+//   .catch((err) => {
+//     console.error("Error:", err);
+//     docs=[]
+//   });
+
+async function startup() {
+  docs = []
+  const fetch_d1 = await fetch('./code/ProvSegments/Dataset_1/Documents/Documents_Dataset_1.json')
+  const fetch_d2 = await fetch("./code/ProvSegments/Dataset_2/Documents/Documents_Dataset_2.json")
+  const fetch_d3 = await fetch("./code/ProvSegments/Dataset_3/Documents/Documents_Dataset_3.json")
+  const fetch_e1 = await fetch("./code/ProvSegments/Dataset_1/Documents/Entities_Dataset_1.json")
+  const fetch_d4 = await fetch('./code/ProvSegments/Dataset_4/Documents/Documents_Dataset_4.json')
+  const fetch_e4= await fetch('./code/ProvSegments/Dataset_4/Documents/Entities_Dataset_4.json')
+
+  Promise.all([fetch_d1, fetch_d2, fetch_d3,fetch_e1,fetch_d4,fetch_e4])
+    .then(async (responses) => {
+      for (const response of responses) {
+        // console.log(response.json())
+        console.log(`${response.url}: ${response.status}`);
+        await response.json().then((data) => {
+          docs.push(data);
+          console.log(docs);
+        });
+      }
+      console.log(docs)
+    })
+    .catch((error) => {
+      console.error(`Failed to fetch: ${error}`);
+    })
+    // .then(
+  //   processData()
+  // )
+  
 
   Promise.all([
-   d3.json("./code/vis.json")
-   ]).then(function(json2){
-	//unwrap json
-	orignaljson = Object.assign({},json2)
-	json = json2
-	logs = json2[0].interactionLogs
-	segments = json2[0].segments
-  for(var seg of segments){
-    seg.annotation = ""
-  }
+    d3.json("./code/vis.json")
+  ]).then(function (json2) {
+    //unwrap json
+    orignaljson = Object.assign({}, json2)
+    json = json2
+    logs = json2[0].interactionLogs
+    segments = json2[0].segments
+    for (var seg of segments) {
+      seg.annotation = ""
+    }
 
 
-	processData();
+    processData();
 
 
-	var startTime = 0;
-	var endTime = participantSegments[participantSegments.length-1].end
-	//console.log(endTime)
-	drawCards(startTime, endTime)
+    var startTime = 0;
+    var endTime = participantSegments[participantSegments.length-1].end
+    console.log(endTime)
+    drawCards(startTime, endTime)
 
-	//add separate tooltip div
-	tooltip = d3.select("body").append("div")
-  .attr("class", "tooltip")
-  .style("opacity", 0)
+    //add separate tooltip div
+    tooltip = d3.select("body").append("div")
+      .attr("class", "tooltip")
+      .style("opacity", 0)
 
 
 
-})
+  })
+}
+
+startup()
 
   function reload(){
     segments.sort(function(a,b){return a.dataset-b.dataset || a.pid-b.pid || a.start-b.start})
@@ -167,17 +285,25 @@ Promise.all([
         }
         else if (participantData[i].Text.startsWith("Disappearance")) {
           docSet = 2
+        } else if (participantData[i].Text.startsWith("panda")) {
+           docSet = 3;
         }
 
-        // Split the title into the date and actual title
-        // console.log("docs")
-        // console.log(docs)
-        // console.log(docSet)
-        // console.log(docPos)
-        rawTitle = docs[docSet][docPos].title
-        newDate = rawTitle.substring(0, rawTitle.indexOf(','))
-        newTitle = rawTitle.substring(rawTitle.indexOf(', ') + 2)
-
+        if (docSet < 3) {
+          
+          
+          // Split the title into the date and actual title
+          // console.log("docs")
+          // console.log(docs)
+          // console.log(docSet)
+          // console.log(docPos)
+          rawTitle = docs[docSet][docPos].title
+          newDate = rawTitle.substring(0, rawTitle.indexOf(','))
+          newTitle = rawTitle.substring(rawTitle.indexOf(', ') + 2)
+          
+        } else {
+          newDate = "2022"
+        }
         // Modify the participantData array
         // participantData[i].Text = newTitle
         //TODO: Line of code above works but breaks identifying the docset upon going back, can't find the reference to this value to change it need to ask Brett
@@ -1614,6 +1740,7 @@ function summarize_segment(segment){
 
   // TODO: any NER/keyword thing
   // Make NER only happen for dataset 1
+  console.log(openIDs)
   if (openIDs[0].split(" ")[0] == "Armsdealing") {
     // Get array of unique open IDs within the segment
 

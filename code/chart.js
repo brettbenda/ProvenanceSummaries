@@ -258,9 +258,9 @@ startup()
     var startTime = 0;
     var endTime = participantSegments[participantSegments.length-1].end
    // console.log(endTime)
-
+    
     if (DS == 4 && P >= 8 || DS < 4) {
-    drawCards(startTime, endTime)
+      drawCards(startTime, endTime)
     } else {
       drawNoData()
     }
@@ -1623,14 +1623,14 @@ function summarize_segment(segment){
 
   // Sort dates
   var allMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  if (DS < 3) {
+  if (DS < 2) {
     for (i in dates) {
       // Replace "<month> <year>" with a date object
       dates[i] = new Date(parseInt(dates[i].split(" ")[1]), allMonths.indexOf(dates[i].split(" ")[0]))
     }
     dates.sort(function(a, b){
         return a - b
-    });
+      });
   }
 
   var readings_merged = []
@@ -1743,7 +1743,7 @@ function summarize_segment(segment){
       else if(numNew==0) {
         tempDesc += "went back to one document they had previously seen, "
       }
-      if (DS < 3) {
+      if (DS < 2) {
         // Document date
         tempDesc += "which was created in " + monthNames[dates[0].getMonth()] + " " + dates[0].getYear() + "."
       }
@@ -1753,35 +1753,43 @@ function summarize_segment(segment){
       // If all new
       if(numNew == totalDocInt) {
         tempDesc += "explored " + totalDocInt + " new documents, "
-        // Document date
-        if (monthNames[dates[0].getMonth()] + " " + dates[0].getFullYear() == monthNames[dates[totalDocInt - 1].getMonth()] + " " + dates[totalDocInt - 1].getFullYear()) {
-          tempDesc += "which were all created in " + monthNames[dates[0].getMonth()] + " " + dates[0].getFullYear() + "."
-        }
-        else {
+        if (DS < 2) {
+          // Document date
+          if (monthNames[dates[0].getMonth()] + " " + dates[0].getFullYear() == monthNames[dates[totalDocInt - 1].getMonth()] + " " + dates[totalDocInt - 1].getFullYear()) {
+            tempDesc += "which were all created in " + monthNames[dates[0].getMonth()] + " " + dates[0].getFullYear() + "."
+          }
+          else {
             tempDesc += "which were created between " + monthNames[dates[0].getMonth()] + " " + dates[0].getFullYear() + " and " + monthNames[dates[totalDocInt - 1].getMonth()] + " " + dates[totalDocInt - 1].getFullYear() + "."
+          }
+        } else {
+          tempDesc = tempDesc.slice(0,-2) + ". "
         }
 
       }
       // If none new
       else if(numNew==0) {
         tempDesc += "went back to " + totalDocInt + " documents they had previously seen."
-        // Document date
-        if (monthNames[dates[0].getMonth()] + " " + dates[0].getFullYear() == monthNames[dates[totalDocInt - 1].getMonth()] + " " + dates[totalDocInt - 1].getFullYear()) {
-          tempDesc += "which were all created in " + monthNames[dates[0].getMonth()] + " " + dates[0].getFullYear() + "."
-        }
-        else {
-          tempDesc += "which were created between " + monthNames[dates[0].getMonth()] + " " + dates[0].getFullYear() + " and " + monthNames[dates[totalDocInt - 1].getMonth()] + " " + dates[totalDocInt - 1].getFullYear() + "."
+        if (DS < 2) {
+          // Document date
+          if (monthNames[dates[0].getMonth()] + " " + dates[0].getFullYear() == monthNames[dates[totalDocInt - 1].getMonth()] + " " + dates[totalDocInt - 1].getFullYear()) {
+            tempDesc += "which were all created in " + monthNames[dates[0].getMonth()] + " " + dates[0].getFullYear() + "."
+          }
+          else {
+            tempDesc += "which were created between " + monthNames[dates[0].getMonth()] + " " + dates[0].getFullYear() + " and " + monthNames[dates[totalDocInt - 1].getMonth()] + " " + dates[totalDocInt - 1].getFullYear() + "."
+          }
         }
 
       }
       else {
         tempDesc += "explored " + totalDocInt + " unique documents, " + numNew + " of which had not previously been read. "
-        // Document date
-        if (monthNames[dates[0].getMonth()] + " " + dates[0].getFullYear() == monthNames[dates[totalDocInt - 1].getMonth()] + " " + dates[totalDocInt - 1].getFullYear()) {
-          tempDesc += "Those documents were created in " + monthNames[dates[0].getMonth()] + " " + dates[0].getFullYear() + "."
-        }
-        else {
-          tempDesc += "Those documents were created between " + monthNames[dates[0].getMonth()] + " " + dates[0].getFullYear() + " and " + monthNames[dates[totalDocInt - 1].getMonth()] + " " + dates[totalDocInt - 1].getFullYear() + "."
+        if (DS < 2) {
+          // Document date
+          if (monthNames[dates[0].getMonth()] + " " + dates[0].getFullYear() == monthNames[dates[totalDocInt - 1].getMonth()] + " " + dates[totalDocInt - 1].getFullYear()) {
+            tempDesc += "Those documents were created in " + monthNames[dates[0].getMonth()] + " " + dates[0].getFullYear() + "."
+          }
+          else {
+            tempDesc += "Those documents were created between " + monthNames[dates[0].getMonth()] + " " + dates[0].getFullYear() + " and " + monthNames[dates[totalDocInt - 1].getMonth()] + " " + dates[totalDocInt - 1].getFullYear() + "."
+          }
         }
 
       }

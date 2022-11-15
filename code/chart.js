@@ -139,6 +139,7 @@ var colors = {
 async function startup() {
   docs = [];
   logs = [];
+  superlatives = [];
   const fetch_d1 = await fetch(
     "./code/ProvSegments/Dataset_1/Documents/Documents_Dataset_1.json"
   );
@@ -181,6 +182,7 @@ async function startup() {
               console.log("segmentation is loaded:", json2);
               logs = json2.interactionLogs;
               segments = json2.segments;
+              superlatives = json2.superlatives
               for (var seg of segments) {
                 seg.annotation = "";
               }
@@ -442,17 +444,8 @@ function drawOverview() {
     return output
   }
   
-  let superlatives = {
-    topicCount: 12,
-    dataCoverage: 0.23843,
-    topics: ["minski", "lenid", "lagos", "marigold"],
-    breakpointSearches: ["disease", "dubai", "burj"],
-    newSeg: 4,
-    longSeg: 5,
-    openRate: "many more documents",
-    totalSearch: 13,
-    mostSearchSeg: 5
-  };
+  supers = superlatives[DS-1][P-1]
+  console.log(supers)
 
   d3.select("#overview")
     .selectAll("p")
@@ -462,14 +455,28 @@ function drawOverview() {
     .append("p")
     .html(
       "They focused on <strong>" +
-        superlatives["topicCount"] +
+        supers["topicCount"] +
         "</strong> main topics in this analysis session, exploring <strong>" +
-        Math.round(100 * superlatives["dataCoverage"]) +
+        Math.round(100 * supers["dataCoverage"]) +
         "%</strong> of the dataset. The topics that received the most attention were <strong>" +
-        topicsToHighlightText(superlatives["topics"]) +
+        topicsToHighlightText(supers["topics"]) +
         "</strong>. They started searching for <strong>" +
-        applyHTMLHighlight(superlatives["breakpointSearches"][0]) +
-        "</strong>, before transitioning to <strong>"+applyHTMLHighlight(superlatives["breakpointSearches"][1])+"</strong> and finally looking for <strong>"+applyHTMLHighlight(superlatives["breakpointSearches"][2])+"</strong>. The segment with the newest content was <strong>"+applyHTMLHighlightSegment(superlatives["newSeg"])+"</strong>. Segment <strong>"+applyHTMLHighlightSegment(superlatives["longSeg"])+"</strong> was the longest period where they opened <strong>"+superlatives["openRate"]+"</strong> than usual. They conducted <strong>"+superlatives["totalSearch"]+"</strong> searches throughout their session, especially in segment <strong>"+applyHTMLHighlightSegment(superlatives["mostSearchSeg"])+"</strong>."
+        applyHTMLHighlight(supers["breakpointSearches"][0]) +
+        "</strong>, before transitioning to <strong>" +
+        applyHTMLHighlight(supers["breakpointSearches"][1]) +
+        "</strong> and finally looking for <strong>" +
+        applyHTMLHighlight(supers["breakpointSearches"][2]) +
+        "</strong>. The segment with the newest content was <strong>" +
+        applyHTMLHighlightSegment(supers["newSeg"]) +
+        "</strong>. Segment <strong>" +
+        applyHTMLHighlightSegment(supers["longSeg"]) +
+        "</strong> was the longest period where they opened <strong>" +
+        supers["openRate"] +
+        "</strong> than usual. They conducted <strong>" +
+        supers["totalSearch"] +
+        "</strong> searches throughout their session, especially in segment <strong>" +
+        applyHTMLHighlightSegment(supers["mostSearchSeg"]) +
+        "</strong>."
     );
 }
 

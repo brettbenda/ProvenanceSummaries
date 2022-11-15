@@ -59,8 +59,12 @@ for i in range (1,5): ##4 datasets
 segment_json = []
 min_segment_length = 0;
 
+#Create a list for the superlatives/overview content to be hostes
+superlatives = []
+
 #for each dataset and participant
 for _set in range(0,4):
+    superlatives.append([])
     for _id in range(0,8):
 
         ##default state for new set of segments
@@ -69,6 +73,17 @@ for _set in range(0,4):
         segment_start = 0;
         segment_end = 0;
         current_segment_json = []
+        superlatives[_set].append({
+            "topicCount": 12,
+            "dataCoverage": 0.23843,
+            "topics": ["minski", "lenid", "lagos", "marigold"],
+            "breakpointSearches": ["disease", "dubai", "burj"],
+            "newSeg": 4,
+            "longSeg": 5,
+            'openRate': "many more documents",
+            "totalSearch": 13,
+            "mostSearchSeg": 5
+        })
 
         #for all the corresponding segments
         for i,segment in enumerate(segments[_set][_id]):
@@ -147,8 +162,10 @@ final_json.update({"segments": segment_json})
 
 final_json.update({'interactionLogs' : logs})
 
+final_json.update({"superlatives" : superlatives})
+
 
 with open(outputFileName, 'w') as json_file:
-    json.dump(final_json, json_file)
+    json.dump(final_json, json_file, indent=4)
     print("----> success: file written to "+outputFileName)
 # print(json.dumps(final_json, indent=4))

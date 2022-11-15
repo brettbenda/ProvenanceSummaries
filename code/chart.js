@@ -137,16 +137,28 @@ var colors = {
 //   });
 
 async function startup() {
-  docs = []
-  logs=[]
-  const fetch_d1 = await fetch('./code/ProvSegments/Dataset_1/Documents/Documents_Dataset_1.json')
-  const fetch_d2 = await fetch("./code/ProvSegments/Dataset_2/Documents/Documents_Dataset_2.json")
-  const fetch_d3 = await fetch("./code/ProvSegments/Dataset_3/Documents/Documents_Dataset_3.json")
-  const fetch_e1 = await fetch("./code/ProvSegments/Dataset_1/Documents/Entities_Dataset_1.json")
-  const fetch_d4 = await fetch('./code/ProvSegments/Dataset_4/Documents/Documents_Dataset_4.json')
-  const fetch_e4= await fetch('./code/ProvSegments/Dataset_4/Documents/Entities_Dataset_4.json')
+  docs = [];
+  logs = [];
+  const fetch_d1 = await fetch(
+    "./code/ProvSegments/Dataset_1/Documents/Documents_Dataset_1.json"
+  );
+  const fetch_d2 = await fetch(
+    "./code/ProvSegments/Dataset_2/Documents/Documents_Dataset_2.json"
+  );
+  const fetch_d3 = await fetch(
+    "./code/ProvSegments/Dataset_3/Documents/Documents_Dataset_3.json"
+  );
+  const fetch_e1 = await fetch(
+    "./code/ProvSegments/Dataset_1/Documents/Entities_Dataset_1.json"
+  );
+  const fetch_d4 = await fetch(
+    "./code/ProvSegments/Dataset_4/Documents/Documents_Dataset_4.json"
+  );
+  const fetch_e4 = await fetch(
+    "./code/ProvSegments/Dataset_4/Documents/Entities_Dataset_4.json"
+  );
 
-  Promise.all([fetch_d1, fetch_d2, fetch_d3,fetch_e1,fetch_d4,fetch_e4])
+  Promise.all([fetch_d1, fetch_d2, fetch_d3, fetch_e1, fetch_d4, fetch_e4])
     .then(async (responses) => {
       for (const response of responses) {
         // console.log(response.json())
@@ -156,9 +168,9 @@ async function startup() {
           // console.log(docs);
         });
       }
-      console.log("datasets are loaded:", docs) //Shows that the data is loaded
-      Promise.all([await fetch("./code/vis.json")])
-        .then(async (mainSegPromise) => {
+      console.log("datasets are loaded:", docs); //Shows that the data is loaded
+      Promise.all([await fetch("./code/ApplicationManifest.json")]).then(
+        async (mainSegPromise) => {
           // console.log(mainSegPromise);
           for (const res of mainSegPromise) {
             // console.log(`${res.url}: ${res.status}`); //Shows the response for each data file should be the file name and 200
@@ -166,7 +178,7 @@ async function startup() {
               //unwrap json
               orignaljson = Object.assign({}, json2);
               json = json2;
-              console.log("segmentation is loaded:",json2);
+              console.log("segmentation is loaded:", json2);
               logs = json2.interactionLogs;
               segments = json2.segments;
               for (var seg of segments) {
@@ -174,33 +186,32 @@ async function startup() {
               }
             });
           }
-          processData()
+          processData();
           var startTime = 0;
           var endTime = participantSegments[participantSegments.length - 1].end;
           // console.log(endTime);
+          console.log(participantSegments);
           drawOverview();
           drawCards(startTime, endTime);
-  
+
           //add separate tooltip div
           tooltip = d3
             .select("body")
             .append("div")
             .attr("class", "tooltip")
             .style("opacity", 0);
-        })
- 
-
+        }
+      );
     })
     .catch((error) => {
       console.error(`error encountered in startup: ${error}`);
-    })
-    // .then(
+    });
+  // .then(
   //   processData()
   // )
-  
 
   // Promise.all([
-  //   d3.json("./code/vis.json")
+  //   d3.json("./code/ApplicationManifest.json")
   // ]).then(function (json2) {
   //   //unwrap json
   //   orignaljson = Object.assign({}, json2)
@@ -211,21 +222,17 @@ async function startup() {
   //     seg.annotation = ""
   //   }
 
+  // processData();
 
-    // processData();
+  // var startTime = 0;
+  // var endTime = participantSegments[participantSegments.length-1].end
+  // console.log(endTime)
+  // drawCards(startTime, endTime)
 
-
-    // var startTime = 0;
-    // var endTime = participantSegments[participantSegments.length-1].end
-    // console.log(endTime)
-    // drawCards(startTime, endTime)
-
-    // //add separate tooltip div
-    // tooltip = d3.select("body").append("div")
-    //   .attr("class", "tooltip")
-    //   .style("opacity", 0)
-
-
+  // //add separate tooltip div
+  // tooltip = d3.select("body").append("div")
+  //   .attr("class", "tooltip")
+  //   .style("opacity", 0)
 
   // })
 }

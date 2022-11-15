@@ -8,7 +8,7 @@ from datetime import datetime
 currDir = os.getcwd() + "/code/ProvSegments/Dataset_4/User Interactions/extractingActionDetails/"
 fileToConvert = currDir+"p8.json"
 outDir = os.getcwd() + "/scripts/newData/Dataset_4/"
-outFileName = 'p8.json'
+outFileName = 'Panda_P8_InteractionsLogs.json'
 
 outData = {
     "data": []

@@ -470,9 +470,9 @@ function drawOverview() {
         applyHTMLHighlightSegment(supers["newSeg"]) +
         "</strong>. Segment <strong>" +
         applyHTMLHighlightSegment(supers["longSeg"]) +
-        "</strong> was the longest period where they opened <strong>" +
+        "</strong> was the longest period where they were <strong>" +
         supers["longOpenRate"] +
-        "</strong> than usual. They conducted <strong>" +
+        "</strong>. They conducted <strong>" +
         supers["searchCount"] +
         "</strong> searches throughout their session, especially in segment <strong>" +
         applyHTMLHighlightSegment(supers["mostSearchSeg"]) +

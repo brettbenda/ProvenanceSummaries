@@ -189,26 +189,55 @@ for segment in segment_json:
         superlatives[currentSet][currentId].update({"mostActiveSegment":  segment["sid"]-1})
 
 
+def calcLongestSegReadRate(interactionRatio):
+    documentInteractionsPerSegment = abs(interactionRatio)
+    if (interactionRatio > 0):
+        isPositive = True
+    else:
+        isPositive = False
+    quality = ""
+    if (documentInteractionsPerSegment > 0.09):
+        if (isPositive):
+            quality = "much more active than usual"
+        else:
+            quality = "much less active than usual"
+    elif (documentInteractionsPerSegment > 0.03):
+        if (isPositive):
+            quality = "more active than usual"
+        else:
+            quality = "less active than usual"
+    else:
+        quality = "as active as usual"
 
-_set = 0
-_id = 0
-currSegNum = 0
-for event in logs[_set][_id]:
-    try:
-            
-        if event['segment'] != currSegNum:
-            print("Moving to next segment. Was ",
-                currSegNum, " | now: ", event['segment'])
-            currSegNum = event['segment']
-            #reset all the tracking values and prepare for next segment
-            
-        
-        
+    return quality
+# final loop for calculating superlatives
+for _set in range(0, 4):
+    for _id in range(0, 8):
+        currSegNum = 0
 
-            
-            # superlatives[_set][_id].update()
-    except KeyError:
-        print("exception thrown: no key found")
+        # set the activity rate in longest period
+        longSegIdx = superlatives[_set][_id]["longSeg"]-1
+        longInteractionRatio = segment_json[_set*11+_id+longSegIdx]["z_interactions"]
+        # print(longInteractionRatio)
+        superlatives[_set][_id].update(
+            {"longOpenRate": calcLongestSegReadRate(longInteractionRatio)})
+        
+        for event in logs[_set][_id]:
+            try:
+                    
+                if event['segment'] != currSegNum:
+                    # print("Moving to next segment. Was ",
+                        # currSegNum, " | now: ", event['segment'])
+                    currSegNum = event['segment']
+                    #reset all the tracking values and prepare for next segment
+                    
+                
+                
+                    
+                    # superlatives[_set][_id].update()
+            except KeyError:
+                x=0 #throw away the error.
+                # print("exception thrown: no key found")
 
 # How to count the number of interaction types
 # interactionTypes = []

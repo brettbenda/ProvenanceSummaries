@@ -65,24 +65,34 @@ superlatives = []
 #for each dataset and participant
 for _set in range(0,4):
     superlatives.append([])
+    #for each particiapant
     for _id in range(0,8):
 
         ##default state for new set of segments
         current_segment = 0
-        new_segment = True;
+        # new_segment = True;
         segment_start = 0;
         segment_end = 0;
         current_segment_json = []
+
+        #set up superlatives for this individual to be updated later
         superlatives[_set].append({
-            "topicCount": 12,
-            "dataCoverage": 0.23843,
-            "topics": ["minski", "lenid", "lagos", "marigold"],
-            "breakpointSearches": ["disease", "dubai", "burj"],
-            "newSeg": 4,
-            "longSeg": 5,
-            'openRate': "many more documents",
-            "totalSearch": 13,
-            "mostSearchSeg": 5
+            "totalInteractions":-1, #count the number of recorded interactions.
+            "segCount": len(segments[_set][_id]), #total number of segments (should be 11 for everyone)
+            "meanInteractions":-1.0, #average expected number of interactions in a segment
+            "sumSquaresInteractions":-1.0,
+            "stdIntRate":-1.0, #The standard deviation in the number of interactions happening in a segment
+            "topicCount": -1,
+            "topics": {},
+            "newSeg": -1,
+            "searchCount":-1,
+            "mostSearchSeg": -1,
+            "searches": [],
+            "breakpointSearches": [],
+            "openCount":-1,
+            "dataCoverage": -1.0,
+            "longSeg": -1,
+            'longOpenRate': "some documents",
         })
 
         #for all the corresponding segments
@@ -104,31 +114,20 @@ for _set in range(0,4):
             if(current_segment!=0 and segment_end-segment_start < min_segment_length):
                 current_segment_json[current_segment-1].update({'end' : segment_end})
 
-            elif(i==len(segments[_set][_id])-1): #save last segment specifically
-                item = {}
-                item.update({"dataset" : _set+1})
-                item.update({"pid" : _id+1})
-                item.update({"sid" : current_segment})
-                item.update({"start" :  int(segment_start)})
-                item.update({"end" : int(segment_end)})
-                item.update({"length" : int(segment_end-segment_start)})
-                item.update({"interactionCount" : 0})
-                item.update({"keywords" : segKeys[_set][_id][i]})
-                current_segment_json.append(item)
-                current_segment = current_segment+1
-            else: #save intermediary segment
-                item = {}
-                item.update({"dataset" : _set+1})
-                item.update({"pid" : _id+1})
-                item.update({"sid" : current_segment})
-                item.update({"start" :  int(segment_start)})
-                item.update({"end" : int(segment_end)})
-                item.update({"length" : int(segment_end-segment_start)})
-                item.update({"interactionCount" : 0})
-                item.update({"keywords" : segKeys[_set][_id][i]})
-                current_segment_json.append(item)
-
-                current_segment = current_segment+1
+            #set up individual segment's json details with some variables to be calculated later.
+            current_segment_json.append({
+                "dataset" : _set+1,
+                "pid" : _id+1,
+                "sid" : current_segment,
+                "start" :  int(segment_start),
+                "end" : int(segment_end),
+                "length" : int(segment_end-segment_start),
+                "interactionCount" : 0,
+                "squareMeanDiffInteraction":0,
+                "z_interactions": 0.0,  # z-score for the interaction rate.
+                "keywords" : segKeys[_set][_id][i]
+            })
+            current_segment = current_segment+1
         ##calculate length for resulting sections
         for segment in current_segment_json:
             segment.update({"length" : int(segment['end']-segment['start'])})
@@ -137,7 +136,7 @@ for _set in range(0,4):
 #After the previous set of loops, we have JSON for segments.
 
 #Now we go through and add pid, segment ids, dataset ids, and counts for how many interactions are in the segment
-_segment = 1;
+_segment = 1
 for _set in range(0,4):
     for _id in range(0,8):
         # print(_set, _id)

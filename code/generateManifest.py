@@ -297,32 +297,6 @@ for _set in range(0, 4):
         superlatives[_set][_id].update(
             {"longOpenRate": calcLongestSegReadRate(longInteractionRatio)})
         
-        for event in logs[_set][_id]:
-            try:
-                    
-                if event['segment'] != currSegNum:
-                    # print("Moving to next segment. Was ",
-                        # currSegNum, " | now: ", event['segment'])
-                    currSegNum = event['segment']
-                    #reset all the tracking values and prepare for next segment
-                    
-                
-                
-                    
-                    # superlatives[_set][_id].update()
-            except KeyError:
-                x=0 #throw away the error.
-                # print("exception thrown: no key found")
-
-# How to count the number of interaction types
-# interactionTypes = []
-# for event in logs[_set][_id]:
-#     interactionTypes.append(event["InteractionType"])
-# interactionCounts = Counter(interactionTypes)
-# print(interactionCounts)
-    
-
-
 final_json = {}
 
 

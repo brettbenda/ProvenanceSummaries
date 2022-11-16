@@ -1,3 +1,4 @@
+from collections import Counter
 import json
 import csv
 import sys
@@ -77,22 +78,27 @@ for _set in range(0,4):
 
         #set up superlatives for this individual to be updated later
         superlatives[_set].append({
-            "totalInteractions":-1, #count the number of recorded interactions.
+            "totalInteractions": len(logs[_set][_id]), # count the number of recorded interactions.
             "segCount": len(segments[_set][_id]), #total number of segments (should be 11 for everyone)
-            "meanInteractions":-1.0, #average expected number of interactions in a segment
+            # average expected number of interactions in a segment
+            "meanInteractions": len(logs[_set][_id])/len(segments[_set][_id]),
             "sumSquaresInteractions":-1.0,
             "stdIntRate":-1.0, #The standard deviation in the number of interactions happening in a segment
             "topicCount": -1,
             "topics": {},
             "newSeg": -1,
             "searchCount":-1,
+            "mostSearchesinSeg":-1,
             "mostSearchSeg": -1,
             "searches": [],
             "breakpointSearches": [],
             "openCount":-1,
             "dataCoverage": -1.0,
+            "longestSegTime":-1,
             "longSeg": -1,
             'longOpenRate': "some documents",
+            "mostActive" : -3, #based on z-scores for interactions. so starting way below the average
+            "mostActiveSegment": -1  # the associated segment for the most active behavior
         })
 
         #for all the corresponding segments
@@ -128,9 +134,19 @@ for _set in range(0,4):
                 "keywords" : segKeys[_set][_id][i]
             })
             current_segment = current_segment+1
+        
         ##calculate length for resulting sections
         for segment in current_segment_json:
             segment.update({"length" : int(segment['end']-segment['start'])})
+            
+            #find the longest segment for the superlatives
+            if segment['length'] > superlatives[_set][_id]["longestSegTime"]:
+                # print(str(segment["length"]) + " ||| " + str(segment["sid"]) + " ||| "+ str(segment))
+                superlatives[_set][_id].update({"longSeg" : segment["sid"]+1,
+                "longestSegTime" : segment["length"]})
+
+            #TODO Pull out keywords and add count to superlatives obj 
+            
             segment_json.append(segment)
 
 #After the previous set of loops, we have JSON for segments.
@@ -140,16 +156,67 @@ _segment = 1
 for _set in range(0,4):
     for _id in range(0,8):
         # print(_set, _id)
-        for item in logs[_set][_id]:
+        for event in logs[_set][_id]:
 
-            item.update({'dataset' : _set+1})
-            item.update({'PID': _id+1})
+            event.update({'dataset' : _set+1})
+            event.update({'PID': _id+1})
 
-            for segment in segment_json:
-                if(item['time']/10 >= segment['start'] and item['time']/10 <= segment['end'] and segment['pid']==_id+1 and segment['dataset']==_set+1):
-                    item.update({'segment' : segment['sid']})
+            for segment in segment_json: # room to improve this loop cause there's lots of extra cycles that hit the if statement and do nothing. not sure if it's worth fixing though.
+                if(event['time']/10 >= segment['start'] and event['time']/10 <= segment['end'] and segment['pid']==_id+1 and segment['dataset']==_set+1):
+                    event.update({'segment' : segment['sid']})
                     segment.update({"interactionCount" : segment["interactionCount"]+1})
+                    #set the squared mean difference for determing z statistics for interactions.
+                    segment.update(
+                        {"squareMeanDiffInteraction": (superlatives[_set][_id]["meanInteractions"] - segment["interactionCount"])**2})
+                    superlatives[_set][_id]["sumSquaresInteractions"] += segment["squareMeanDiffInteraction"]
+                    
+            # print(event)
 
+        # take a square root to get standard deviation in interactions
+for _set in range(0, 4):
+    for _id in range(0, 8): 
+        superlatives[_set][_id].update({"stdIntRate": (
+            superlatives[_set][_id]["sumSquaresInteractions"] / superlatives[_set][_id]["segCount"])**0.5 })
+
+#setting z-scores for interactions and updating with the most active segment.
+for segment in segment_json:
+    currentSet = segment["dataset"]-1
+    currentId = segment["pid"]-1
+    segment.update({"z_interactions": (segment["interactionCount"] - superlatives[currentSet]
+                   [currentId]["meanInteractions"])/superlatives[currentSet][currentId]["stdIntRate"]})
+    if superlatives[currentSet][currentId]["mostActive"] < (segment["z_interactions"]):
+        superlatives[currentSet][currentId].update({"mostActive" : segment["z_interactions"]})
+        superlatives[currentSet][currentId].update({"mostActiveSegment":  segment["sid"]-1})
+
+
+
+_set = 0
+_id = 0
+currSegNum = 0
+for event in logs[_set][_id]:
+    try:
+            
+        if event['segment'] != currSegNum:
+            print("Moving to next segment. Was ",
+                currSegNum, " | now: ", event['segment'])
+            currSegNum = event['segment']
+            #reset all the tracking values and prepare for next segment
+            
+        
+        
+
+            
+            # superlatives[_set][_id].update()
+    except KeyError:
+        print("exception thrown: no key found")
+
+# How to count the number of interaction types
+# interactionTypes = []
+# for event in logs[_set][_id]:
+#     interactionTypes.append(event["InteractionType"])
+# interactionCounts = Counter(interactionTypes)
+# print(interactionCounts)
+    
 
 
 final_json = {}

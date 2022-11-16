@@ -1,4 +1,5 @@
 from collections import Counter
+import math
 import json
 import csv
 import sys
@@ -87,13 +88,15 @@ for _set in range(0,4):
             "topicCount": -1, #total number of uniquely encountered topics
             "allTopics": [], #List of all the topics encountered over time (seomg SegKeys file)
             "topics": [],   #list of the top three topics encountered by user
-            "newSeg": -1,
-            "searchCount":-1,
-            "mostSearchesinSeg":-1,
-            "mostSearchSeg": -1,
-            "searches": [],
-            "breakpointSearches": [],
-            "openCount":-1,
+            "searchCount":-1, #counting the raw number of searches made (including duplicates)
+            "mostSearchesinSeg":-1, #counts maximum number of searches made in a segment. Updates when a segment is processed where there are more searches than this value/
+            "mostSearchSeg": -1, #identifyer for the segment with the most raw searches made.
+            "searches": [], #list of all the search terms.
+            "breakpointSearches": [], #set of three searches that are selected from the list of all searches. One from the beginning, one from the middle and one from the end. At the time of writing, these are just systematically chosen, but are not significant searches.
+            "openCount":-1, #counts the number of documents opened (including duplicates)
+            "opens" : [],  #list of document ids to identify the number of unique documents seen. (specifically helpful for dataCoverage.)
+            "mostOpensinSeg": -1, #counts the maximum number of opens in a segment. Updates when a segment has more opens than a previous segment
+            "newestSeg": -1, # the segment where the most docuemts were open. Updates when mostOpensinSeg updates.
             "dataCoverage": -1.0,
             "longestSegTime":-1,
             "longSeg": -1,
@@ -179,6 +182,16 @@ _segment = 1
 for _set in range(0,4):
     for _id in range(0,8):
         # print(_set, _id)
+        def makeBlankArray(length):
+            a = []
+            for i in range(length):
+                a.append(0)
+            return a
+
+        eventsBySeg = {
+            "Search": makeBlankArray(superlatives[_set][_id]["segCount"]),
+            "Doc_open": makeBlankArray(superlatives[_set][_id]["segCount"])
+        }
         for event in logs[_set][_id]:
 
             event.update({'dataset' : _set+1})
@@ -192,10 +205,49 @@ for _set in range(0,4):
                     segment.update(
                         {"squareMeanDiffInteraction": (superlatives[_set][_id]["meanInteractions"] - segment["interactionCount"])**2})
                     superlatives[_set][_id]["sumSquaresInteractions"] += segment["squareMeanDiffInteraction"]
-                    
-            # print(event)
+                    if event["InteractionType"] == "Search":
+                        superlatives[_set][_id]["searches"].append(event["Text"])
+                        eventsBySeg["Search"][event["segment"]] += 1
+                    if event["InteractionType"] == "Doc_open":
+                        superlatives[_set][_id]["opens"].append(
+                            event["ID"])
+                        eventsBySeg["Doc_open"][event["segment"]] += 1
+        #review each saved number of seraches and doc opens to identify the segments with the most events.
+        for i in range(superlatives[_set][_id]["segCount"]):
+            if eventsBySeg["Search"][i] > superlatives[_set][_id]["mostSearchesinSeg"] :
+                superlatives[_set][_id].update({
+                    "mostSearchesinSeg": eventsBySeg["Search"][i],
+                    "mostSearchSeg": i+1
+                })
+            if eventsBySeg["Doc_open"][i] > superlatives[_set][_id]["mostOpensinSeg"]:
+                superlatives[_set][_id].update({
+                    "mostOpensinSeg": eventsBySeg["Doc_open"][i],
+                    "newestSeg": i+1
+                })
+        #finally, count the number of searches and opens completed (with duplicates)
+        superlatives[_set][_id]["searchCount"] = len(
+            superlatives[_set][_id]["searches"])
+        superlatives[_set][_id]["openCount"] = len(
+            superlatives[_set][_id]["opens"])
 
-        # take a square root to get standard deviation in interactions
+        
+
+        searchBreakpointModulo = math.floor(superlatives[_set][_id]["searchCount"]/4) # deviding by 4 since I wan to split the set into 3 pieces and don't want to call attention to the first or last search.
+        superlatives[_set][_id]["breakpointSearches"] = [\
+            superlatives[_set][_id]["searches"][searchBreakpointModulo*1],
+            superlatives[_set][_id]["searches"][searchBreakpointModulo*2],
+            superlatives[_set][_id]["searches"][searchBreakpointModulo*3]]
+
+        #Calculate Coveage for each user
+        #List of document counts for each dataset
+        dataDocCount = [102,159,152,12714]
+        #remove document opens for repeated documents (i.e., only count uniuque documents)
+        superlatives[_set][_id]["opens"] = Counter(superlatives[_set][_id]["opens"])
+        #divide the unique documents by the number of documents available to arrive at data coverage.
+        superlatives[_set][_id]["dataCoverage"] = len(superlatives[_set][_id]["opens"])/dataDocCount[_set]
+
+
+# take a square root to get standard deviation in interactions
 for _set in range(0, 4):
     for _id in range(0, 8): 
         superlatives[_set][_id].update({"stdIntRate": (

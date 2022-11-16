@@ -467,7 +467,7 @@ function drawOverview() {
         "</strong> and finally looking for <strong>" +
         applyHTMLHighlight(supers["breakpointSearches"][2]) +
         "</strong>. The segment with the newest content was <strong>" +
-        applyHTMLHighlightSegment(supers["newSeg"]) +
+        applyHTMLHighlightSegment(supers["newestSeg"]) +
         "</strong>. Segment <strong>" +
         applyHTMLHighlightSegment(supers["longSeg"]) +
         "</strong> was the longest period where they were <strong>" +

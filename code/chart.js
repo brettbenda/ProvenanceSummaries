@@ -456,7 +456,7 @@ function drawOverview() {
     .html(
       "They focused on <strong>" +
         supers["topicCount"] +
-        "</strong> main topics in this analysis session, exploring <strong>" +
+        "</strong> identified topics in this analysis session, exploring <strong>" +
         Math.round(100 * supers["dataCoverage"]) +
         "%</strong> of the dataset. The topics that received the most attention were <strong>" +
         topicsToHighlightText(supers["topics"]) +

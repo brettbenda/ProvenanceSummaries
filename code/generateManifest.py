@@ -84,8 +84,9 @@ for _set in range(0,4):
             "meanInteractions": len(logs[_set][_id])/len(segments[_set][_id]),
             "sumSquaresInteractions":-1.0,
             "stdIntRate":-1.0, #The standard deviation in the number of interactions happening in a segment
-            "topicCount": -1,
-            "topics": {},
+            "topicCount": -1, #total number of uniquely encountered topics
+            "allTopics": [], #List of all the topics encountered over time (seomg SegKeys file)
+            "topics": [],   #list of the top three topics encountered by user
             "newSeg": -1,
             "searchCount":-1,
             "mostSearchesinSeg":-1,
@@ -133,6 +134,14 @@ for _set in range(0,4):
                 "z_interactions": 0.0,  # z-score for the interaction rate.
                 "keywords" : segKeys[_set][_id][i]
             })
+            
+            # capture the keywords in the superlatives object
+            # print(current_segment_json[-1]["keywords"])
+            if current_segment_json[-1]["keywords"] is not None:
+                # print(superlatives[_set][_id])
+                superlatives[_set][_id].update({
+                    "allTopics" : superlatives[_set][_id]["allTopics"] + (current_segment_json[-1]["keywords"])
+                })
             current_segment = current_segment+1
         
         ##calculate length for resulting sections
@@ -148,6 +157,20 @@ for _set in range(0,4):
             #TODO Pull out keywords and add count to superlatives obj 
             
             segment_json.append(segment)
+
+        #count the frequency of different topics and sort in decending order.
+        superlatives[_set][_id].update(
+            {"topicCounter": Counter(superlatives[_set][_id]["allTopics"]).most_common()}
+            )
+        #count number of unique topics
+        superlatives[_set][_id].update({
+            "topicCount": len(superlatives[_set][_id]["topicCounter"])
+        })
+        #set the top three topics for display in system.
+        superlatives[_set][_id].update({"topics": [superlatives[_set][_id]["topicCounter"][0][0],
+                                        superlatives[_set][_id]["topicCounter"][1][0],
+                                        superlatives[_set][_id]["topicCounter"][2][0] ] })
+
 
 #After the previous set of loops, we have JSON for segments.
 

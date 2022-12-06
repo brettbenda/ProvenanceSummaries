@@ -255,21 +255,27 @@ startup()
     })
   }
 
-  function loadData(){
-    json = Object.assign({},orignaljson)
-    logs = json.interactionLogs
-    segments = json.segments
-    participantData = []
-    participantSegments = []
-    data=[]
+function loadData() {
+  json = Object.assign({}, orignaljson)
+  logs = json.interactionLogs
+  segments = json.segments
+  participantData = []
+  participantSegments = []
+  data = []
 
-    processData();
+  processData();
 
-    var startTime = 0;
-    var endTime = participantSegments[participantSegments.length-1].end
-   // console.log(endTime)
+  var startTime = 0;
+  var endTime = participantSegments[participantSegments.length - 1].end
+  // console.log(endTime)
     
-    if (DS == 4 && P >= 8 || DS < 4) {
+  if (DS == 3 && P == 4) {
+    drawNoData();
+  } else if (DS == 2 && P == 3) {
+    drawNoData();
+  } else if (DS == 2 && P == 7) {
+      drawNoData();      
+    } else if(DS == 4 && P >= 8 || DS < 4) {
       drawOverview();
       drawCards(startTime, endTime)
     } else {
@@ -1821,105 +1827,123 @@ function summarize_segment(segment){
 
   // TODO: any NER/keyword thing
   // Make NER only happen for dataset 1
-  console.log(openIDs)
-  if (openIDs[0].split(" ")[0] == "Armsdealing") {
-    // Get array of unique open IDs within the segment
+  // console.log(openIDs)
+  if (openIDs[0] == undefined) {
+    console.error("hmm looks like theres an empty segment in this session.")
+  } else if (openIDs[0].split(" ")[0] == "Armsdealing") {
+      // Get array of unique open IDs within the segment
 
-    uIDs = []
-    for (i in openIDs) {
-      if (openIDs.indexOf(openIDs[i]) == i) {
-        uIDs.push(openIDs[i].split(" ")[0] + openIDs[i].split(" ")[1])
-      }
-    }
-
-    // Construct list of entities with number of documents they occurred in
-    peopleArr = []
-    peopleCount = []
-    geoArr = []
-    geoCount = []
-    for (const documentID of uIDs) {
-      documentEntities = docs[3].find(o => o.id.toLowerCase() === documentID.toLowerCase());
-      peopleInDoc = documentEntities["People"]
-      geosInDoc = documentEntities["Geos"]
-      for (const person of peopleInDoc) {
-        if (peopleArr.includes(person)) {
-          peopleCount[peopleArr.indexOf(person)] += 1
-        }
-        else {
-          peopleArr.push(person)
-          peopleCount.push(1)
+      uIDs = [];
+      for (i in openIDs) {
+        if (openIDs.indexOf(openIDs[i]) == i) {
+          uIDs.push(openIDs[i].split(" ")[0] + openIDs[i].split(" ")[1]);
         }
       }
-      for (const geo of geosInDoc) {
-        if (geoArr.includes(geo)) {
-          geoCount[geoArr.indexOf(geo)] += 1
+
+      // Construct list of entities with number of documents they occurred in
+      peopleArr = [];
+      peopleCount = [];
+      geoArr = [];
+      geoCount = [];
+      for (const documentID of uIDs) {
+        documentEntities = docs[3].find(
+          (o) => o.id.toLowerCase() === documentID.toLowerCase()
+        );
+        peopleInDoc = documentEntities["People"];
+        geosInDoc = documentEntities["Geos"];
+        for (const person of peopleInDoc) {
+          if (peopleArr.includes(person)) {
+            peopleCount[peopleArr.indexOf(person)] += 1;
+          } else {
+            peopleArr.push(person);
+            peopleCount.push(1);
+          }
         }
-        else {
-          geoArr.push(geo)
-          geoCount.push(1)
+        for (const geo of geosInDoc) {
+          if (geoArr.includes(geo)) {
+            geoCount[geoArr.indexOf(geo)] += 1;
+          } else {
+            geoArr.push(geo);
+            geoCount.push(1);
+          }
         }
       }
-    }
-    // console.log("entities in segment")
-    // console.log(peopleArr)
-    // console.log(peopleCount)
-    // console.log(geoArr)
-    // console.log(geoCount)
+      // console.log("entities in segment")
+      // console.log(peopleArr)
+      // console.log(peopleCount)
+      // console.log(geoArr)
+      // console.log(geoCount)
 
-    // Get top 3 people and top 3 geos
-    topPeople = []
-    topPeopleCount = []
-    topGeos = []
-    topGeosCount = []
-    for (var i = 0; i < Math.min(2, peopleArr.length); i++) {
-      maxPeople = Math.max.apply(Math, peopleCount)
-      topPeopleCount.push(maxPeople)
+      // Get top 3 people and top 3 geos
+      topPeople = [];
+      topPeopleCount = [];
+      topGeos = [];
+      topGeosCount = [];
+      for (var i = 0; i < Math.min(2, peopleArr.length); i++) {
+        maxPeople = Math.max.apply(Math, peopleCount);
+        topPeopleCount.push(maxPeople);
 
-      topPeople.push(peopleArr[peopleCount.indexOf(maxPeople)])
-      peopleCount[peopleCount.indexOf(maxPeople)] = 0
-    }
+        topPeople.push(peopleArr[peopleCount.indexOf(maxPeople)]);
+        peopleCount[peopleCount.indexOf(maxPeople)] = 0;
+      }
 
-    for (var i = 0; i < Math.min(2, geoArr.length); i++) {
-      maxGeos = Math.max.apply(Math, geoCount)
-      topGeosCount.push(maxGeos)
-      topGeos.push(geoArr[geoCount.indexOf(maxGeos)])
+      for (var i = 0; i < Math.min(2, geoArr.length); i++) {
+        maxGeos = Math.max.apply(Math, geoCount);
+        topGeosCount.push(maxGeos);
+        topGeos.push(geoArr[geoCount.indexOf(maxGeos)]);
 
-      geoCount[geoCount.indexOf(maxGeos)] = 0
-    }
+        geoCount[geoCount.indexOf(maxGeos)] = 0;
+      }
 
-    tempDesc = ""
-    // Push to descriptions
-    if (topPeople.length == 1) {
-      tempDesc += "The only person referenced in the viewed documents was " + topPeople[0] + "."
-    }
-    if (topPeople.length == 2) {
-      tempDesc += "The most referenced people in the viewed documents were " + topPeople[0] + " and " + topPeople[1] + "."
-    }
-    // if (topPeople.length > 1) {
-    //   tempDesc += "The most commonly referenced people in the viewed documents were " + topPeople[0]
-    //   for (var i = 1; i < topPeople.length; i++) {
-    //     if (i == topPeople.length-1) {
-    //       tempDesc += ", and "
-    //     }
-    //     else {
-    //       tempDesc += ", "
-    //     }
-    //     tempDesc += topPeople[i]
-    //   }
-    //
-    // }
-    descriptions.push(tempDesc)
+      tempDesc = "";
+      // Push to descriptions
+      if (topPeople.length == 1) {
+        tempDesc +=
+          "The only person referenced in the viewed documents was " +
+          topPeople[0] +
+          ".";
+      }
+      if (topPeople.length == 2) {
+        tempDesc +=
+          "The most referenced people in the viewed documents were " +
+          topPeople[0] +
+          " and " +
+          topPeople[1] +
+          ".";
+      }
+      // if (topPeople.length > 1) {
+      //   tempDesc += "The most commonly referenced people in the viewed documents were " + topPeople[0]
+      //   for (var i = 1; i < topPeople.length; i++) {
+      //     if (i == topPeople.length-1) {
+      //       tempDesc += ", and "
+      //     }
+      //     else {
+      //       tempDesc += ", "
+      //     }
+      //     tempDesc += topPeople[i]
+      //   }
+      //
+      // }
+      descriptions.push(tempDesc);
 
-    tempDesc = ""
-    // Push to descriptions
-    if (topGeos.length == 1) {
-      tempDesc += "The only location referenced in the viewed documents was " + topGeos[0] + "."
+      tempDesc = "";
+      // Push to descriptions
+      if (topGeos.length == 1) {
+        tempDesc +=
+          "The only location referenced in the viewed documents was " +
+          topGeos[0] +
+          ".";
+      }
+      if (topGeos.length == 2) {
+        tempDesc +=
+          "The most referenced locations in the viewed documents were " +
+          topGeos[0] +
+          " and " +
+          topGeos[1] +
+          ".";
+      }
+      descriptions.push(tempDesc);
     }
-    if (topGeos.length == 2) {
-      tempDesc += "The most referenced locations in the viewed documents were " + topGeos[0] + " and " + topGeos[1] + "."
-    }
-    descriptions.push(tempDesc)
-  }
 
   // Average time per document
   // console.log("Length in minutes:  ")

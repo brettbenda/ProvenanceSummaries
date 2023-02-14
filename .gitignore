@@ -1,4 +1,16 @@
 .prettierrc
+data_prep_scripts/.ipynb_checkpoints
+data/Dataset_4
+data/Pandajam-raw-logs-from-las
+interface/ApplicationManifest.json
+interface/ApplicationManifest-original.json
+data_prep_scripts/*/Dataset_4
+data_prep_scripts/newData/tfidf_d4.json
+data_prep_scripts/NER/Documents_Dataset_4.json
+data_prep_scripts/NER/.ipynb_checkpoints/*
+data_prep_scripts/NER/Entities_Dataset_4.json
+
+.prettierrc
 scripts/.ipynb_checkpoints
 code/ProvSegments/Dataset_4
 code/ProvSegments/Pandajam-raw-logs-from-las

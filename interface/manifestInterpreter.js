@@ -40,6 +40,7 @@ let numberPattern = /\d+/g;
 
 async function startup() {
   docs = [];
+  entities = [];
   logs = [];
   superlatives = [];
   const fetch_d1 = await fetch(
@@ -51,18 +52,24 @@ async function startup() {
   const fetch_d3 = await fetch(
     "../data/Dataset_3/Documents/Documents_Dataset_3.json"
   );
+  const fetch_d4 = await fetch(
+      "../data/Dataset_4/Documents/Documents_Dataset_4.json"
+  );
   const fetch_e1 = await fetch(
     "../data/Dataset_1/Documents/Entities_Dataset_1.json"
   );
-  // const fetch_d4 = await fetch(
-  //   "../data/Dataset_4/Documents/Documents_Dataset_4.json"
-  // );
-  // const fetch_e4 = await fetch(
-  //   "../data/Dataset_4/Documents/Entities_Dataset_4.json"
-  // );
+  const fetch_e2 = await fetch(
+    "../data/Dataset_2/Documents/Entities_Dataset_2.json"
+  );
+  const fetch_e3 = await fetch(
+    "../data/Dataset_3/Documents/Entities_Dataset_3.json"
+  );
+  const fetch_e4 = await fetch(
+    "../data/Dataset_4/Documents/Entities_Dataset_4.json"
+  );
 
-  // Promise.all([fetch_d1, fetch_d2, fetch_d3, fetch_e1, fetch_d4, fetch_e4])
-  Promise.all([fetch_d1, fetch_d2, fetch_d3, fetch_e1])
+  Promise.all([fetch_d1, fetch_d2, fetch_d3, fetch_d4])
+    // Promise.all([fetch_d1, fetch_d2, fetch_d3, fetch_e1])
     .then(async (responses) => {
       for (const response of responses) {
         // console.log(response.json())
@@ -73,7 +80,14 @@ async function startup() {
         });
       }
       console.log("datasets are loaded:", docs); //Shows that the data is loaded
-      Promise.all([await fetch("ApplicationManifest.json")]).then(
+      Promise.all([fetch_e1, fetch_e2, fetch_e3, fetch_e4]).then(async (responses) => {
+        for (const response of responses) {
+          await response.json().then((data) => {
+            entities.push(data);
+          });
+        }
+      }).then(console.log("Entities are loaded:", entities) )//Shows that the data is loaded
+      .then(Promise.all([await fetch("ApplicationManifest.json")]).then(
         async (mainSegPromise) => {
           // console.log(mainSegPromise);
           for (const res of mainSegPromise) {
@@ -108,7 +122,7 @@ async function startup() {
             .attr("class", "tooltip")
             .style("opacity", 0);
         }
-      );
+      ))
     })
     .catch((error) => {
       console.error(`error encountered in startup: ${error}`);
@@ -1307,7 +1321,7 @@ function summarize_segment(segment){
 	for(var interaction of segment){
 		switch(interaction['interactionType']){
       case "Doc_open":
-        console.log(interaction)
+        // console.log(interaction)
       opens.push(interaction["title"]);
       openIDs.push(interaction["id"])
       dates.push(interaction["date"])
@@ -1514,120 +1528,124 @@ function summarize_segment(segment){
 
   descriptions.push(tempDesc)
 
-
-  // TODO: any NER/keyword thing
-  // Make NER only happen for dataset 1
   // console.log(openIDs)
   if (openIDs[0] == undefined) {
     console.error("hmm looks like theres an empty segment in this session.")
   }
-  else if (openIDs[0].startsWith("armsdealing")) { 
-      // Get array of unique open IDs within the segment
-      // Construct list of entities with number of documents they occurred in
-      peopleArr = [];
-      peopleCount = [];
-      geoArr = [];
-      geoCount = [];
-    for (const documentID of openIDs) {
-        // console.log(openIDs)
-        documentEntities = docs[3].find(
-          (o) => o.id.toLowerCase() === documentID.toLowerCase()
-        );
-        peopleInDoc = documentEntities["People"];
-        geosInDoc = documentEntities["Geos"];
-        for (const person of peopleInDoc) {
-          if (peopleArr.includes(person)) {
-            peopleCount[peopleArr.indexOf(person)] += 1;
-          } else {
-            peopleArr.push(person);
-            peopleCount.push(1);
-          }
-        }
-        for (const geo of geosInDoc) {
-          if (geoArr.includes(geo)) {
-            geoCount[geoArr.indexOf(geo)] += 1;
-          } else {
-            geoArr.push(geo);
-            geoCount.push(1);
-          }
-        }
-      }
-      // console.log("entities in segment")
-      // console.log(peopleArr)
-      // console.log(peopleCount)
-      // console.log(geoArr)
-      // console.log(geoCount)
-
-      // Get top 3 people and top 3 geos
-      topPeople = [];
-      topPeopleCount = [];
-      topGeos = [];
-      topGeosCount = [];
-      for (var i = 0; i < Math.min(2, peopleArr.length); i++) {
-        maxPeople = Math.max.apply(Math, peopleCount);
-        topPeopleCount.push(maxPeople);
-
-        topPeople.push(peopleArr[peopleCount.indexOf(maxPeople)]);
-        peopleCount[peopleCount.indexOf(maxPeople)] = 0;
-      }
-
-      for (var i = 0; i < Math.min(2, geoArr.length); i++) {
-        maxGeos = Math.max.apply(Math, geoCount);
-        topGeosCount.push(maxGeos);
-        topGeos.push(geoArr[geoCount.indexOf(maxGeos)]);
-
-        geoCount[geoCount.indexOf(maxGeos)] = 0;
-      }
-
-      tempDesc = "";
-      // Push to descriptions
-      if (topPeople.length == 1) {
-        tempDesc +=
-          "The only person referenced in the viewed documents was " +
-          topPeople[0] +
-          ".";
-      }
-      if (topPeople.length == 2) {
-        tempDesc +=
-          "The most referenced people in the viewed documents were " +
-          topPeople[0] +
-          " and " +
-          topPeople[1] +
-          ".";
-      }
-      // if (topPeople.length > 1) {
-      //   tempDesc += "The most commonly referenced people in the viewed documents were " + topPeople[0]
-      //   for (var i = 1; i < topPeople.length; i++) {
-      //     if (i == topPeople.length-1) {
-      //       tempDesc += ", and "
-      //     }
-      //     else {
-      //       tempDesc += ", "
-      //     }
-      //     tempDesc += topPeople[i]
-      //   }
-      //
-      // }
-      descriptions.push(tempDesc);
-
-      tempDesc = "";
-      // Push to descriptions
-      if (topGeos.length == 1) {
-        tempDesc +=
-          "The only location referenced in the viewed documents was " +
-          topGeos[0] +
-          ".";
-      }
-      if (topGeos.length == 2) {
-        tempDesc +=
-          "The most referenced locations in the viewed documents were " +
-          topGeos[0] +
-          " and " +
-          topGeos[1] +
-          ".";
-      }
-      descriptions.push(tempDesc);
+    // Get array of unique open IDs within the segment
+    // Construct list of entities with number of documents they occurred in
+    peopleArr = [];
+    peopleCount = [];
+    geoArr = [];
+    geoCount = [];
+  for (const documentID of openIDs) {
+      // console.log(openIDs)
+    //match the id of the document to the list of entities in the entities dataset.
+      documentEntities = entities[DS-1].find(
+        (o) => o.id === documentID
+      );
+    //catch when the docuemntEntities are empty because of an incorrect id
+    // console.log(entities[DS - 1], documentID)
+    if (documentEntities == undefined) {
+      //redefine the entity list to just be empty if thre's no matching documents.
+      documentEntities = {"People" : [], "Geos" : [] }
     }
+    //todo:figure out why there are differences in the Panda ids
+
+      peopleInDoc = documentEntities["People"];
+      geosInDoc = documentEntities["Geos"];
+      for (const person of peopleInDoc) {
+        if (peopleArr.includes(person)) {
+          peopleCount[peopleArr.indexOf(person)] += 1;
+        } else {
+          peopleArr.push(person);
+          peopleCount.push(1);
+        }
+      }
+      for (const geo of geosInDoc) {
+        if (geoArr.includes(geo)) {
+          geoCount[geoArr.indexOf(geo)] += 1;
+        } else {
+          geoArr.push(geo);
+          geoCount.push(1);
+        }
+      }
+    }
+    // console.log("entities in segment")
+    // console.log(peopleArr)
+    // console.log(peopleCount)
+    // console.log(geoArr)
+    // console.log(geoCount)
+
+    // Get top 3 people and top 3 geos
+    topPeople = [];
+    topPeopleCount = [];
+    topGeos = [];
+    topGeosCount = [];
+    for (var i = 0; i < Math.min(2, peopleArr.length); i++) {
+      maxPeople = Math.max.apply(Math, peopleCount);
+      topPeopleCount.push(maxPeople);
+
+      topPeople.push(peopleArr[peopleCount.indexOf(maxPeople)]);
+      peopleCount[peopleCount.indexOf(maxPeople)] = 0;
+    }
+
+    for (var i = 0; i < Math.min(2, geoArr.length); i++) {
+      maxGeos = Math.max.apply(Math, geoCount);
+      topGeosCount.push(maxGeos);
+      topGeos.push(geoArr[geoCount.indexOf(maxGeos)]);
+
+      geoCount[geoCount.indexOf(maxGeos)] = 0;
+    }
+
+    tempDesc = "";
+    // Push to descriptions
+    if (topPeople.length == 1) {
+      tempDesc +=
+        "The only person referenced in the viewed documents was " +
+        topPeople[0] +
+        ".";
+    }
+    if (topPeople.length == 2) {
+      tempDesc +=
+        "The most referenced people in the viewed documents were " +
+        topPeople[0] +
+        " and " +
+        topPeople[1] +
+        ".";
+    }
+    // if (topPeople.length > 1) {
+    //   tempDesc += "The most commonly referenced people in the viewed documents were " + topPeople[0]
+    //   for (var i = 1; i < topPeople.length; i++) {
+    //     if (i == topPeople.length-1) {
+    //       tempDesc += ", and "
+    //     }
+    //     else {
+    //       tempDesc += ", "
+    //     }
+    //     tempDesc += topPeople[i]
+    //   }
+    //
+    // }
+    descriptions.push(tempDesc);
+
+    tempDesc = "";
+    // Push to descriptions
+    if (topGeos.length == 1) {
+      tempDesc +=
+        "The only location referenced in the viewed documents was " +
+        topGeos[0] +
+        ".";
+    }
+    if (topGeos.length == 2) {
+      tempDesc +=
+        "The most referenced locations in the viewed documents were " +
+        topGeos[0] +
+        " and " +
+        topGeos[1] +
+        ".";
+    }
+    descriptions.push(tempDesc);
 
   // Average time per document
   // console.log("Length in minutes:  ")

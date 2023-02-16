@@ -276,7 +276,7 @@ function loadData() {
     prevDocs = []
   	for (var i = 0; i<participantData.length; i++){
       segI = i
-  		var summary = summarize_segment(participantData[i])
+  		var summary = summarize_segment(participantData[i], superlatives[DS - 1][P - 1]);
   		summary.pid = P;
   		summary.dataset = DS
   		summary.number = i
@@ -1299,7 +1299,7 @@ function segmentify(segments, interactions){
 
 //Argument: a segment from the array returned by segmentify
 //Returns:  a json object
-function summarize_segment(segment){
+function summarize_segment(segment, superlatives) {
 
 ///////This is where I sub out "text" to the meaningful titles, maybe also adding the dates as a new attribute
 
@@ -1746,6 +1746,12 @@ function summarize_segment(segment){
 
 
   //console.log(descriptions)
+
+  //count the number of unique opens
+  function countUnique(iterable) {
+    return new Set(iterable).size;
+  }
+  numUniqueTitles = countUnique(opens);
   var summary = {
     interesting : (total_interactions > 0) ? true:false,
     total_interactions: total_interactions,
@@ -1753,11 +1759,11 @@ function summarize_segment(segment){
 
     opens: ListToCounts(opens),
     opens_list: opens,
-    local_open_ratio: (total_interactions > 0) ? opens.length/total_interactions : 0,
+    local_open_ratio: total_interactions > 0 ? numUniqueTitles / opens.length : 0,
 
     searches: ListToCounts(searches),
     searches_list: searches,
-    local_search_ratio: (total_interactions > 0) ? searches.length/total_interactions : 0,
+    local_search_ratio: total_interactions > 0 ? searches.length / superlatives.searchCount : 0,
 
     notes: ListToCounts(notes),
     notes_list: notes,

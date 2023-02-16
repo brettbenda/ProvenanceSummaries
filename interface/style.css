@@ -34,7 +34,7 @@ div.tooltip {
     flex-wrap: wrap;
 }
 #iconKey ul li {
-    flex: 1 0 33.3%;
+    flex: 1 0 25%;
     padding: 0.8%;
     border: 1px solid #444;
     list-style-type: none;

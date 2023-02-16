@@ -35,87 +35,48 @@
   <body>
     <div
       id="controls"
-      class="col-sm-3 col-lg-2"
+      class="col-sm-12"
     >
       <form id="controlForm">
         <h5>Presentation Controls</h5>
-        <b>Dataset:</b><br />
-        1<input
-          type="radio"
-          name="dataset"
-          value="1"
-          checked
-          onclick="loadData()"
-/>
-        2<input type="radio" name="dataset" value="2" onclick="loadData()" />
-        3<input
-          type="radio"
-          name="dataset"
-          value="3"
-          onclick="loadData()"
-        />4<input
-          type="radio"
-          name="dataset"
-          value="4"
-          onclick="loadData()"
-        /><br />
-        <b>Session:</b><br />
-        1<input
-          type="radio"
-          name="pid"
-          value="1"
-          checked
-          onclick="loadData()"
-        />
-        2<input type="radio" name="pid" value="2" onclick="loadData()" />
-        3<input type="radio" name="pid" value="3" onclick="loadData()" />
-        4<input type="radio" name="pid" value="4" onclick="loadData()" />
-        5<input type="radio" name="pid" value="5" onclick="loadData()" />
-        6<input type="radio" name="pid" value="6" onclick="loadData()" />
-        7<input type="radio" name="pid" value="7" onclick="loadData()" />
-        8<input
-          type="radio"
-          name="pid"
-          value="8"
-          onclick="loadData()"
-        />
-        <!-- <br /><br /><br /> -->
-        <br/> <br/>
-        <!-- <h5>Data Editing</h5> -->
-        List View:
-        <input
-          type="checkbox"
-          name="detailed"
-          id="detailBtn"
-          onclick="loadData()"
-        />
-        <label id="iconKey">
-          <hr />
-          <ul>
-            <li>🔎 - The number of searches performed by the user in a segment compared to the total number of searches over the whole session.</li>
-            <li>🔖 - The text highlighted by the user. Shows number of events</li>
-            <li>📝 - The notes made in the segment. Shows number of notes made.</li>
-            <li>🦄 - The documents opened by user. Shows the ratio of new documents opened compared to the total documents opened in segment</li>
-            <li>📖 - answers: "Is the number of documents opened in this segment above or below average?" Average calculated from the sum of all document open events divided by the number of segments.</li>
-          </ul>
-        <label style="display: none;">Show Timeline:</label>
-        <input
-          style="display: none;"
-          type="checkbox"
-          name="timeline"
-          onclick="loadData()"
-        />
-        <hr>
-        </label>
-        <!-- <br /> -->
+        <div class="row">
+
+          <div class="col-md-4 col-lg-3 col-xl-2">
+          <b>Dataset:</b>
+        <label>1</label><input type="radio" name="dataset" value="1" checked onclick="loadData()" />
+        <label>2</label><input type="radio" name="dataset" value="2" onclick="loadData()" />
+        <label>3</label><input type="radio" name="dataset" value="3" onclick="loadData()" />
+        <label>4</label><input type="radio" name="dataset" value="4" onclick="loadData()" />
+        </div>
+
+        <div class="col-md-5">
+        <b>Session:</b>
+        
+        <label>1</label><input type="radio" name="pid" value="1" checked onclick="loadData()" />
+        <label>2</label><input type="radio" name="pid" value="2" onclick="loadData()" />
+        <label>3</label><input type="radio" name="pid" value="3" onclick="loadData()" />
+        <label>4</label><input type="radio" name="pid" value="4" onclick="loadData()" />
+        <label>5</label><input type="radio" name="pid" value="5" onclick="loadData()" />
+        <label>6</label><input type="radio" name="pid" value="6" onclick="loadData()" />
+        <label>7</label><input type="radio" name="pid" value="7" onclick="loadData()" />
+        <label>8</label><input type="radio" name="pid" value="8" onclick="loadData()" />
+        </div>
+      </div>        
+          <label> Show as List: </label>
+          <input type="checkbox" name="detailed" id="detailBtn" onclick="loadData()" />
+          <div id="iconKey" class="col-sm-10 offset-sm-1">
+            <ul>
+              <li>🔎 - number of unique searches vs. the total number of searches in segment.</li>
+              <li>🔖 - number of highlight events in a segment vs. the whole session.</li>
+              <li>📝 - number of notes made in the segment vs. the whole session.</li>
+              <li>🦄 - The documents opened by user. Shows the ratio of new documents opened compared to the total documents opened in segment</li>
+              <li>📖 - answers: "Is the number of documents opened in this segment above or below average?" Average calculated from the sum of all document open events divided by the number of segments.</li>
+            </ul>
+            <label style="display: none;">Show Timeline:</label>
+            <input style="display: none;" type="checkbox" name="timeline" onclick="loadData()" />
+          </div>
         <p style="display: none;">Show Notes:</p>
-        <input
-          style="display: none;"
-          type="checkbox"
-          name="notes"
-          onclick="loadData()"
-        />
-        <!-- <br /><br /><br /> -->
+        <input style="display: none;" type="checkbox" name="notes" onclick="loadData()" />
       </form>
       <!-- <button onclick="loadData()">Load Data</button><br> -->
       <h5 style="display: none;">Save</h5>
@@ -126,8 +87,7 @@
     </div>
     <div class="container-fluid bg-light">
       <div class="row row-space my-auto">
-        <div class="col-sm-3 col-lg-2"></div>
-        <div class="col-sm-9 col-lg-10">
+          <div class="col-sm-12 col-lg-12">
           <div id="text">
             <h1>Provenance Segment Visualization</h1>
             <!-- <h3><a href="https://github.com/brettbenda/ProvenanceSummaries/">Link to Github Repo</a></h3> -->

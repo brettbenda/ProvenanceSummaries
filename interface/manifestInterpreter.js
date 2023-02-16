@@ -209,8 +209,8 @@ function loadData() {
   	detailed = document.querySelector('input[name="detailed"]').checked;
     showNotes = document.querySelector('input[name="notes"]').checked;
     showTimeline = document.querySelector('input[name="timeline"]').checked;
-    cardWidth = 510;
-    cardHeight = 200;
+    cardWidth = 450;
+    cardHeight = 240;
   	participantData = logs[DS-1][P-1]
     // Make the "text" attribute the title for interactions of type "Doc_open" and "Reading" and add the date
     for (var i = 0; i<participantData.length; i++){

@@ -565,14 +565,13 @@ function cardText(card){
         if (keys == 0)
           if (d.displayedInfo == 0) {
             d.displayedInfo++;
-            return "• No documents were explored.";
+            return "• No documents were explored";
           } else return;
 
         var text =
           "• Explored " +
           keys.length +
-          (keys.length == 1 ? " document" : " different documents") +
-          ".";
+          (keys.length == 1 ? " document" : " different documents");
         d.displayedInfo++;
         return text;
       });
@@ -599,7 +598,7 @@ function cardText(card){
           slicedText +
           (keys[0].length == slicedText.length ? "" : "...") +
           '"' +
-          "</tspan>.";
+          "</tspan>";
 
         d.displayedInfo++;
 
@@ -646,7 +645,7 @@ function cardText(card){
           slicedText +
           (keys[0].length == slicedText.length ? "" : "...") +
           '"' +
-          "</tspan>.";
+          "</tspan>";
 
         d.displayedInfo++;
 
@@ -675,7 +674,7 @@ function cardText(card){
           slicedText +
           (keys[0].length == slicedText.length ? "" : "...") +
           '"' +
-          "</tspan>.";
+          "</tspan>";
 
         d.displayedInfo++;
 
@@ -718,7 +717,7 @@ function cardText(card){
           if (i != Math.min(3, keys.length) - 1) text += ", ";
         }
         d.displayedInfo++;
-        text += ".";
+        text += "";
         return text;
       });
 

@@ -30,6 +30,7 @@ var colors = {
   "Highlight":"#ab8300",
   "Highlights":"#ab8300",
   "Reading":"pink",
+  "Keywords": "#0096FF",
   "barBG": "lightgrey",
   "Average-neg":"blue",
   "Average-pos": "orange",
@@ -639,7 +640,7 @@ function cardText(card){
         }
         text +=
           '<tspan style="font-weight:bold;fill:' +
-          colors["Notes"] +
+          colors["Keywords"] +
           '">' +
           '"' +
           slicedText +

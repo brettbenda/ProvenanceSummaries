@@ -630,7 +630,8 @@ function cardText(card){
 
         var text = "• Keywords: ";
         var slicedText = keys[0];
-        for (var i = 1; i < keys.length; i++) {
+        //Just for running the experiment, to help reduce the number of keyword lists from overflowing the card bounds, I'm reducing the list by 1. Remove the -1 when continueing development.
+        for (var i = 1; i < keys.length-1; i++) {
           // Add something about cutting off at the edge of the card or something, maybe stick with 35? idk
           // Add back hover text --- need to look at the SummaryToolTip function (or just not use it)
           // Function mergecard, maybe modify it to merge the keywords?

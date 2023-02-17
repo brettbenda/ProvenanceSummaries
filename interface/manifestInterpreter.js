@@ -21,22 +21,27 @@ var showNotes = true
 var showTimeline = false;
 var moving = false;
 var colors = {
-  "Doc_open":"crimson",
-  "Documents Opened":"crimson",
-  "Search":"#009420",
-  "Searches":"#009420",
-  "Add note":"#4278f5",
-  "Notes":"#4278f5",
-  "Highlight":"#ab8300",
-  "Highlights":"#ab8300",
-  "Reading":"pink",
+  "Doc_open": "crimson",
+  "Documents Opened": "crimson",
+  "Search": "#009420",
+  "Searches": "#009420",
+  "Add note": "#4278f5",
+  "Notes": "#4278f5",
+  "Highlight": "#ab8300",
+  "Highlights": "#ab8300",
+  "Reading": "pink",
   "Keywords": "#0096FF",
+  "Dates": "#b16a1f",
+  "PersonEnt": "#0096FF",
+  "GeoEnt": "#0096FF",
   "barBG": "lightgrey",
   "Average-neg":"blue",
   "Average-pos": "orange",
 }
 let numberPattern = /\d+/g;
-
+function applyHTMLColor(term, color) {
+  return "<span style='color:" + color + "; font-weight:bold'>" + term + "</span>";
+}
 
 
 async function startup() {
@@ -1441,28 +1446,26 @@ function summarize_segment(segment, superlatives) {
     }
   }
     if(uSearches.length == 0) {
-      descriptions.push("The user made <span class='searchColor'>no</span> searches.")
+      descriptions.push("The user made " + applyHTMLColor("no", colors["Search"]) + " searches.");
     }
     else if (uSearches.length == 1) {
-      tempDesc = "The user searched for <span class='searchColor'>";
-          tempDesc += '"' + uSearches[0] + '"</span>. ';
+      tempDesc = "The user searched for ";
+      tempDesc += '"' + applyHTMLColor(uSearches[0], colors["Search"]) + '". ';
       descriptions.push(tempDesc)
     } else {
       if (uSearches.length < 3) {
-        tempDesc = "The user searched for <span class='searchColor'>";
+        tempDesc = "The user searched for ";
         for (let i = 0; i < uSearches.length - 1; i++) {
-          tempDesc += '"' + uSearches[i] + '"</span>, <span class="searchColor">';
+          tempDesc += '"' + applyHTMLColor(uSearches[i], colors["Search"]) + '", ';
         }
-        tempDesc += '</span> and <span class="searchColor">"' + uSearches[uSearches.length - 1] + '"</span>.';
+        tempDesc += ' and "' + applyHTMLColor(uSearches[uSearches.length - 1], colors["Search"]) + '".';
       } else {
         tempDesc =
-          "The user made <span class='searchColor'>" +
-          uSearches.length +
-          "</span> unique searches, including ";
+          "The user made " + applyHTMLColor(uSearches.length, colors["Search"]) + " unique searches, including ";
         for (let i = 0; i < 2; i++) {
-          tempDesc += '<span class="searchColor">"' + uSearches[i] + '"</span>, ';
+          tempDesc += '"' + applyHTMLColor(uSearches[i], colors["Search"]) + '", ';
         }
-        tempDesc += 'and <span class="searchColor">"' + uSearches[2] + '"</span>.';
+        tempDesc += 'and "' + applyHTMLColor(uSearches[2], colors["Search"]) + '".';
       }
       descriptions.push(tempDesc);
     }
@@ -1475,29 +1478,29 @@ function summarize_segment(segment, superlatives) {
       tempDesc = "They "
       // If all new
       if(numNew == totalDocInt) {
-        tempDesc += "explored one new document, "
+        tempDesc += "explored " + applyHTMLColor("one new document", colors["Doc_open"]) + ", ";
       }
       // If none new
       else if(numNew==0) {
-        tempDesc += "went back to one document they had previously seen, "
+        tempDesc += "went back to " + applyHTMLColor("one document", colors["Doc_open"]) + " they had previously seen, ";
       }
       if (DS < 2) {
         // Document date
-        tempDesc += "which was created in " + monthNames[dates[0].getMonth()] + " " + dates[0].getYear() + "."
+        tempDesc += "which was created in " + applyHTMLColor(monthNames[dates[0].getMonth()],colors["Dates"]) + " " + applyHTMLColor(dates[0].getYear(),colors["Dates"]) + "."
       }
     }
     else {
       tempDesc = "They "
       // If all new
       if(numNew == totalDocInt) {
-        tempDesc += "explored " + totalDocInt + " new documents, "
+        tempDesc += "explored " + applyHTMLColor(totalDocInt,colors["Doc_open"]) + " new documents, "
         if (DS < 2) {
           // Document date
           if (monthNames[dates[0].getMonth()] + " " + dates[0].getFullYear() == monthNames[dates[totalDocInt - 1].getMonth()] + " " + dates[totalDocInt - 1].getFullYear()) {
-            tempDesc += "which were all created in " + monthNames[dates[0].getMonth()] + " " + dates[0].getFullYear() + "."
+            tempDesc += "which were all created in " + applyHTMLColor((monthNames[dates[0].getMonth()] + " " + dates[0].getFullYear()),colors["Dates"]) + "."
           }
           else {
-            tempDesc += "which were created between " + monthNames[dates[0].getMonth()] + " " + dates[0].getFullYear() + " and " + monthNames[dates[totalDocInt - 1].getMonth()] + " " + dates[totalDocInt - 1].getFullYear() + "."
+            tempDesc += "which were created between " + applyHTMLColor((monthNames[dates[0].getMonth()] + " " + dates[0].getFullYear()),colors["Dates"]) + " and " + applyHTMLColor((monthNames[dates[totalDocInt - 1].getMonth()] + " " + dates[totalDocInt - 1].getFullYear()),colors["Dates"]) + "."
           }
         } else {
           tempDesc = tempDesc.slice(0,-2) + ". "
@@ -1506,27 +1509,27 @@ function summarize_segment(segment, superlatives) {
       }
       // If none new
       else if(numNew==0) {
-        tempDesc += "went back to " + totalDocInt + " documents they had previously seen."
+        tempDesc += "went back to " + applyHTMLColor(totalDocInt,colors["Doc_open"]) + " documents they had previously seen."
         if (DS < 2) {
           // Document date
           if (monthNames[dates[0].getMonth()] + " " + dates[0].getFullYear() == monthNames[dates[totalDocInt - 1].getMonth()] + " " + dates[totalDocInt - 1].getFullYear()) {
-            tempDesc += "which were all created in " + monthNames[dates[0].getMonth()] + " " + dates[0].getFullYear() + "."
+            tempDesc += "which were all created in " + applyHTMLColor((monthNames[dates[0].getMonth()] + " " + dates[0].getFullYear()),colors["Dates"]) + "."
           }
           else {
-            tempDesc += "which were created between " + monthNames[dates[0].getMonth()] + " " + dates[0].getFullYear() + " and " + monthNames[dates[totalDocInt - 1].getMonth()] + " " + dates[totalDocInt - 1].getFullYear() + "."
+            tempDesc += "which were created between " + applyHTMLColor((monthNames[dates[0].getMonth()] + " " + dates[0].getFullYear()),colors["Dates"]) + " and " + applyHTMLColor((monthNames[dates[totalDocInt - 1].getMonth()] + " " + dates[totalDocInt - 1].getFullYear()),colors["Dates"]) + "."
           }
         }
 
       }
       else {
-        tempDesc += "explored " + totalDocInt + " unique documents, " + numNew + " of which had not previously been read. "
+        tempDesc += "explored " + applyHTMLColor(totalDocInt,colors["Doc_open"]) + " unique documents, " + applyHTMLColor(numNew,colors["Doc_open"]) + " of which had not previously been read. "
         if (DS < 2) {
           // Document date
           if (monthNames[dates[0].getMonth()] + " " + dates[0].getFullYear() == monthNames[dates[totalDocInt - 1].getMonth()] + " " + dates[totalDocInt - 1].getFullYear()) {
-            tempDesc += "Those documents were created in " + monthNames[dates[0].getMonth()] + " " + dates[0].getFullYear() + "."
+            tempDesc += "Those documents were created in " + applyHTMLColor((monthNames[dates[0].getMonth()] + " " + dates[0].getFullYear()), colors["Dates"]) + ".";
           }
           else {
-            tempDesc += "Those documents were created between " + monthNames[dates[0].getMonth()] + " " + dates[0].getFullYear() + " and " + monthNames[dates[totalDocInt - 1].getMonth()] + " " + dates[totalDocInt - 1].getFullYear() + "."
+            tempDesc += "Those documents were created between " + applyHTMLColor((monthNames[dates[0].getMonth()] + " " + dates[0].getFullYear()), colors["Dates"]) + " and " + applyHTMLColor((monthNames[dates[totalDocInt - 1].getMonth()] + " " + dates[totalDocInt - 1].getFullYear()), colors["Dates"]) + "."
           }
         }
 
@@ -1610,15 +1613,15 @@ function summarize_segment(segment, superlatives) {
     if (topPeople.length == 1) {
       tempDesc +=
         "The only person referenced in the viewed documents was " +
-        topPeople[0] +
+        applyHTMLColor(topPeople[0],colors["PersonEnt"]) +
         ".";
     }
     if (topPeople.length == 2) {
       tempDesc +=
         "The most referenced people in the viewed documents were " +
-        topPeople[0] +
+        applyHTMLColor(topPeople[0], colors["PersonEnt"]) +
         " and " +
-        topPeople[1] +
+        applyHTMLColor(topPeople[1], colors["PersonEnt"]) +
         ".";
     }
     // if (topPeople.length > 1) {
@@ -1641,15 +1644,15 @@ function summarize_segment(segment, superlatives) {
     if (topGeos.length == 1) {
       tempDesc +=
         "The only location referenced in the viewed documents was " +
-        topGeos[0] +
+        applyHTMLColor(topGeos[0],colors["GeoEnt"]) +
         ".";
     }
     if (topGeos.length == 2) {
       tempDesc +=
         "The most referenced locations in the viewed documents were " +
-        topGeos[0] +
+        applyHTMLColor(topGeos[0],colors["GeoEnt"]) +
         " and " +
-        topGeos[1] +
+        applyHTMLColor(topGeos[1],colors["GeoEnt"]) +
         ".";
     }
     descriptions.push(tempDesc);
@@ -1662,17 +1665,17 @@ function summarize_segment(segment, superlatives) {
   if(roundAvg == 1.00) {
     descriptions.push(
       "Of the " +
-        totalDocInt +
+        applyHTMLColor(totalDocInt, colors["Doc_open"]) +
         " documents open, each document recieved attention for an average of " +
-        IntToTime(roundAvg * 60) +
+        applyHTMLColor(IntToTime(roundAvg * 60),colors["Doc_open"]) +
         " minute."
     );
   } else if (roundAvg < 1.00) {
     descriptions.push(
       "Of the " +
-        totalDocInt +
+        applyHTMLColor(totalDocInt, colors["Doc_open"]) +
         " documents open, each document recieved attention for an average of " +
-        IntToTime(roundAvg * 60) +
+        applyHTMLColor(IntToTime(roundAvg * 60),colors["Doc_open"]) +
         " seconds."
     );
 
@@ -1680,9 +1683,9 @@ function summarize_segment(segment, superlatives) {
     else {
     descriptions.push(
       "Of the " +
-        totalDocInt +
+        applyHTMLColor(totalDocInt, colors["Doc_open"]) +
         " documents open, each document recieved attention for an average of " +
-        IntToTime(roundAvg * 60) +
+        applyHTMLColor(IntToTime(roundAvg * 60), colors["Doc_open"]) +
         " minutes."
     );
   }

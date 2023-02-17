@@ -534,22 +534,26 @@ function cardText(card){
   var bulletStartY = 150 ;// (0.55*cardHeight)
   if (!detailed) {
     element.descriptionText = card
-      .append("text")
+      .append("foreignObject")
+      .attr("class", "node")
+      .attr("height", cardHeight-25)
+      .attr("width", cardWidth-25)
       .attr("x", 15)
       .attr("y", function (d, i) {
         return 50;
       })
-      .attr("id", "descriptionText")
+      .attr("class", "descriptionText")
       .html(function (d, i) {
         if (d.descriptions.length == 0) return;
+        // console.log(d.descriptions);
 
-        var text = "";
-        for (var text2 of d.descriptions) text += text2 + "<br> ";
+        var text = "<p>";
+        for (var text2 of d.descriptions) text += text2 + " ";
+        text += "</p>";
 
         //d.displayedInfo++
         return text;
-      })
-      .call(wrap, cardWidth - 25);
+      });
   } else {
     //open info
     element.searchText = card
@@ -1437,26 +1441,28 @@ function summarize_segment(segment, superlatives) {
     }
   }
     if(uSearches.length == 0) {
-      descriptions.push("The user made no searches.")
+      descriptions.push("The user made <span class='searchColor'>no</span> searches.")
     }
     else if (uSearches.length == 1) {
-      tempDesc = "The user searched for ";
-          tempDesc += '"' + uSearches[0] + '". ';
+      tempDesc = "The user searched for <span class='searchColor'>";
+          tempDesc += '"' + uSearches[0] + '"</span>. ';
       descriptions.push(tempDesc)
     } else {
       if (uSearches.length < 3) {
-        tempDesc = "The user searched for ";
+        tempDesc = "The user searched for <span class='searchColor'>";
         for (let i = 0; i < uSearches.length - 1; i++) {
-          tempDesc += '"' + uSearches[i] + '", ';
+          tempDesc += '"' + uSearches[i] + '"</span>, <span class="searchColor">';
         }
-        tempDesc += 'and "' + uSearches[uSearches.length - 1] + '".';
+        tempDesc += '</span> and <span class="searchColor">"' + uSearches[uSearches.length - 1] + '"</span>.';
       } else {
         tempDesc =
-          "The user made " + uSearches.length + " unique searches, including ";
+          "The user made <span class='searchColor'>" +
+          uSearches.length +
+          "</span> unique searches, including ";
         for (let i = 0; i < 2; i++) {
-          tempDesc += '"' + uSearches[i] + '", ';
+          tempDesc += '<span class="searchColor">"' + uSearches[i] + '"</span>, ';
         }
-        tempDesc += 'and "' + uSearches[2] + '".';
+        tempDesc += 'and <span class="searchColor">"' + uSearches[2] + '"</span>.';
       }
       descriptions.push(tempDesc);
     }
@@ -1938,6 +1944,7 @@ function wrap(text, width) {
                 .text(word);
               }
             }
+    // console.log(text);
           });
 }
 

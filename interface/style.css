@@ -103,3 +103,13 @@ color: steelblue;
     fill: steelblue;
     padding: 3px;
 }
+
+
+.descriptionText{
+    font-size: 10pt;
+}
+
+.searchColor{
+    color: #009420;
+    font-weight:bold;
+}

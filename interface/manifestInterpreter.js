@@ -33,7 +33,7 @@ var colors = {
   "Keywords": "#0096FF",
   "Dates": "#b16a1f",
   "PersonEnt": "#0096FF",
-  "GeoEnt": "#0096FF",
+  "GeoEnt": "#049c9a",
   "barBG": "lightgrey",
   "Average-neg":"blue",
   "Average-pos": "orange",
@@ -544,9 +544,7 @@ function cardText(card){
       .attr("height", cardHeight-25)
       .attr("width", cardWidth-25)
       .attr("x", 15)
-      .attr("y", function (d, i) {
-        return 50;
-      })
+      .attr("y", 35)
       .attr("class", "descriptionText")
       .html(function (d, i) {
         if (d.descriptions.length == 0) return;
@@ -1461,7 +1459,7 @@ function summarize_segment(segment, superlatives) {
         tempDesc += ' and "' + applyHTMLColor(uSearches[uSearches.length - 1], colors["Search"]) + '".';
       } else {
         tempDesc =
-          "The user made " + applyHTMLColor(uSearches.length, colors["Search"]) + " unique searches, including ";
+          "The user made " + applyHTMLColor(uSearches.length+" unique", colors["Search"]) + " searches, including ";
         for (let i = 0; i < 2; i++) {
           tempDesc += '"' + applyHTMLColor(uSearches[i], colors["Search"]) + '", ';
         }
@@ -1493,7 +1491,7 @@ function summarize_segment(segment, superlatives) {
       tempDesc = "They "
       // If all new
       if(numNew == totalDocInt) {
-        tempDesc += "explored " + applyHTMLColor(totalDocInt,colors["Doc_open"]) + " new documents, "
+        tempDesc += "explored " + applyHTMLColor(totalDocInt+" new",colors["Doc_open"]) + " documents, "
         if (DS < 2) {
           // Document date
           if (monthNames[dates[0].getMonth()] + " " + dates[0].getFullYear() == monthNames[dates[totalDocInt - 1].getMonth()] + " " + dates[totalDocInt - 1].getFullYear()) {
@@ -1522,7 +1520,7 @@ function summarize_segment(segment, superlatives) {
 
       }
       else {
-        tempDesc += "explored " + applyHTMLColor(totalDocInt,colors["Doc_open"]) + " unique documents, " + applyHTMLColor(numNew,colors["Doc_open"]) + " of which had not previously been read. "
+        tempDesc += "explored " + applyHTMLColor(totalDocInt + " unique",colors["Doc_open"]) + " documents, " + applyHTMLColor(numNew,colors["Doc_open"]) + " of which had not previously been read. "
         if (DS < 2) {
           // Document date
           if (monthNames[dates[0].getMonth()] + " " + dates[0].getFullYear() == monthNames[dates[totalDocInt - 1].getMonth()] + " " + dates[totalDocInt - 1].getFullYear()) {

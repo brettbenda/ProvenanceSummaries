@@ -572,12 +572,18 @@ function cardText(card){
         if (keys == 0)
           if (d.displayedInfo == 0) {
             d.displayedInfo++;
-            return "• No documents were explored";
+            return "• <tspan style='font-weight:bold;fill:" +
+              colors["Doc_open"] + "'>" +
+              "No documents" +
+              "</tspan>" +
+              "were explored";
           } else return;
 
-        var text =
-          "• Explored " +
+        var text = "• Explored ";
+           text += "<tspan style='font-weight:bold;fill:" +
+          colors["Doc_open"] + "'>" +
           keys.length +
+          "</tspan>"+
           (keys.length == 1 ? " document" : " different documents");
         d.displayedInfo++;
         return text;

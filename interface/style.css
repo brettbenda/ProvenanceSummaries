@@ -82,21 +82,21 @@ color: steelblue;
     padding: 3px;
 }
 /* setting this with a psusdo hover class for now, but it might be better to use a ".highlightHTML .active" rule and we just add and subtract the active class with d3. */
-.highlightHTML:hover {
+/* .highlightHTML:hover {
     color: white;
     background-color: brown;
     border-radius: 5px;
-}
+} */
 
 .highlightSegment {
     color: slateblue;
     padding: 3px;
 }
-.highlightSegment:hover{
+/* .highlightSegment:hover{
     color: white;
     background-color: chocolate;
     border-radius: 10px;
-}
+} */
 
 /* Not sure if I need a different set of rules for svg elements since they use fill instead of color */
 .highlightSVG {

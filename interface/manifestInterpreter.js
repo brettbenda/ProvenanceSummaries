@@ -746,9 +746,9 @@ function cardText(card){
         if (keys.length == 0) return;
         var text = "• Searched for ";
         for (var i = 0; i < Math.min(3, keys.length); i++) {
-          if (i == Math.min(3, keys.length) - 1 && keys.length != 1)
+          if (i == 2 && keys.length == 3)
             text += "and ";
-
+          
           text +=
             '<tspan style="font-weight:bold;fill:' +
             colors["Search"] +
@@ -756,7 +756,12 @@ function cardText(card){
             keys[i] +
             "</tspan>";
 
-          if (i != Math.min(3, keys.length) - 1) text += ", ";
+          if (i != Math.min(3, keys.length) - 1){
+            text += ", ";
+          }
+          if (i == 2 && keys.length > 3) {
+            text += ", and more ..."  
+          }
         }
         d.displayedInfo++;
         text += "";

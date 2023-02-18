@@ -651,27 +651,43 @@ function cardText(card){
 
         var text = "• Keywords: ";
         var slicedText = keys[0];
-        //Just for running the experiment, to help reduce the number of keyword lists from overflowing the card bounds, I'm reducing the list by 1. Remove the -1 when continueing development.
-        for (var i = 1; i < keys.length-1; i++) {
+        for (var i = 1; i < keys.length; i++) {
           // Add something about cutting off at the edge of the card or something, maybe stick with 35? idk
           // Add back hover text --- need to look at the SummaryToolTip function (or just not use it)
           // Function mergecard, maybe modify it to merge the keywords?
           //      current function deletes old segments and melds them into a new one and just yeets the keywords
           slicedText += ", " + keys[i];
         }
+        if (slicedText.length > 37) {
+          slicedText = slicedText.slice(0, 37)
+          slicedText += "..."
+        } 
         text +=
           '<tspan style="font-weight:bold;fill:' +
           colors["Keywords"] +
           '">' +
           '"' +
           slicedText +
-          (keys[0].length == slicedText.length ? "" : "...") +
           '"' +
           "</tspan>";
 
         d.displayedInfo++;
 
         return text;
+            })
+      .on("mouseover", function (d, i) {
+        tooltip.transition().duration(100).style("opacity", 1.0);
+        tooltip
+          .html(BarToolTipText(d, "Keywords"))
+          .style("left", d3.event.pageX + "px")
+          .style("top", d3.event.pageY - 28 + "px");
+      })
+      .on("mouseout", function (d, i) {
+        tooltip.transition().duration(100).style("opacity", 0.0);
+      })
+      .on("mousemove", function () {
+        tooltip.style("left", (d3.event.pageX) + "px")
+          .style("top", (d3.event.pageY - 28) + "px")
       });
 
     //Highlight info
@@ -1214,6 +1230,9 @@ function BarToolTipText(d, type){
     case "Highlights":
     data = d.highlights
     break
+    case "Keywords":
+      data = d.keywords.reduce((index, value) => ({ ...index, [value]: 1 }), {}); //converts array to object for function
+      break
     case "Notes":
     data = d.notes
     break
@@ -1224,7 +1243,7 @@ function BarToolTipText(d, type){
       var quality = conditionalQuality(d);
     return quality+"<b> Total: (" + TextToValue(d,type) + ")"
   }
-  title+= ":</b> <br>"
+  title+= ":</b>"
   var keys = Object.keys(data)
   for(var i=0; i<keys.length;i++){
     text += "#"+(i+1)+": " + keys[i] + ((data[keys[i]]==1?"":" (x" + data[keys[i]]+")"))+"<br>"
@@ -1238,7 +1257,7 @@ function BarToolTipText(d, type){
 
 //gets html for textual summary tooltip
 function SummaryToolTip(text, type){
-  var title = "<b>"+type+"</b> <br>"
+  var title = "<b>"+type+"</b>"
   var text = text
 
   return title + "<br>" + text;
@@ -1859,6 +1878,9 @@ function TextToValue(d, type){
       break;
     case "Highlights":
       data =  d.highlights
+      break;
+    case "Keywords":
+      data = d.keywords.reduce((index, value) => ({ ...index, [value]: 1 }), {}); //converts array to object for function
       break;
     case "Notes":
       data =  d.notes

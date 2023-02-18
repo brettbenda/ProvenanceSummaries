@@ -1,67 +1,62 @@
 <!DOCTYPE >
 <html
-  xmlns="http://www.w3.org/1999/xhtml"
-  xmlns:svg="http://www.w3.org/2000/svg"
+xmlns="http://www.w3.org/1999/xhtml"
+xmlns:svg="http://www.w3.org/2000/svg"
 >
   <head>
     <title>Provenance</title>
-
+    
     <!-- Latest compiled and minified CSS -->
-    <link
-      rel="stylesheet"
-      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
-    />
-
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" />
     <!-- jQuery library -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-
+        
     <!-- Popper JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-
+    
     <!-- Latest compiled JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
-
+    
     <script src="https://cdn.rawgit.com/eligrey/canvas-toBlob.js/f1a01896135ab378aa5c0118eadd81da55e698d8/canvas-toBlob.js"></script>
     <script src="https://cdn.rawgit.com/eligrey/FileSaver.js/e9d941381475b5df8b7d7691013401e171014e89/FileSaver.min.js"></script>
-
+    
     <script src="https://eligrey.com/demos/FileSaver.js/Blob.js"></script>
     <script src="https://eligrey.com/demos/FileSaver.js/FileSaver.js"></script>
-
+    
     <link rel="stylesheet" href="style.css" />
-
+    
     <meta charset="UTF-8" />
   </head>
 
   <body>
-    <div
-      id="controls"
-      class="col-sm-12"
-    >
+    <div id="controls" class="col-sm-12">
       <form id="controlForm">
         <h5>Presentation Controls</h5>
         <div class="row">
 
           <div class="col-md-4 col-lg-3 col-xl-2">
-          <b>Dataset:</b>
-        <label>1</label><input type="radio" name="dataset" value="1" checked onclick="loadData()" />
-        <label>2</label><input type="radio" name="dataset" value="2" onclick="loadData()" />
-        <label>3</label><input type="radio" name="dataset" value="3" onclick="loadData()" />
-        <label>4</label><input type="radio" name="dataset" value="4" onclick="loadData()" />
-        </div>
+            <b>Dataset:</b>
+            <label>1</label><input type="radio" name="dataset" value="1" checked onclick="loadData()" />
+            <label>2</label><input type="radio" name="dataset" value="2" onclick="loadData()" />
+            <label>3</label><input type="radio" name="dataset" value="3" onclick="loadData()" />
+            <label>4</label><input type="radio" name="dataset" value="4" onclick="loadData()" />
+          </div>
 
-        <div class="col-md-5">
-        <b>Session:</b>
-        
-        <label>1</label><input type="radio" name="pid" value="1" checked onclick="loadData()" />
-        <label>2</label><input type="radio" name="pid" value="2" onclick="loadData()" />
-        <label>3</label><input type="radio" name="pid" value="3" onclick="loadData()" />
-        <label>4</label><input type="radio" name="pid" value="4" onclick="loadData()" />
-        <label>5</label><input type="radio" name="pid" value="5" onclick="loadData()" />
-        <label>6</label><input type="radio" name="pid" value="6" onclick="loadData()" />
-        <label>7</label><input type="radio" name="pid" value="7" onclick="loadData()" />
-        <label>8</label><input type="radio" name="pid" value="8" onclick="loadData()" />
+          <div class="col-md-5">
+            <b>Session:</b>
+            
+            <label>1</label><input type="radio" name="pid" value="1" checked onclick="loadData()" />
+            <label>2</label><input type="radio" name="pid" value="2" onclick="loadData()" />
+            <label>3</label><input type="radio" name="pid" value="3" onclick="loadData()" />
+            <label>4</label><input type="radio" name="pid" value="4" onclick="loadData()" />
+            <label>5</label><input type="radio" name="pid" value="5" onclick="loadData()" />
+            <label>6</label><input type="radio" name="pid" value="6" onclick="loadData()" />
+            <label>7</label><input type="radio" name="pid" value="7" onclick="loadData()" />
+            <label>8</label><input type="radio" name="pid" value="8" onclick="loadData()" />
+          </div>
         </div>
-      </div>        
+        <div class="row">
+
           <label> Show as List: </label>
           <input type="checkbox" name="detailed" id="detailBtn" onclick="loadData()" />
           <div id="iconKey" class="col-sm-10 offset-sm-1">
@@ -75,19 +70,18 @@
             <label style="display: none;">Show Timeline:</label>
             <input style="display: none;" type="checkbox" name="timeline" onclick="loadData()" />
           </div>
-        <p style="display: none;">Show Notes:</p>
-        <input style="display: none;" type="checkbox" name="notes" onclick="loadData()" />
+          <p style="display: none;">Show Notes:</p>
+          <input style="display: none;" type="checkbox" name="notes" onclick="loadData()" />
+        </div>        
       </form>
       <!-- <button onclick="loadData()">Load Data</button><br> -->
       <h5 style="display: none;">Save</h5>
       <button style="display: none;" onclick="saveData()">Save Data JSON</button>
-      <!-- <br /> -->
       <button style="display: none;" onclick="saveSVGS()">Save SVGS</button>
-      <!-- <br /> -->
     </div>
     <div class="container-fluid bg-light">
       <div class="row row-space my-auto">
-          <div class="col-sm-12 col-lg-12">
+        <div class="col-sm-12 col-lg-12">
           <div id="text">
             <h1>Provenance Segment Visualization</h1>
             <!-- <h3><a href="https://github.com/brettbenda/ProvenanceSummaries/">Link to Github Repo</a></h3> -->

@@ -39,8 +39,12 @@ var colors = {
   "Average-pos": "orange",
 }
 let numberPattern = /\d+/g;
-function applyHTMLColor(term, color) {
-  return "<span style='color:" + color + "; font-weight:bold'>" + term + "</span>";
+function applyHTMLColor(term, color, background = false) {
+  if (background) {
+    return "<span style='color:white;border-radius:5px;padding:0.1em;background-color:" + color + ";'>" + term + "</span>"; //Alternate that does background color instead of text color
+  } else {
+    return "<span style='color:" + color + "; font-weight:bold'>" + term + "</span>";
+  }
 }
 
 

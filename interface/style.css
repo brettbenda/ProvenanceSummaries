@@ -25,7 +25,7 @@ div.tooltip {
 #iconKey{
     padding: 0.5%;
     background-color: whitesmoke;
-    overflow-y: scroll;
+    overflow-y: hidden;
 }
 #iconKey ul {
     padding-left: 0px;
@@ -52,7 +52,7 @@ input[type=checkbox] + #iconKey {
 }
 
 input[type=checkbox]:checked + #iconKey {
-    height: 5.5em;
+    height: 11em;
     padding: 0.5%;
     transition-property: all;
     transition-duration: 1s;

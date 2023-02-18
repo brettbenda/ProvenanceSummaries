@@ -1270,8 +1270,6 @@ function SummaryToolTip(text, type){
 
 //get html for timeline tooltip
 function TimeToolTip(segment) {
-  console.log("segment", segment);
-	console.log(segment)
   var text ="<p class=\"tooltipP\"><b>"+IntToTime(segment.start) + "-" + IntToTime(segment.end)+"</b> ("+IntToTime(segment.length)+")</p>"
   return text
 }

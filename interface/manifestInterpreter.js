@@ -631,6 +631,10 @@ function cardText(card){
       })
       .on("mouseout", function (d, i) {
         tooltip.transition().duration(100).style("opacity", 0.0);
+      })
+      .on("mousemove", function () {
+        tooltip.style("left", (d3.event.pageX) + "px")
+          .style("top", (d3.event.pageY - 28) + "px")
       });
 
     //Keyword info
@@ -708,6 +712,10 @@ function cardText(card){
       })
       .on("mouseout", function (d, i) {
         tooltip.transition().duration(100).style("opacity", 0.0);
+      })
+      .on("mousemove", function () {
+        tooltip.style("left", (d3.event.pageX) + "px")
+          .style("top", (d3.event.pageY - 28) + "px")
       });
 
     element.searchText = card
@@ -737,6 +745,20 @@ function cardText(card){
         d.displayedInfo++;
         text += "";
         return text;
+      })
+      .on("mouseover", function (d, i) {
+        tooltip.transition().duration(100).style("opacity", 1.0);
+        tooltip
+          .html(BarToolTipText(d, "Searches"))
+          .style("left", d3.event.pageX + "px")
+          .style("top", d3.event.pageY - 28 + "px");
+      })
+      .on("mouseout", function (d, i) {
+        tooltip.transition().duration(100).style("opacity", 0.0);
+      })
+      .on("mousemove", function () {
+        tooltip.style("left", (d3.event.pageX) + "px")
+          .style("top", (d3.event.pageY - 28) + "px")
       });
 
     return element;

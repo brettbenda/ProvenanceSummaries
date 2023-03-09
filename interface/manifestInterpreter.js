@@ -526,15 +526,15 @@ function drawCards(startTime, endTime){
     var barY = cardHeight-20
     
     //interaction bars
-    card.search = barElement(card, 15, barY, "Searches", "🔎", function(d){ return 25*(d.local_search_ratio) })
+    card.search = barElement(card, 15, barY, "Searches", "🔎", function(d){ return 38*(d.local_search_ratio) })
     
-    card.highlight = barElement(card, 50, barY, "Highlights", "🔖", function(d){ return 25*(d.local_highlight_ratio) })
+    card.highlight = barElement(card, 70, barY, "Highlights", "🔖", function(d){ return 38*(d.local_highlight_ratio) })
     
-    card.notes = barElement(card, 85, barY, "Notes", "📝", function(d){ return 25*(d.local_note_ratio) })
+    card.notes = barElement(card, 125, barY, "Notes", "📝", function(d){ return 38*(d.local_note_ratio) })
     
-    card.open = barElement(card, 120, barY, "Documents Opened", "🦄", function(d){ return 25*(d.local_open_ratio) })
+    card.open = barElement(card, 180, barY, "Documents Opened", "🦄", function(d){ return 38*(d.local_open_ratio) })
     
-    card.total = centerBarElement(card,155,barY,"Average","📖",function (d) {return 12.5 * d.interaction_ratio_from_average;});
+    card.total = centerBarElement(card,235,barY,"Average","📖",function (d) {return 19 * d.interaction_ratio_from_average;});
     
     
   }
@@ -801,9 +801,9 @@ function barElement(card, x, y, text, symbol, sizefunc){
 	element.bar = card.append("line").
     attr("x1",x).
     attr("y1",y+5).
-    attr("x2",x+25).
+    attr("x2",x+38).
     attr("y2",y+5).
-    attr("stroke-width",5).
+    attr("stroke-width",10).
     attr("stroke-opacity","0.5").
     attr("class", "barBar"+text.replace(/\s+/g, '')).
     style("stroke", colors[text])
@@ -813,24 +813,24 @@ function barElement(card, x, y, text, symbol, sizefunc){
       attr("y1",y+5).
       attr("x2",function(d,i){return x+sizefunc(d)}).
       attr("y2",y+5).
-      attr("stroke-width",5).
+      attr("stroke-width",10).
       attr("class", "barBG"+text.replace(/\s+/g, '')).
       style("stroke", colors[text])
 
   element.text = card.append("text").
     attr("x",x).
-    attr("y",y-5).
+    attr("y",y-15).
     style("user-select","none").
     html(symbol).
-    style("font-size", function(){return (text=="Average"?12:18)}).
+    style("font-size", function(){return (text=="Average"?34:38)}).
     call(wrap, 385)
 
 	//invisible box over bar and lable, to handle interactions for both rects of the bar
 	element.selectionArea = card.append("rect").
     attr("x",x).
-    attr("y",y-25).
-    attr("height", 25+10).
-    attr("width",25).
+    attr("y",y-48).
+    attr("height", 48+10).
+    attr("width",38).
     attr("class", "selectionArea"+text.replace(/\s+/g, '')).
     style("opacity", 0).
     on("mouseover",function(d,i){
@@ -885,9 +885,9 @@ function centerBarElement(card, x, y, text, symbol, sizefunc) {
     .append("line")
     .attr("x1", x)
     .attr("y1", y + 5)
-    .attr("x2", x + 25)
+    .attr("x2", x + 38)
     .attr("y2", y + 5)
-    .attr("stroke-width", 8)
+    .attr("stroke-width", 12)
     .attr("stroke-opacity", "0.5")
     .attr("class", "barBG" + text.replace(/\s+/g, ""))
     .style("stroke", "#dddddd");
@@ -895,14 +895,14 @@ function centerBarElement(card, x, y, text, symbol, sizefunc) {
   element.bar = card
     .append("line")
     .attr("x1", function (d, i) {
-      return sizefunc(d) > 0 ? x + 12.5 : x + sizefunc(d) + 12.5;
+      return sizefunc(d) > 0 ? x + 19 : x + sizefunc(d) + 19;
     })
     .attr("y1", y + 5)
     .attr("x2", function (d, i) {
-      return sizefunc(d) > 0 ? x + 12.5 + sizefunc(d) : x + 12.5;
+      return sizefunc(d) > 0 ? x + 19 + sizefunc(d) : x + 19;
     })
     .attr("y2", y + 5)
-    .attr("stroke-width", 5)
+    .attr("stroke-width", 10)
     .attr("class", "barBar" + text.replace(/\s+/g, ""))
     .style("stroke", function (d, i) {
       return sizefunc(d) > 0 ? colors[text + "-pos"] : colors[text + "-neg"];
@@ -910,9 +910,9 @@ function centerBarElement(card, x, y, text, symbol, sizefunc) {
 
   element.center = card
     .append("line")
-    .attr("x1", x + 12.5)
+    .attr("x1", x + 19)
     .attr("y1", y + 0)
-    .attr("x2", x + 12.5)
+    .attr("x2", x + 19)
     .attr("y2", y + 10)
     .attr("stroke-width", 2)
     .attr("stroke-opacity", "0.9")
@@ -921,18 +921,18 @@ function centerBarElement(card, x, y, text, symbol, sizefunc) {
 
   element.text = card.append("text").
     attr("x",x).
-    attr("y",y-5).
+    attr("y",y-15).
     style("user-select","none").
     html(symbol).
-    style("font-size", function(){return (text=="Total"?12:18)}). //Set the font size of the icon - 18 is for icons 12 is for text
+    style("font-size", function(){return (text=="Total"?34:38)}). //Set the font size of the icon - 18 is for icons 12 is for text
     call(wrap, 385)
 
 	//invisible box over bar and lable, to handle interactions for both rects of the bar
 	element.selectionArea = card.append("rect").
-    attr("x",x).
-    attr("y",y-25).
-    attr("height", 25+10).
-    attr("width",25).
+    attr("x", x).
+    attr("y", y - 48).
+    attr("height", 48 + 10).
+    attr("width", 38).
     attr("class", "selectionArea"+text.replace(/\s+/g, '')).
     style("opacity", 0).
     on("mouseover",function(d,i){

@@ -470,18 +470,21 @@ function drawCards(startTime, endTime){
 
 	//segment label
 	card.label = card
-    .append("text")
+    .append("foreignObject")
+    .attr("class", "node")
+    .attr("height", 24)
+    .attr("width", cardWidth-25)
     .attr("x", 15)
-    .attr("y", 25)
-    .text(function (d) {
+    .attr("y", 7)
+    .html(function (d) {
       var segment = GetSegment(d.number, d.pid, d.dataset);
       // console.log(segment)
       return (
-        "#" +
+        "<div>#" +
         (d.number + 1) +
-        " | " +
+        " <span style='color:white;padding:0.8em'> | </span>" +
         IntToTime(segment.end - segment.start) +
-        " minutes"
+        " minutes</div>"
       );
     })
     .on("mouseover", function (d, i) {

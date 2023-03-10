@@ -1517,7 +1517,7 @@ function summarize_segment(segment, superlatives) {
         tempDesc += ' and "' + applyHTMLColor(uSearches[uSearches.length - 1], "Search") + '".';
       } else {
         tempDesc =
-          "The user made " + applyHTMLColor(uSearches.length+" unique", "Search") + " searches, including ";
+          "The user made " + applyHTMLColor(uSearches.length+" different", "Search") + " searches, including ";
         for (let i = 0; i < 2; i++) {
           tempDesc += '"' + applyHTMLColor(uSearches[i], "Search") + '", ';
         }
@@ -1578,7 +1578,7 @@ function summarize_segment(segment, superlatives) {
 
       }
       else {
-        tempDesc += "explored " + applyHTMLColor(totalDocInt + " unique","Doc_open") + " documents, " + applyHTMLColor(numNew,"Doc_open") + " of which had not previously been read. "
+        tempDesc += "explored " + applyHTMLColor(totalDocInt + " different","Doc_open") + " documents, " + applyHTMLColor(numNew,"Doc_open") + " of which had " + applyHTMLColor("not previously been read", "Doc_open")+". "
         if (DS < 2) {
           // Document date
           if (monthNames[dates[0].getMonth()] + " " + dates[0].getFullYear() == monthNames[dates[totalDocInt - 1].getMonth()] + " " + dates[totalDocInt - 1].getFullYear()) {

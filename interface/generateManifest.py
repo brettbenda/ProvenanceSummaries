@@ -23,7 +23,7 @@ segmentsPath = "11"
 
 outputFileName = parentDirectory+'/interface/ApplicationManifest.json'
 
-mergesegments = int(sys.argv[1])
+mergesegments = 1 #int(sys.argv[1])
 
 #Set names
 setNames = ["Arms", "Terrorist", "Disappearance", "Panda"]
@@ -330,16 +330,16 @@ def calcLongestSegReadRate(interactionRatio):
     quality = ""
     if (documentInteractionsPerSegment > 0.09):
         if (isPositive):
-            quality = "much more active than usual"
+            quality = "opened many more documents than usual"
         else:
-            quality = "much less active than usual"
+            quality = "opened many fewer documents than usual"
     elif (documentInteractionsPerSegment > 0.03):
         if (isPositive):
-            quality = "more active than usual"
+            quality = "opened more documents than usual"
         else:
-            quality = "less active than usual"
+            quality = "opened fewer documents than usual"
     else:
-        quality = "as active as usual"
+        quality = "opening the usual number of documents"
 
     return quality
 

@@ -1,4 +1,4 @@
-var userCounts = [8, 8, 8]
+//var userCounts = [8, 8, 8]
 var json, orignaljson
 var entities;
 var segments;
@@ -15,6 +15,7 @@ var transitionTime = 750
 var segI
 var DS = 1
 var P = 1
+//Detailed is the toggle for bullet points v. paragraphs. It is set to paragraphs by default
 var detailed = true
 var prevDocs = []
 var showNotes = true
@@ -38,6 +39,9 @@ var colors = {
   "Average-neg":"blue",
   "Average-pos": "orange",
 }
+//A map connecting keywords to an array listing the segments in which they appear
+const keywordMap = new Map();
+
 let numberPattern = /\d+/g;
 function applyHTMLColor(term, eventName, background = false) {
   color = colors[eventName];
@@ -48,6 +52,23 @@ function applyHTMLColor(term, eventName, background = false) {
   }
 }
 
+//This function creates a map which correlates every keyword that appeared in the session to an array of the segments in which it appeared.
+function createKeywordDictionary(){
+  //Loop through every keyword in every segment
+  for(var i = 0; i < data.length; i++){
+    for(var j =0; j < data[i].keywords.length; j++){
+      if(keywordMap.has(data[i].keywords[j])){
+        //If the keyword is already in the dictionary, add this segment ID to its dictionary entry
+        keywordMap.get(data[i].keywords[j]).push(i);
+      }
+      else{
+        keywordMap.set(data[i].keywords[j], [i]);
+      }
+    }
+  }
+
+  console.log(keywordMap);
+}
 
 async function startup() {
   docs = [];
@@ -63,9 +84,6 @@ async function startup() {
   const fetch_d3 = await fetch(
     "../data/Dataset_3/Documents/Documents_Dataset_3.json"
   );
-  const fetch_d4 = await fetch(
-      "../data/Dataset_4/Documents/Documents_Dataset_4.json"
-  );
   const fetch_e1 = await fetch(
     "../data/Dataset_1/Documents/Entities_Dataset_1.json"
   );
@@ -75,12 +93,19 @@ async function startup() {
   const fetch_e3 = await fetch(
     "../data/Dataset_3/Documents/Entities_Dataset_3.json"
   );
-  const fetch_e4 = await fetch(
-    "../data/Dataset_4/Documents/Entities_Dataset_4.json"
-  );
 
-  Promise.all([fetch_d1, fetch_d2, fetch_d3, fetch_d4])
-    // Promise.all([fetch_d1, fetch_d2, fetch_d3, fetch_e1])
+
+  //Testing
+  //keywordMap.set("gun", [1,3,4]);
+  //console.log(keywordMap.get("gun"));
+  //keywordMap.get("gun").push(5);
+  //console.log(keywordMap.get("gun"));
+
+
+
+
+  //Promise.all([fetch_d1, fetch_d2, fetch_d3])
+  Promise.all([fetch_d1, fetch_d2, fetch_d3])
     .then(async (responses) => {
       for (const response of responses) {
         // console.log(response.json())
@@ -91,7 +116,7 @@ async function startup() {
         });
       }
       console.log("datasets are loaded:", docs); //Shows that the data is loaded
-      Promise.all([fetch_e1, fetch_e2, fetch_e3, fetch_e4]).then(async (responses) => {
+      Promise.all([fetch_e1, fetch_e2, fetch_e3]).then(async (responses) => {
         for (const response of responses) {
           await response.json().then((data) => {
             entities.push(data);
@@ -142,19 +167,19 @@ async function startup() {
 
 startup()
 
-  function reload(){
-    segments.sort(function(a,b){return a.dataset-b.dataset || a.pid-b.pid || a.start-b.start})
-    for(var j=0; j<segments.length;j++)
-      segments[j].sid=j
-    //console.log(segments)
+function reload(){
+  segments.sort(function(a,b){return a.dataset-b.dataset || a.pid-b.pid || a.start-b.start})
+  for(var j=0; j<segments.length;j++)
+    segments[j].sid=j
+  //console.log(segments)
 
-    Promise.all([processData()]).then(function(){
-      var startTime = 0;
-      var endTime = participantSegments[participantSegments.length-1].end
-      //console.log(endTime)
-      drawCards(startTime, endTime)
-    })
-  }
+  Promise.all([processData()]).then(function(){
+    var startTime = 0;
+    var endTime = participantSegments[participantSegments.length-1].end
+    //console.log(endTime)
+    drawCards(startTime, endTime)
+  })
+}
 
 function loadData() {
   json = Object.assign({}, orignaljson)
@@ -175,143 +200,148 @@ function loadData() {
   } else if (DS == 2 && P == 3) {
     drawNoData();
   } else if (DS == 2 && P == 7) {
-      drawNoData();      
-    } else if(DS == 4 && P >= 8 || DS < 4) {
-      drawOverview();
-      drawCards(startTime, endTime)
-    } else {
-      drawNoData()
-    }
- }
+    drawNoData();      
+  } else if(DS == 4 && P >= 8 || DS < 4) {
+    drawOverview();
+    drawCards(startTime, endTime)
+  } else {
+    drawNoData()
+  }
+}
 
- function saveData(){
-    var obj ={}
-    obj.segments=segments
-    obj.interactions = logs
+function saveData(){
+  var obj ={}
+  obj.segments=segments
+  obj.interactions = logs
 
-  	//Convert JSON Array to string.
-    var json2 = JSON.stringify(obj);
+  //Convert JSON Array to string.
+  var json2 = JSON.stringify(obj);
 
-    //Convert JSON string to BLOB.
-    json2 = [json2];
-    var blob1 = new Blob(json2, { type: "text/plain;charset=utf-8" });
+  //Convert JSON string to BLOB.
+  json2 = [json2];
+  var blob1 = new Blob(json2, { type: "text/plain;charset=utf-8" });
 
-    //Check the Browser.
-    var isIE = false || !!document.documentMode;
-    if (isIE) {
-      window.navigator.msSaveBlob(blob1, "data.json");
-    } else {
-      var url = window.URL || window.webkitURL;
-      link = url.createObjectURL(blob1);
-      var a = document.createElement("a");
-      a.download = "data.json";
-      a.href = link;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-  }}
+  //Check the Browser.
+  var isIE = false || !!document.documentMode;
+  if (isIE) {
+    window.navigator.msSaveBlob(blob1, "data.json");
+  } else {
+    var url = window.URL || window.webkitURL;
+    link = url.createObjectURL(blob1);
+    var a = document.createElement("a");
+    a.download = "data.json";
+    a.href = link;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+}
 
-  function processData(){
-    summary = []
-    data=[]
-  	var form = document.getElementById("controlForm")
-  	DS = document.querySelector('input[name="dataset"]:checked').value;
-    P = document.querySelector('input[name="pid"]:checked').value;
-  	detailed = document.querySelector('input[name="detailed"]').checked;
-    showNotes = document.querySelector('input[name="notes"]').checked;
-    showTimeline = document.querySelector('input[name="timeline"]').checked;
-    cardWidth = 450;
-    cardHeight = 240;
-  	participantData = logs[DS-1][P-1]
-    // Make the "text" attribute the title for interactions of type "Doc_open" and "Reading" and add the date
-    for (var i = 0; i<participantData.length; i++){
-      // console.log("participantData")
-      // console.log(participantData[i])
-      if (DS < 3) {
-      if (participantData[i].interactionType == "Doc_open" || participantData[i].interactionType == "Reading"){
-        // Get the number from the ID and then subtract 1 to make it the index
-        // docPos = parseInt(participantData[i].text.substring(participantData[i].text.indexOf(' ') + 1)) - 1
-        docPos = participantData[i].id.match(numberPattern)[0]; //get first number returned in document id
-        docPos = docPos - 1 //Have to subtract one, since we're using this to get the index from an array of documents.
-        // console.log("docPos", docPos);
-        
-        //Select the document set from the ID
-        if (participantData[i].id.startsWith("armsdealing")) {
-          docSet = 0;
-        } else if (participantData[i].id.startsWith("terroristactivity")) {
-          docSet = 1;
-        } else if (participantData[i].id.startsWith("disappearance")) {
-          docSet = 2;
-        }
-        //Function to find the name of a document in the json.
-        var searchTest = function (varToSearch, jsonData) {
-          for (var key in jsonData) {
-            if (typeof jsonData[key] === "object") {
-              searchTest(varToSearch, jsonData[key]);
-            } else {
-              if (jsonData[key] == varToSearch) {
-                console.log("found", jsonData[key]);
-              }
+function processData(){
+  summary = []
+  data=[]
+  keywordMap.clear();
+  var form = document.getElementById("controlForm")
+  DS = document.querySelector('input[name="dataset"]:checked').value;
+  P = document.querySelector('input[name="pid"]:checked').value;
+  detailed = document.querySelector('input[name="detailed"]').checked;
+  showNotes = document.querySelector('input[name="notes"]').checked;
+  showTimeline = document.querySelector('input[name="timeline"]').checked;
+  cardWidth = 450;
+  cardHeight = 240;
+  participantData = logs[DS-1][P-1]
+  // Make the "text" attribute the title for interactions of type "Doc_open" and "Reading" and add the date
+  for (var i = 0; i<participantData.length; i++){
+    // console.log("participantData")
+    // console.log(participantData[i])
+    if (DS < 3) {
+    if (participantData[i].interactionType == "Doc_open" || participantData[i].interactionType == "Reading"){
+      // Get the number from the ID and then subtract 1 to make it the index
+      // docPos = parseInt(participantData[i].text.substring(participantData[i].text.indexOf(' ') + 1)) - 1
+      docPos = participantData[i].id.match(numberPattern)[0]; //get first number returned in document id
+      docPos = docPos - 1 //Have to subtract one, since we're using this to get the index from an array of documents.
+      // console.log("docPos", docPos);
+      
+      //Select the document set from the ID
+      if (participantData[i].id.startsWith("armsdealing")) {
+        docSet = 0;
+      } else if (participantData[i].id.startsWith("terroristactivity")) {
+        docSet = 1;
+      } else if (participantData[i].id.startsWith("disappearance")) {
+        docSet = 2;
+      }
+      //Function to find the name of a document in the json.
+      var searchTest = function (varToSearch, jsonData) {
+        for (var key in jsonData) {
+          if (typeof jsonData[key] === "object") {
+            searchTest(varToSearch, jsonData[key]);
+          } else {
+            if (jsonData[key] == varToSearch) {
+              console.log("found", jsonData[key]);
             }
           }
-        };
+        }
+      };
 
-        // Split the title into the date and actual title
-        // console.log("docs")
-        // console.log(docs[docSet][i]);
-        // console.log("docSet", docSet);
-        // thisDoc = searchTest(docPos, docs)
-        // print(thisDoc)
-        docDate = docs[docSet][docPos].date; 
-        docTitle = docs[docSet][docPos].title;
-      } else {
-        docSet = 3;
-        if (participantData[i].interactionType == "Reading") {
-          docPos = 3 //TODO Make this work better 
-        }
-          docDate = "November 2022";
-        }
-        // Modify the participantData array
-        // participantData[i].text = docTitle
-        //TODO: Line of code above works but breaks identifying the docset upon going back, can't find the reference to this value to change it need to ask Brett
-        participantData[i].date = docDate
+      // Split the title into the date and actual title
+      // console.log("docs")
+      // console.log(docs[docSet][i]);
+      // console.log("docSet", docSet);
+      // thisDoc = searchTest(docPos, docs)
+      // print(thisDoc)
+      docDate = docs[docSet][docPos].date; 
+      docTitle = docs[docSet][docPos].title;
+    } else {
+      docSet = 3;
+      if (participantData[i].interactionType == "Reading") {
+        docPos = 3 //TODO Make this work better 
       }
+        docDate = "November 2022";
+      }
+      // Modify the participantData array
+      // participantData[i].text = docTitle
+      //TODO: Line of code above works but breaks identifying the docset upon going back, can't find the reference to this value to change it need to ask Brett
+      participantData[i].date = docDate
     }
-  	participantSegments = GetSegments(DS,P)
-  	participantData = segmentify(participantSegments, participantData)
-
-
-  	//Summarize segments, get some more stats
-  	var total_interactions = 0;
-    prevDocs = []
-  	for (var i = 0; i<participantData.length; i++){
-      segI = i
-  		var summary = summarize_segment(participantData[i], superlatives[DS - 1][P - 1]);
-  		summary.pid = P;
-  		summary.dataset = DS
-  		summary.number = i
-      summary.keywords = participantSegments[i].keywords
-  		if(summary.interesting)
-  			total_interactions += summary.total_interactions;
-  		data.push(summary)
-  	}
-    // console.log(data)
-
-  	var totalSummary = GetAllCounts(data);
-  	//Stats
-    var exp_avg_interaction_rate = total_interactions / participantData.length //get the average number of interactions expected per segment
-    var maxDiff = 0;
-  	for(var seg of data){
-      seg.interaction_rate = Math.max(0, (seg.total_interactions / total_interactions));
-      seg.interaction_diff_from_average = seg.total_interactions - exp_avg_interaction_rate;
-      maxDiff = Math.max(maxDiff, Math.abs(seg.interaction_diff_from_average)) //Determine the maximum expected interaction rate difference for all segments.
-    }
-    // Assign a ratio value for bar chart
-    for (var seg of data) {
-      seg.interaction_ratio_from_average = seg.interaction_diff_from_average / maxDiff
-    }
-
   }
+  participantSegments = GetSegments(DS,P)
+  participantData = segmentify(participantSegments, participantData)
+
+  //Summarize segments, get some more stats
+  var total_interactions = 0;
+  prevDocs = []
+  for (var i = 0; i<participantData.length; i++){
+    segI = i
+    var summary = summarize_segment(participantData[i], superlatives[DS - 1][P - 1]);
+    summary.pid = P;
+    summary.dataset = DS
+    summary.number = i
+    summary.keywords = participantSegments[i].keywords
+    if(summary.interesting)
+      total_interactions += summary.total_interactions;
+    data.push(summary)
+  }
+  // console.log(data)
+
+  var totalSummary = GetAllCounts(data);
+  //Stats
+  var exp_avg_interaction_rate = total_interactions / participantData.length //get the average number of interactions expected per segment
+  var maxDiff = 0;
+  for(var seg of data){
+    seg.interaction_rate = Math.max(0, (seg.total_interactions / total_interactions));
+    seg.interaction_diff_from_average = seg.total_interactions - exp_avg_interaction_rate;
+    maxDiff = Math.max(maxDiff, Math.abs(seg.interaction_diff_from_average)) //Determine the maximum expected interaction rate difference for all segments.
+  }
+  // Assign a ratio value for bar chart
+  for (var seg of data) {
+    seg.interaction_ratio_from_average = seg.interaction_diff_from_average / maxDiff
+  }
+
+  //Create keyword dictionary
+  console.log("Creating Keyword Dictionary. . .")
+  createKeywordDictionary();
+
+}
 
 function drawNoData() {
   console.log("Current Combination is not available")
@@ -399,13 +429,14 @@ function drawOverview() {
 }
 
 function drawCards(startTime, endTime){
-	//draw cards
+	//Get rid of the previous cards, if any
 	d3.selectAll("#chartArea").remove()
 	d3.select("#chart").style("display", "block").append("div").attr("id","chartArea")
 
 
   cardDivs = d3.select("#chartArea").selectAll("field").data(data).enter().append("div").
     attr("id", function (d, i) {
+      console.log(data,d,i)
       return "cardDiv"+ d.pid + "_" +d.number
     })
     // .style("margin-bottom", "15px")
@@ -438,6 +469,7 @@ function drawCards(startTime, endTime){
         .style("stroke-opacity", "0.7")
     })
 
+  //If the shownotes option is selected, this creates a textbox below each card for the user to take notes in
   if(showNotes){
     cardField = cardDivs.append("div")
     cardField.append("p").html("<b>Notes:</b>").attr("class","tooltipP")
@@ -457,8 +489,7 @@ function drawCards(startTime, endTime){
       })
   }
 
-
-	//background rect
+	//Create the background rectangle for each card
 	card.bg = card.append("rect").
     attr("x",5).
     attr("y",5).
@@ -469,7 +500,7 @@ function drawCards(startTime, endTime){
     style("stroke", "navy").
     style("stroke-width", 3)
 
-	//segment label
+	//Create the segment label
 	card.label = card
     .append("foreignObject")
     .attr("class", "node")
@@ -480,14 +511,15 @@ function drawCards(startTime, endTime){
     .html(function (d) {
       var segment = GetSegment(d.number, d.pid, d.dataset);
       // console.log(segment)
+      //Return the number and time label
       return (
-        "<div>#" +
-        (d.number + 1) +
+        "<div>#" + (d.number + 1) +
         " <span style='color:white;padding:0.8em'> | </span>" +
         IntToTime(segment.end - segment.start) +
         " minutes</div>"
       );
     })
+    //Implement the mouseover tooltip by calling TimeToolTip function
     .on("mouseover", function (d, i) {
       var seg = GetSegment(d.number, d.pid, d.dataset);
       tooltip.transition().duration(100).style("opacity", 1.0);
@@ -500,12 +532,14 @@ function drawCards(startTime, endTime){
     .on("mouseout", function (d, i) {
       tooltip.transition().duration(100).style("opacity", 0.0);
     })
+    //Make the tooltip follow the mouse
     .on("mousemove", function (d, i) {
       tooltip
         .style("left", d3.event.pageX + "px")
         .style("top", d3.event.pageY - 28 + "px");
     });
 
+  //Create the line that divides the header and body of the card
   card.divider = card.append("line")
         .attr("x1",10)
         .attr("y1",33)
@@ -516,6 +550,7 @@ function drawCards(startTime, endTime){
 
   card.text = cardText(card)
 
+  //Create the simple blue timeline in the header of the card
   card.timeline = timelineElement(card, startTime, endTime);
 
   if(detailed){
@@ -554,10 +589,10 @@ function cardText(card){
       .attr("x", 15)
       .attr("y", 35)
       .attr("class", "descriptionText")
-      .html(function (d, i) {
+      .html(function (d, i) { //d and i come from D3
+        //Add the text of all the descriptions to a single paragraph
         if (d.descriptions.length == 0) return;
         // console.log(d.descriptions);
-
         var text = "<p>";
         for (var text2 of d.descriptions) text += text2 + " ";
         text += "</p>";
@@ -566,17 +601,17 @@ function cardText(card){
         return text;
       });
   } else {
-    //open info
+    //Documents opened info
     element.searchText = card
       .append("text")
       .attr("x", 15)
-      .attr("y", function (d, i) {
-        return bulletStartY - 20 * d.displayedInfo;
-      })
+      .attr("y", function (d, i) { return bulletStartY - 20 * d.displayedInfo; })
       .attr("id", "openText")
       .html(function (d, i) {
         var keys = Object.keys(d.opens);
         // console.log(d.opens)
+
+        //Case of no docs explored
         if (keys == 0)
           if (d.displayedInfo == 0) {
             d.displayedInfo++;
@@ -587,8 +622,10 @@ function cardText(card){
               "were explored";
           } else return;
 
+        //Case of at least one doc explored
+        //"Explored x different documents" (where x is colored and bolded)
         var text = "• Explored ";
-           text += "<tspan style='font-weight:bold;fill:" +
+        text += "<tspan style='font-weight:bold;fill:" +
           colors["Doc_open"] + "'>" +
           keys.length +
           "</tspan>"+
@@ -597,7 +634,7 @@ function cardText(card){
         return text;
       });
 
-    //Note info
+    //Notes taken info
     element.noteText = card
       .append("text")
       .attr("x", 15)
@@ -610,7 +647,7 @@ function cardText(card){
         if (keys.length == 0) return;
 
         var text = "• Noted ";
-        var slicedText = keys[0].slice(0, 35);
+        var slicedText = keys[0].slice(0, 35); //Only show the first 35 chars of the string, followed by ...
         text +=
           '<tspan style="font-weight:bold;fill:' +
           colors["Notes"] +
@@ -625,6 +662,7 @@ function cardText(card){
 
         return text;
       })
+      //Show full note when the bullet point is moused over
       .on("mouseover", function (d, i) {
         tooltip.transition().duration(100).style("opacity", 1.0);
 
@@ -678,7 +716,8 @@ function cardText(card){
         d.displayedInfo++;
 
         return text;
-            })
+      })
+      //Display full list of keywords when moused over
       .on("mouseover", function (d, i) {
         tooltip.transition().duration(100).style("opacity", 1.0);
         tooltip
@@ -694,7 +733,7 @@ function cardText(card){
           .style("top", (d3.event.pageY - 28) + "px")
       });
 
-    //Highlight info
+    //Highlighted text info
     element.highlightText = card
       .append("text")
       .attr("x", 15)
@@ -722,6 +761,7 @@ function cardText(card){
 
         return text;
       })
+      //Show full highlight on mouseover
       .on("mouseover", function (d, i) {
         tooltip.transition().duration(100).style("opacity", 1.0);
 
@@ -738,6 +778,7 @@ function cardText(card){
           .style("top", (d3.event.pageY - 28) + "px")
       });
 
+    //Searches made info
     element.searchText = card
       .append("text")
       .attr("x", 15)
@@ -771,6 +812,7 @@ function cardText(card){
         text += "";
         return text;
       })
+      //Show full list of searches on mouse over
       .on("mouseover", function (d, i) {
         tooltip.transition().duration(100).style("opacity", 1.0);
         tooltip
@@ -877,6 +919,7 @@ function barElement(card, x, y, text, symbol, sizefunc){
   return element
 
 }
+
 function centerBarElement(card, x, y, text, symbol, sizefunc) {
   element = {}
   unselectBar = "royalblue"

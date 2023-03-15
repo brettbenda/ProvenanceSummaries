@@ -26,7 +26,9 @@ outputFileName = parentDirectory+'/interface/ApplicationManifest.json'
 mergesegments = 1 #int(sys.argv[1])
 
 #Set names
-setNames = ["Arms", "Terrorist", "Disappearance", "Panda"]
+#setNames = ["Arms", "Terrorist", "Disappearance", "Panda"]
+setNames = ["Arms", "Terrorist", "Disappearance"]
+
 
 #Open log/segment JSON
 for datasetNum in range (1,len(setNames)+1): ##for each dataset
@@ -85,7 +87,7 @@ for datasetNum in range(1, len(setNames)+1):  # for each dataset
     documentPath = datasetsPath + str(datasetNum) + "/Documents/Documents_Dataset_" + str(datasetNum) + ".json"
     print("getting document titles from ",documentPath)
     with open(documentPath) as documents:
-        docs = json.load(documents)
+        docs = json.load(documents, encoding="utf8")
         documents.close()
         # print(docs[0]["id"])
     for participantNum in range(1, 9):  # 8 participants

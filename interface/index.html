@@ -67,11 +67,11 @@ xmlns:svg="http://www.w3.org/2000/svg"
               <li>🦄 - number of unique documents opened vs. all documents opened in this segment.</li>
               <li>📖 - answers: "Is the number of documents opened in this segment above or below average?" Average calculated from the sum of all document open events divided by the number of segments.</li>
             </ul>
-            <label style="display: none;">Show Timeline:</label>
-            <input style="display: none;" type="checkbox" name="timeline" onclick="loadData()" />
+            <label>Show Timeline:</label>
+            <input type="checkbox" name="timeline" onclick="loadData()" />
           </div>
-          <p style="display: none;">Show Notes:</p>
-          <input style="display: none;" type="checkbox" name="notes" onclick="loadData()" />
+          <p >Show Notes:</p>
+          <input  type="checkbox" name="notes" onclick="loadData()" />
         </div>        
       </form>
       <!-- <button onclick="loadData()">Load Data</button><br> -->
@@ -79,6 +79,9 @@ xmlns:svg="http://www.w3.org/2000/svg"
       <button style="display: none;" onclick="saveData()">Save Data JSON</button>
       <button style="display: none;" onclick="saveSVGS()">Save SVGS</button>
     </div>
+
+
+
     <div class="container-fluid bg-light">
       <div class="row row-space my-auto">
         <div class="col-sm-12 col-lg-12">
@@ -119,7 +122,13 @@ xmlns:svg="http://www.w3.org/2000/svg"
           </div>
           <div id="overview">
             <h4>Session Summary</h4>
-            <p>They focused on <<12>> main topics in this analysis session; exploring <<24%>> of the dataset. The topics that received the most attention throughout were <<minski, leonid, and lagos>>. They started searching for <<disease>>, before transitioning to <<dubai>> and finally looking for <<burj>>. The segment with the most new content was segment <<4>>. Segment <<5>> was the longest period of time where they opened <<many more documents>> than usual. The shortest segment (#<<2>>) focused almost entirely on <<Kenya>>. They conducted <<13>> searches throughout their session, especially in segment <<5>>. </p>
+            <p>They focused on <<12>> main topics in this analysis session; exploring <<24%>> of the dataset.
+            The topics that received the most attention throughout were <<minski, leonid, and lagos>>.
+            They started searching for <<disease>>, before transitioning to <<dubai>> and finally looking for <<burj>>.
+            The segment with the most new content was segment <<4>>.
+            Segment <<5>> was the longest period of time where they opened <<many more documents>> than usual.
+            The shortest segment (#<<2>>) focused almost entirely on <<Kenya>>.
+            They conducted <<13>> searches throughout their session, especially in segment <<5>>. </p>
           </div>
           <div id="chart">
             <div style="padding-top:3%;max-width:500px;margin:0 auto" id="chartArea">

@@ -47,18 +47,19 @@ function applyHTMLColor(term, eventName, background = false) {
   let color = colors[eventName];
   //console.log(term, typeof term)
   newTerm = String(term).replace(" ", "_").toLowerCase();
-  thing1 = "onmouseover=highlightSimilar('" + newTerm +"" + "')"
+  highlight = "onmouseover=highlightSimilar('" + newTerm +"" + "')";
+  unhighlight = "onmouseout=unhighlightCards()";
   if (background) {
     return "<span class='descriptionTerm "+eventName+"' style='color:white;border-radius:5px;padding:0.1em;background-color:" + color + ";'>" + term + "</span>"; //Alternate that does background color instead of text color
   } else {
-    return "<span "+thing1+" class='descriptionTerm "+eventName+"' style='color:" + color + "; font-weight:bold' >" + term + "</span>";
+    return "<span "+highlight + " " + unhighlight+" class='descriptionTerm "+eventName+"' style='color:" + color + "; font-weight:bold' >" + term + "</span>";
   }
 }
 
 //Ben's function to highlight cards with similar terms to ones that are moused over
 //Not yet functional
 function highlightSimilar(term){
-  console.log("Just entered highlightSimilar: ", term, "Type: " + typeof term);
+  //console.log("Just entered highlightSimilar: ", term, "Type: " + typeof term);
   newTerm = String(term).replace("_", " ")
 
   //We were creating a string to access the cards, but we were able to just use the card indexs, leaving this here for now
@@ -75,16 +76,21 @@ function highlightSimilar(term){
     return;
   }
 
-  cardDivs
+  toHighlight = cardDivs
     .filter((d,i) => {
-      //console.log(d,i)
       isIncluded = keywordMap.get(newTerm).includes(i)
-      console.log(isIncluded)
-      console.log(this);
-      return isIncluded
+      return isIncluded;
     })
-    .attr("fill", "yellow")
 
+  toHighlight._groups[0].forEach(element => 
+    element.firstChild.firstChild.style.fill = "yellow"
+  )
+}
+
+function unhighlightCards(){
+  cardDivs._groups[0].forEach(element =>
+    element.firstChild.firstChild.style.fill = "white"
+  )
 }
 
 //This function creates a map which correlates every keyword that appeared in the session to an array of the segments in which it appeared.

@@ -44,25 +44,75 @@ const keywordMap = new Map();
 
 let numberPattern = /\d+/g;
 function applyHTMLColor(term, eventName, background = false) {
-  color = colors[eventName];
+  let color = colors[eventName];
+  //console.log(term, typeof term)
+  newTerm = String(term).replace(" ", "_").toLowerCase();
+  thing1 = "onmouseover=highlightSimilar('" + newTerm +"" + "')"
   if (background) {
     return "<span class='descriptionTerm "+eventName+"' style='color:white;border-radius:5px;padding:0.1em;background-color:" + color + ";'>" + term + "</span>"; //Alternate that does background color instead of text color
   } else {
-    return "<span class='descriptionTerm "+eventName+"' style='color:" + color + "; font-weight:bold'>" + term + "</span>";
+    return "<span "+thing1+" class='descriptionTerm "+eventName+"' style='color:" + color + "; font-weight:bold' >" + term + "</span>";
   }
+}
+
+//Ben's function to highlight cards with similar terms to ones that are moused over
+//Not yet functional
+function highlightSimilar(term){
+  console.log("Just entered highlightSimilar: ", term, "Type: " + typeof term);
+  newTerm = String(term).replace("_", " ")
+
+  //We were creating a string to access the cards, but we were able to just use the card indexs, leaving this here for now
+  // newarray=[]
+  // console.log(keywordMap.get(newTerm));
+  // keywordMap.get(newTerm).forEach(element => {
+  //   newarray.push("cardDiv1_" + element)
+  // });
+  // console.log(newarray);
+
+  //If the term that is being moused over is not in the map, end the function.
+  if (!keywordMap.has(newTerm)){
+    console.log("Term not included in map.");
+    return;
+  }
+
+  cardDivs
+    .filter((d,i) => {
+      //console.log(d,i)
+      isIncluded = keywordMap.get(newTerm).includes(i)
+      console.log(isIncluded)
+      console.log(this);
+      return isIncluded
+    })
+    .attr("fill", "yellow")
+
 }
 
 //This function creates a map which correlates every keyword that appeared in the session to an array of the segments in which it appeared.
 function createKeywordDictionary(){
-  //Loop through every keyword in every segment
+  //Loop through every keyword and search term in every segment, adding them to the list
   for(var i = 0; i < data.length; i++){
     for(var j =0; j < data[i].keywords.length; j++){
-      if(keywordMap.has(data[i].keywords[j])){
+      if(keywordMap.has(data[i].keywords[j].toLowerCase())){
         //If the keyword is already in the dictionary, add this segment ID to its dictionary entry
-        keywordMap.get(data[i].keywords[j]).push(i);
+        keywordMap.get(data[i].keywords[j].toLowerCase()).push(i);
       }
       else{
-        keywordMap.set(data[i].keywords[j], [i]);
+        keywordMap.set(data[i].keywords[j].toLowerCase(), [i]);
+      }
+    }
+    for(var j =0; j < data[i].searches_list.length; j++){
+      if(keywordMap.has(data[i].searches_list[j].toLowerCase())){
+        //If the keyword is already in the dictionary, add this segment ID to its dictionary entry if it isn't already
+        if(keywordMap.get(data[i].searches_list[j].toLowerCase()).includes(i)){
+          continue;
+        }
+        else{
+          keywordMap.get(data[i].searches_list[j].toLowerCase()).push(i);
+        }
+      }
+      //If the keyword is not already in the dictionary, add it
+      else{
+        keywordMap.set(data[i].searches_list[j].toLowerCase(), [i]);
       }
     }
   }
@@ -689,6 +739,7 @@ function cardText(card){
       .attr("id", "noteText")
       .html(function (d, i) {
         var keys = d.keywords;
+        //If there are no keywords, return nothing so this bullet point is not printed
         if (keys.length == 0) return;
 
         var text = "• Keywords: ";
@@ -1534,8 +1585,8 @@ function summarize_segment(segment, superlatives) {
   // console.log(descriptions)
   // UPDATED DESCRIPTIONS FOR LAS
   // for(var i=0; i<all_interactions.length; i++){
-    // Describe the user's searches
-    // First we need to get unique searches
+  // Describe the user's searches
+  // First we need to get unique searches
   uSearches = []
   tempDesc = "";
   //remove duplicates from searches array
@@ -1562,7 +1613,8 @@ function summarize_segment(segment, superlatives) {
         tempDesc =
           "The user made " + applyHTMLColor(uSearches.length+" different", "Search") + " searches, including ";
         for (let i = 0; i < 2; i++) {
-          tempDesc += '"' + applyHTMLColor(uSearches[i], "Search") + '", ';
+          //Ben's edits here - not working atm
+          tempDesc += "\"" + applyHTMLColor(uSearches[i], "Search") + '", ';
         }
         tempDesc += 'and "' + applyHTMLColor(uSearches[2], "Search") + '".';
       }

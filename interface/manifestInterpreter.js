@@ -1,7 +1,10 @@
 //var userCounts = [8, 8, 8]
-var json, orignaljson
+var json = [];
+var orignaljson = [];
+var logs = [];
 var entities;
-var segments;
+var segments = [];
+var superlatives = [];
 var participantData
 var participantSegments
 var data = []
@@ -41,11 +44,12 @@ var colors = {
 }
 //A map connecting keywords to an array listing the segments in which they appear
 const keywordMap = new Map();
+//Index for accessing different manifest values (used in logs, json, originalJson, segments, and superlatives arrays)
+var index = 0;
 
 let numberPattern = /\d+/g;
 function applyHTMLColor(term, eventName, background = false) {
   let color = colors[eventName];
-  //console.log(term, typeof term)
   newTerm = String(term).replace(" ", "_").toLowerCase();
   highlight = "onmouseover=highlightSimilar('" + newTerm +"" + "')";
   unhighlight = "onmouseout=unhighlightCards()";
@@ -59,16 +63,7 @@ function applyHTMLColor(term, eventName, background = false) {
 //Ben's function to highlight cards with similar terms to ones that are moused over
 //Not yet functional
 function highlightSimilar(term){
-  //console.log("Just entered highlightSimilar: ", term, "Type: " + typeof term);
   newTerm = String(term).replace("_", " ")
-
-  //We were creating a string to access the cards, but we were able to just use the card indexs, leaving this here for now
-  // newarray=[]
-  // console.log(keywordMap.get(newTerm));
-  // keywordMap.get(newTerm).forEach(element => {
-  //   newarray.push("cardDiv1_" + element)
-  // });
-  // console.log(newarray);
 
   //If the term that is being moused over is not in the map, end the function.
   if (!keywordMap.has(newTerm)){
@@ -150,28 +145,27 @@ async function startup() {
     "../data/Dataset_3/Documents/Entities_Dataset_3.json"
   );
 
+  const fetchManifest3 = await fetch(
+    "ApplicationManifest_3.json"
+  );
+  const fetchManifest6 = await fetch(
+    "ApplicationManifest_6.json"
+  );
+  const fetchManifest11 = await fetch(
+    "ApplicationManifest_11.json"
+  );
+  const fetchManifest12 = await fetch(
+    "ApplicationManifest_12.json"
+  );
 
-  //Testing
-  //keywordMap.set("gun", [1,3,4]);
-  //console.log(keywordMap.get("gun"));
-  //keywordMap.get("gun").push(5);
-  //console.log(keywordMap.get("gun"));
-
-
-
-
-  //Promise.all([fetch_d1, fetch_d2, fetch_d3])
   Promise.all([fetch_d1, fetch_d2, fetch_d3])
     .then(async (responses) => {
       for (const response of responses) {
-        // console.log(response.json())
-        // console.log(`${response.url}: ${response.status}`); //Shows the response for each data file should be the file name and 200
         await response.json().then((data) => {
           docs.push(data);
-          // console.log(docs);
         });
       }
-      console.log("datasets are loaded:", docs); //Shows that the data is loaded
+      console.log("Datasets are loaded:", docs); //Shows that the data is loaded
       Promise.all([fetch_e1, fetch_e2, fetch_e3]).then(async (responses) => {
         for (const response of responses) {
           await response.json().then((data) => {
@@ -179,23 +173,25 @@ async function startup() {
           });
         }
       }).then(console.log("Entities are loaded:", entities) )//Shows that the data is loaded
-      .then(Promise.all([await fetch("ApplicationManifest_11.json")]).then(
+      //Setting data based on manifest files, looping through all of them
+      .then(Promise.all([fetchManifest3, fetchManifest6, fetchManifest11, fetchManifest12]).then(
         async (mainSegPromise) => {
-          // console.log(mainSegPromise);
+          console.log(mainSegPromise);
           for (const res of mainSegPromise) {
             // console.log(`${res.url}: ${res.status}`); //Shows the response for each data file should be the file name and 200
             await res.json().then((json2) => {
+              console.log (json2);
               //unwrap json
-              orignaljson = Object.assign({}, json2);
-              json = json2;
-              console.log("segmentation is loaded:", json2);
-              logs = json2.interactionLogs;
-              console.log(logs[0]);
-              segments = json2.segments;
-              console.log(segments);
-              superlatives = json2.superlatives;
-              for (var seg of segments) {
-                seg.annotation = "";
+              orignaljson.push(Object.assign({}, json2));
+              json.push(json2);
+              logs.push(json2.interactionLogs);
+              segments.push(json2.segments);
+              superlatives.push(json2.superlatives);
+              //Wrapped another for loop to account for segments now being an array of all the versions)
+              for (var version of segments) {
+                for (var seg of version){
+                  seg.annotation = "";
+                }
               }
             });
           }
@@ -224,9 +220,9 @@ async function startup() {
 startup()
 
 function reload(){
-  segments.sort(function(a,b){return a.dataset-b.dataset || a.pid-b.pid || a.start-b.start})
-  for(var j=0; j<segments.length;j++)
-    segments[j].sid=j
+  segments[index].sort(function(a,b){return a.dataset-b.dataset || a.pid-b.pid || a.start-b.start})
+  for(var j=0; j<segments[index].length;j++)
+    segments[index][j].sid=j
   //console.log(segments)
 
   Promise.all([processData()]).then(function(){
@@ -238,9 +234,10 @@ function reload(){
 }
 
 function loadData() {
-  json = Object.assign({}, orignaljson)
-  logs = json.interactionLogs
-  segments = json.segments
+  index = document.querySelector('input[name="numCards"]:checked').value;
+  json[index] = Object.assign({}, orignaljson[index])
+  logs[index] = json[index].interactionLogs
+  segments[index] = json[index].segments
   participantData = []
   participantSegments = []
   data = []
@@ -267,8 +264,8 @@ function loadData() {
 
 function saveData(){
   var obj ={}
-  obj.segments=segments
-  obj.interactions = logs
+  obj.segments=segments[index]
+  obj.interactions = logs[index]
 
   //Convert JSON Array to string.
   var json2 = JSON.stringify(obj);
@@ -305,7 +302,7 @@ function processData(){
   showTimeline = document.querySelector('input[name="timeline"]').checked;
   cardWidth = 450;
   cardHeight = 240;
-  participantData = logs[DS-1][P-1]
+  participantData = logs[index][DS-1][P-1]
   // Make the "text" attribute the title for interactions of type "Doc_open" and "Reading" and add the date
   for (var i = 0; i<participantData.length; i++){
     // console.log("participantData")
@@ -368,7 +365,7 @@ function processData(){
   prevDocs = []
   for (var i = 0; i<participantData.length; i++){
     segI = i
-    var summary = summarize_segment(participantData[i], superlatives[DS - 1][P - 1], segI);
+    var summary = summarize_segment(participantData[i], superlatives[index][DS - 1][P - 1], segI);
     summary.pid = P;
     summary.dataset = DS
     summary.number = i
@@ -448,7 +445,7 @@ function drawOverview() {
     return output
   }
   
-  supers = superlatives[DS-1][P-1]
+  supers = superlatives[index][DS-1][P-1]
   // console.log(supers)
 
   d3.select("#overview")
@@ -2034,7 +2031,7 @@ function TextToValue(d, type){
 //return specific segment from segment id, participant id, and dataset number
 function GetSegment(sid, pid, dataset) {
   // console.log("getting Segment:",segments)
-	for(var seg of segments){
+	for(var seg of segments[index]){
     if (seg.sid == sid && seg.pid == pid && seg.dataset == dataset) {
       // console.log("segment Found:",seg)
 			return seg
@@ -2045,7 +2042,7 @@ function GetSegment(sid, pid, dataset) {
 //returns all segments belonging to a participant in a specific dataset
 function GetSegments(dataset,pid){
 	var segments2 = []
-	for(var seg of segments){
+	for(var seg of segments[index]){
 		if(seg.pid==pid && seg.dataset==dataset){
 			segments2.push(seg)
 		}

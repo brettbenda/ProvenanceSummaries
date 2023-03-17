@@ -1,0 +1,12 @@
+pok,kronos,gastech,employees,kidnapped
+kronos,elodis,protectors,health,pok
+kronos,pok,police,gastech,karel
+kronos,pok,gastech,government,karel
+kronos,pok,government,abila,karel
+pok,kronos,silvia,police,abila
+pok,police,force,kapelou,kronos
+force,kronos,pok,kapelou,abila
+gastech,kronos,employees,abila,pok
+gastech,kronos,january,employs,abila
+gastech,ransom,released,kronos,apa
+gastech,sten,kronos,sanjorge,international

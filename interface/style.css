@@ -78,7 +78,7 @@ input[type=checkbox]:checked + #iconKey {
 }
 
 .highlightHTML{
-color: steelblue;
+    color: steelblue;
     padding: 3px;
 }
 /* setting this with a psusdo hover class for now, but it might be better to use a ".highlightHTML .active" rule and we just add and subtract the active class with d3. */
@@ -109,4 +109,8 @@ color: steelblue;
     font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
     font-size: 11pt;
     color: #3f4143;
+}
+
+.descriptionTerm .Search:hover{
+    border-radius:5px;padding:0.1em;background-color: skyblue;
 }

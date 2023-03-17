@@ -368,7 +368,7 @@ function processData(){
   prevDocs = []
   for (var i = 0; i<participantData.length; i++){
     segI = i
-    var summary = summarize_segment(participantData[i], superlatives[DS - 1][P - 1]);
+    var summary = summarize_segment(participantData[i], superlatives[DS - 1][P - 1], segI);
     summary.pid = P;
     summary.dataset = DS
     summary.number = i
@@ -1465,9 +1465,11 @@ function segmentify(segments, interactions){
 
 //Argument: a segment from the array returned by segmentify
 //Returns:  a json object
-function summarize_segment(segment, superlatives) {
+function summarize_segment(segment, superlatives, segI) {
 
 ///////This is where I sub out "text" to the meaningful titles, maybe also adding the dates as a new attribute
+
+  console.log("Number of Segment: ", segI);
 
 	var opens = []; //opening
   // var openTitles = []; //Meaningful text titles
@@ -1743,6 +1745,26 @@ function summarize_segment(segment, superlatives) {
     // console.log(peopleCount)
     // console.log(geoArr)
     // console.log(geoCount)
+    //Add people to map (Author: Ben)
+    for(var i =0; i < peopleArr.length; i++){
+      if(keywordMap.has(peopleArr[i].toLowerCase())){
+        //If the keyword is already in the dictionary, add this segment ID to its dictionary entry
+        keywordMap.get(peopleArr[i].toLowerCase()).push(segI);
+      }
+      else{
+        keywordMap.set(peopleArr[i].toLowerCase(), [segI]);
+      }
+    }
+    //Add geo to map (Author: Ben)
+    for(var i =0; i < geoArr.length; i++){
+      if(keywordMap.has(geoArr[i].toLowerCase())){
+        //If the keyword is already in the dictionary, add this segment ID to its dictionary entry
+        keywordMap.get(geoArr[i].toLowerCase()).push(segI);
+      }
+      else{
+        keywordMap.set(geoArr[i].toLowerCase(), [segI]);
+      }
+    }
 
     // Get top 3 people and top 3 geos
     topPeople = [];

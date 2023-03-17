@@ -1,0 +1,6 @@
+pok,kronos,protectors,elodis,health
+kronos,pok,police,gastech,karel
+kronos,pok,government,abila,karel
+pok,kronos,police,silvia,abila
+gastech,kronos,abila,pok,police
+gastech,ransom,released,kronos,apa

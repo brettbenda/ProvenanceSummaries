@@ -19,9 +19,9 @@ segKeys = []
 parentDirectory = os.path.join(os.path.abspath(os.path.join(os.getcwd(), os.pardir)), os.getcwd())
 
 datasetsPath = parentDirectory+"/data/Dataset_"
-segmentsPath = "11"
+segmentsPath = "3"
 
-outputFileName = parentDirectory+'/interface/ApplicationManifest.json'
+outputFileName = parentDirectory+'/interface/ApplicationManifest_'+segmentsPath+'.json'
 
 mergesegments = 1 #int(sys.argv[1])
 

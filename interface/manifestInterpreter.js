@@ -179,7 +179,7 @@ async function startup() {
           });
         }
       }).then(console.log("Entities are loaded:", entities) )//Shows that the data is loaded
-      .then(Promise.all([await fetch("ApplicationManifest.json")]).then(
+      .then(Promise.all([await fetch("ApplicationManifest_11.json")]).then(
         async (mainSegPromise) => {
           // console.log(mainSegPromise);
           for (const res of mainSegPromise) {

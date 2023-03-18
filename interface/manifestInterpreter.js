@@ -43,9 +43,9 @@ var colors = {
   "Average-pos": "orange",
 }
 //A map connecting keywords to an array listing the segments in which they appear
-const keywordMap = new Map();
+const coOccurMap = new Map();
 //Index for accessing different manifest values (used in logs, json, originalJson, segments, and superlatives arrays)
-var index = 0;
+var segmentNumIdx = 0;
 
 let numberPattern = /\d+/g;
 function applyHTMLColor(term, eventName, background = false) {
@@ -61,19 +61,18 @@ function applyHTMLColor(term, eventName, background = false) {
 }
 
 //Ben's function to highlight cards with similar terms to ones that are moused over
-//Not yet functional
 function highlightSimilar(term){
   newTerm = String(term).replace("_", " ")
 
   //If the term that is being moused over is not in the map, end the function.
-  if (!keywordMap.has(newTerm)){
+  if (!coOccurMap.has(newTerm)){
     console.log("Term not included in map.");
     return;
   }
 
   toHighlight = cardDivs
     .filter((d,i) => {
-      isIncluded = keywordMap.get(newTerm).includes(i)
+      isIncluded = coOccurMap.get(newTerm).includes(i)
       return isIncluded;
     })
 
@@ -89,36 +88,36 @@ function unhighlightCards(){
 }
 
 //This function creates a map which correlates every keyword that appeared in the session to an array of the segments in which it appeared.
-function createKeywordDictionary(){
+function createCoOccurrenceDictionary(){
   //Loop through every keyword and search term in every segment, adding them to the list
   for(var i = 0; i < data.length; i++){
     for(var j =0; j < data[i].keywords.length; j++){
-      if(keywordMap.has(data[i].keywords[j].toLowerCase())){
+      if(coOccurMap.has(data[i].keywords[j].toLowerCase())){
         //If the keyword is already in the dictionary, add this segment ID to its dictionary entry
-        keywordMap.get(data[i].keywords[j].toLowerCase()).push(i);
+        coOccurMap.get(data[i].keywords[j].toLowerCase()).push(i);
       }
       else{
-        keywordMap.set(data[i].keywords[j].toLowerCase(), [i]);
+        coOccurMap.set(data[i].keywords[j].toLowerCase(), [i]);
       }
     }
     for(var j =0; j < data[i].searches_list.length; j++){
-      if(keywordMap.has(data[i].searches_list[j].toLowerCase())){
+      if(coOccurMap.has(data[i].searches_list[j].toLowerCase())){
         //If the keyword is already in the dictionary, add this segment ID to its dictionary entry if it isn't already
-        if(keywordMap.get(data[i].searches_list[j].toLowerCase()).includes(i)){
+        if(coOccurMap.get(data[i].searches_list[j].toLowerCase()).includes(i)){
           continue;
         }
         else{
-          keywordMap.get(data[i].searches_list[j].toLowerCase()).push(i);
+          coOccurMap.get(data[i].searches_list[j].toLowerCase()).push(i);
         }
       }
       //If the keyword is not already in the dictionary, add it
       else{
-        keywordMap.set(data[i].searches_list[j].toLowerCase(), [i]);
+        coOccurMap.set(data[i].searches_list[j].toLowerCase(), [i]);
       }
     }
   }
 
-  console.log(keywordMap);
+  // console.log(coOccurMap);
 }
 
 async function startup() {
@@ -172,15 +171,16 @@ async function startup() {
             entities.push(data);
           });
         }
-      }).then(console.log("Entities are loaded:", entities) )//Shows that the data is loaded
+      })
+        .then(console.log("Entities are loaded:", entities))//Shows that the data is loaded
       //Setting data based on manifest files, looping through all of them
       .then(Promise.all([fetchManifest3, fetchManifest6, fetchManifest11, fetchManifest12]).then(
         async (mainSegPromise) => {
-          console.log(mainSegPromise);
+          // console.log(mainSegPromise);
           for (const res of mainSegPromise) {
             // console.log(`${res.url}: ${res.status}`); //Shows the response for each data file should be the file name and 200
             await res.json().then((json2) => {
-              console.log (json2);
+              // console.log (json2);
               //unwrap json
               orignaljson.push(Object.assign({}, json2));
               json.push(json2);
@@ -199,7 +199,7 @@ async function startup() {
           var startTime = 0;
           var endTime = participantSegments[participantSegments.length - 1].end;
           // console.log(endTime);
-          console.log(participantSegments);
+          // console.log(participantSegments);
           drawOverview();
           drawCards(startTime, endTime);
 
@@ -220,9 +220,9 @@ async function startup() {
 startup()
 
 function reload(){
-  segments[index].sort(function(a,b){return a.dataset-b.dataset || a.pid-b.pid || a.start-b.start})
-  for(var j=0; j<segments[index].length;j++)
-    segments[index][j].sid=j
+  segments[segmentNumIdx].sort(function(a,b){return a.dataset-b.dataset || a.pid-b.pid || a.start-b.start})
+  for(var j=0; j<segments[segmentNumIdx].length;j++)
+    segments[segmentNumIdx][j].sid=j
   //console.log(segments)
 
   Promise.all([processData()]).then(function(){
@@ -234,10 +234,10 @@ function reload(){
 }
 
 function loadData() {
-  index = document.getElementById("numCard").value;
-  json[index] = Object.assign({}, orignaljson[index])
-  logs[index] = json[index].interactionLogs
-  segments[index] = json[index].segments
+  segmentNumIdx = document.getElementById("numCard").value;
+  json[segmentNumIdx] = Object.assign({}, orignaljson[segmentNumIdx])
+  logs[segmentNumIdx] = json[segmentNumIdx].interactionLogs
+  segments[segmentNumIdx] = json[segmentNumIdx].segments
   participantData = []
   participantSegments = []
   data = []
@@ -264,8 +264,8 @@ function loadData() {
 
 function saveData(){
   var obj ={}
-  obj.segments=segments[index]
-  obj.interactions = logs[index]
+  obj.segments=segments[segmentNumIdx]
+  obj.interactions = logs[segmentNumIdx]
 
   //Convert JSON Array to string.
   var json2 = JSON.stringify(obj);
@@ -293,7 +293,7 @@ function saveData(){
 function processData(){
   summary = []
   data=[]
-  keywordMap.clear();
+  coOccurMap.clear();
   var form = document.getElementById("controlForm")
   DS = document.querySelector('input[name="dataset"]:checked').value;
   P = document.querySelector('input[name="pid"]:checked').value;
@@ -302,7 +302,7 @@ function processData(){
   showTimeline = document.querySelector('input[name="timeline"]').checked;
   cardWidth = 450;
   cardHeight = 240;
-  participantData = logs[index][DS-1][P-1]
+  participantData = logs[segmentNumIdx][DS-1][P-1]
   // Make the "text" attribute the title for interactions of type "Doc_open" and "Reading" and add the date
   for (var i = 0; i<participantData.length; i++){
     // console.log("participantData")
@@ -365,7 +365,7 @@ function processData(){
   prevDocs = []
   for (var i = 0; i<participantData.length; i++){
     segI = i
-    var summary = summarize_segment(participantData[i], superlatives[index][DS - 1][P - 1], segI);
+    var summary = summarize_segment(participantData[i], superlatives[segmentNumIdx][DS - 1][P - 1], segI);
     summary.pid = P;
     summary.dataset = DS
     summary.number = i
@@ -391,8 +391,8 @@ function processData(){
   }
 
   //Create keyword dictionary
-  console.log("Creating Keyword Dictionary. . .")
-  createKeywordDictionary();
+  // console.log("Creating Keyword Dictionary. . .")
+  createCoOccurrenceDictionary();
 
 }
 
@@ -451,7 +451,7 @@ function drawOverview() {
     return output
   }
   
-  supers = superlatives[index][DS-1][P-1]
+  supers = superlatives[segmentNumIdx][DS-1][P-1]
   // console.log(supers)
 
   d3.select("#overview")
@@ -495,7 +495,7 @@ function drawCards(startTime, endTime){
 
   cardDivs = d3.select("#chartArea").selectAll("field").data(data).enter().append("div").
     attr("id", function (d, i) {
-      console.log(data,d,i)
+      // console.log(data,d,i)
       return "cardDiv"+ d.pid + "_" +d.number
     })
     // .style("margin-bottom", "15px")
@@ -1472,7 +1472,7 @@ function summarize_segment(segment, superlatives, segI) {
 
 ///////This is where I sub out "text" to the meaningful titles, maybe also adding the dates as a new attribute
 
-  console.log("Number of Segment: ", segI);
+  // console.log("Number of Segment: ", segI);
 
 	var opens = []; //opening
   // var openTitles = []; //Meaningful text titles
@@ -1750,22 +1750,22 @@ function summarize_segment(segment, superlatives, segI) {
     // console.log(geoCount)
     //Add people to map (Author: Ben)
     for(var i =0; i < peopleArr.length; i++){
-      if(keywordMap.has(peopleArr[i].toLowerCase())){
+      if(coOccurMap.has(peopleArr[i].toLowerCase())){
         //If the keyword is already in the dictionary, add this segment ID to its dictionary entry
-        keywordMap.get(peopleArr[i].toLowerCase()).push(segI);
+        coOccurMap.get(peopleArr[i].toLowerCase()).push(segI);
       }
       else{
-        keywordMap.set(peopleArr[i].toLowerCase(), [segI]);
+        coOccurMap.set(peopleArr[i].toLowerCase(), [segI]);
       }
     }
     //Add geo to map (Author: Ben)
     for(var i =0; i < geoArr.length; i++){
-      if(keywordMap.has(geoArr[i].toLowerCase())){
+      if(coOccurMap.has(geoArr[i].toLowerCase())){
         //If the keyword is already in the dictionary, add this segment ID to its dictionary entry
-        keywordMap.get(geoArr[i].toLowerCase()).push(segI);
+        coOccurMap.get(geoArr[i].toLowerCase()).push(segI);
       }
       else{
-        keywordMap.set(geoArr[i].toLowerCase(), [segI]);
+        coOccurMap.set(geoArr[i].toLowerCase(), [segI]);
       }
     }
 
@@ -2037,7 +2037,7 @@ function TextToValue(d, type){
 //return specific segment from segment id, participant id, and dataset number
 function GetSegment(sid, pid, dataset) {
   // console.log("getting Segment:",segments)
-	for(var seg of segments[index]){
+	for(var seg of segments[segmentNumIdx]){
     if (seg.sid == sid && seg.pid == pid && seg.dataset == dataset) {
       // console.log("segment Found:",seg)
 			return seg
@@ -2048,7 +2048,7 @@ function GetSegment(sid, pid, dataset) {
 //returns all segments belonging to a participant in a specific dataset
 function GetSegments(dataset,pid){
 	var segments2 = []
-	for(var seg of segments[index]){
+	for(var seg of segments[segmentNumIdx]){
 		if(seg.pid==pid && seg.dataset==dataset){
 			segments2.push(seg)
 		}

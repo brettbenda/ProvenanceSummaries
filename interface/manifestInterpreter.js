@@ -430,7 +430,13 @@ function drawNoData() {
    */
 function drawOverview() {
   function applyHTMLHighlight(text) {
-    return "<span class='highlightHTML'>" + text + "</span>"
+    return (
+      "<span class='highlightHTML' onmouseover=highlightSimilar('" +
+      text +
+      "') onmouseout=unhighlightCards()>" +
+      text +
+      "</span>"
+    );
   }
   function applyHTMLHighlightSegment(value) {
     return "<span class='highlightSegment'>#" + value + "</span>"

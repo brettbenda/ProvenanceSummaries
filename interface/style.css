@@ -111,6 +111,7 @@ input[type=checkbox]:checked + #iconKey {
     color: #3f4143;
 }
 
+span.highlightHTML:hover,
 .descriptionTerm.Search:hover,
 .descriptionTerm.PersonEnt:hover,
 .descriptionTerm.GeoEnt:hover{

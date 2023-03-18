@@ -234,7 +234,7 @@ function reload(){
 }
 
 function loadData() {
-  index = document.querySelector('input[name="numCards"]:checked').value;
+  index = document.getElementById("numCard").value;
   json[index] = Object.assign({}, orignaljson[index])
   logs[index] = json[index].interactionLogs
   segments[index] = json[index].segments

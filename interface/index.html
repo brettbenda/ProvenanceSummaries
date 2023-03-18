@@ -39,7 +39,7 @@ xmlns:svg="http://www.w3.org/2000/svg"
             <label>1</label><input type="radio" name="dataset" value="1" checked onclick="loadData()" />
             <label>2</label><input type="radio" name="dataset" value="2" onclick="loadData()" />
             <label>3</label><input type="radio" name="dataset" value="3" onclick="loadData()" />
-            <label>4</label><input type="radio" name="dataset" value="4" onclick="loadData()" />
+            <label style="display: none;">4</label><input style="display: none;" type="radio" name="dataset" value="4" onclick="loadData()" />
           </div>
 
           <div class="col-md-5">
@@ -73,11 +73,11 @@ xmlns:svg="http://www.w3.org/2000/svg"
               <li>🦄 - number of unique documents opened vs. all documents opened in this segment.</li>
               <li>📖 - answers: "Is the number of documents opened in this segment above or below average?" Average calculated from the sum of all document open events divided by the number of segments.</li>
             </ul>
-            <label>Show Timeline:</label>
-            <input type="checkbox" name="timeline" onclick="loadData()" />
+            <label style="display: none;">Show Timeline:</label>
+            <input type="checkbox" style="display: none;" name="timeline" onclick="loadData()" />
           </div>
-          <p >Show Notes:</p>
-          <input  type="checkbox" name="notes" onclick="loadData()" />
+          <p style="display: none;">Show Notes:</p>
+          <input style="display: none;" type="checkbox" name="notes" onclick="loadData()" />
         </div>        
       </form>
       <!-- <button onclick="loadData()">Load Data</button><br> -->

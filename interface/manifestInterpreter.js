@@ -1,4 +1,3 @@
-//var userCounts = [8, 8, 8]
 var json = [];
 var orignaljson = [];
 var logs = [];
@@ -134,6 +133,9 @@ async function startup() {
   const fetch_d3 = await fetch(
     "../data/Dataset_3/Documents/Documents_Dataset_3.json"
   );
+  // const fetch_d4 = await fetch(
+  //   "../data/Dataset_4/Documents/Documents_Dataset_4.json"
+  // );
   const fetch_e1 = await fetch(
     "../data/Dataset_1/Documents/Entities_Dataset_1.json"
   );
@@ -143,6 +145,9 @@ async function startup() {
   const fetch_e3 = await fetch(
     "../data/Dataset_3/Documents/Entities_Dataset_3.json"
   );
+  // const fetch_e4 = await fetch(
+  //   "../data/Dataset_4/Documents/Entities_Dataset_4.json"
+  // );
 
   const fetchManifest3 = await fetch(
     "ApplicationManifest_3.json"
@@ -157,6 +162,7 @@ async function startup() {
     "ApplicationManifest_12.json"
   );
 
+  // Promise.all([fetch_d1, fetch_d2, fetch_d3, fetch_d4])
   Promise.all([fetch_d1, fetch_d2, fetch_d3])
     .then(async (responses) => {
       for (const response of responses) {
@@ -165,6 +171,7 @@ async function startup() {
         });
       }
       console.log("Datasets are loaded:", docs); //Shows that the data is loaded
+      // Promise.all([fetch_e1, fetch_e2, fetch_e3, fetch_e4]).then(async (responses) => {
       Promise.all([fetch_e1, fetch_e2, fetch_e3]).then(async (responses) => {
         for (const response of responses) {
           await response.json().then((data) => {

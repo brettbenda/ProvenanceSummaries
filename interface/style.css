@@ -111,6 +111,9 @@ input[type=checkbox]:checked + #iconKey {
     color: #3f4143;
 }
 
-.descriptionTerm .Search:hover{
-    border-radius:5px;padding:0.1em;background-color: skyblue;
+.descriptionTerm.Search:hover,
+.descriptionTerm.PersonEnt:hover,
+.descriptionTerm.GeoEnt:hover{
+    border-radius:5px;
+    background-color: #bae408;
 }

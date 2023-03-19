@@ -150,16 +150,16 @@ async function startup() {
   // );
 
   const fetchManifest3 = await fetch(
-    "ApplicationManifest_3.json"
+    "./interface/ApplicationManifest_3.json"
   );
   const fetchManifest6 = await fetch(
-    "ApplicationManifest_6.json"
+    "./interface/ApplicationManifest_6.json"
   );
   const fetchManifest11 = await fetch(
-    "ApplicationManifest_11.json"
+    "./interface/ApplicationManifest_11.json"
   );
   const fetchManifest12 = await fetch(
-    "ApplicationManifest_12.json"
+    "./interface/ApplicationManifest_12.json"
   );
 
   // Promise.all([fetch_d1, fetch_d2, fetch_d3, fetch_d4])

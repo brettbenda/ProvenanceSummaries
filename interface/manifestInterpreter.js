@@ -75,15 +75,17 @@ function highlightSimilar(term){
       return isIncluded;
     })
 
-  toHighlight._groups[0].forEach(element => 
-    element.firstChild.firstChild.style.fill = "yellow"
-  )
+  toHighlight._groups[0].forEach(element => {
+    element.firstChild.firstChild.style.fill = "#ffff0020"
+    element.firstChild.firstChild.style.stroke = "orange"
+  })
 }
 
 function unhighlightCards(){
-  cardDivs._groups[0].forEach(element =>
+  cardDivs._groups[0].forEach(element => {
+    element.firstChild.firstChild.style.stroke = "navy";
     element.firstChild.firstChild.style.fill = "white"
-  )
+  })
 }
 
 //This function creates a map which correlates every keyword that appeared in the session to an array of the segments in which it appeared.

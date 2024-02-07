@@ -15,6 +15,12 @@ div.tooltip {
 .tooltipP {
     margin-bottom: 0;
 }
+
+#chartArea{
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: center;
+}
     
 #controls{
     top: 0;

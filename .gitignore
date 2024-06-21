@@ -1,5 +1,6 @@
 .vscode
 .prettierrc
+.env
 data_prep_scripts/.ipynb_checkpoints
 data/Dataset_4
 data/Pandajam-raw-logs-from-las

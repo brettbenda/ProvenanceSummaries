@@ -45,7 +45,7 @@ xmlns:svg="http://www.w3.org/2000/svg"
             <label style="display: none;">4</label><input style="display: none;" type="radio" name="dataset" value="4" onclick="loadData()" />
           </div>
 
-          <div class="col-md-5">
+          <div class="col-md-3">
             <b>Session:</b>
             
             <label>1</label><input type="radio" name="pid" value="1" checked onclick="loadData()" />
@@ -58,10 +58,16 @@ xmlns:svg="http://www.w3.org/2000/svg"
             <label>8</label><input type="radio" name="pid" value="8" onclick="loadData()" />
           </div>
 
-          <div class="col-md-5">
+          <div class="col-md-3">
             <b>Number of Cards:</b>
             <!-- todo: dynamically update the maximum value  -->
             <input type="range" id="numCard" min="0" max="3" value="0" step="1" oninput="loadData()"/>
+          </div>
+          <div class="col-md-3">
+            <b>Use LLM?</b>
+              <label for="nonLLM" name="LLM">None</label> <input type="radio" name="LLM" id="nonLLM" value="nonLLM" checked onclick="loadData()">
+              <label for="somLLM" name="LLM">Some</label> <input type="radio" name="LLM" id="somLLM" value="somLLM" onclick="loadData()">
+              <label for="allLLM" name="LLM">All </label> <input type="radio" name="LLM" id="allLLM" value="allLLM" onclick="loadData()">
           </div>
         </div>
         <div class="row">

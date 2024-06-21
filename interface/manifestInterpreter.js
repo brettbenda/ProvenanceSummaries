@@ -196,6 +196,7 @@ async function startup() {
               logs.push(json2.interactionLogs);
               segments.push(json2.segments);
               superlatives.push(json2.superlatives);
+              //todo: llm stuff here.
               //Wrapped another for loop to account for segments now being an array of all the versions)
               for (var version of segments) {
                 for (var seg of version){
@@ -306,6 +307,8 @@ function processData(){
   var form = document.getElementById("controlForm")
   DS = document.querySelector('input[name="dataset"]:checked').value;
   P = document.querySelector('input[name="pid"]:checked').value;
+  llmType = document.querySelector('input[name="LLM"]:checked').value;
+  console.log("🚀 ~ processData ~ llmType:", llmType)
   detailed = document.querySelector('input[name="detailed"]').checked;
   showNotes = document.querySelector('input[name="notes"]').checked;
   showTimeline = document.querySelector('input[name="timeline"]').checked;
@@ -322,7 +325,7 @@ function processData(){
       // docPos = parseInt(participantData[i].text.substring(participantData[i].text.indexOf(' ') + 1)) - 1
       docPos = participantData[i].id.match(numberPattern)[0]; //get first number returned in document id
       docPos = docPos - 1 //Have to subtract one, since we're using this to get the index from an array of documents.
-      // console.log("docPos", docPos);
+      // console.log("docPos: the document index being read.", docPos);
       
       //Select the document set from the ID
       if (participantData[i].id.startsWith("armsdealing")) {
@@ -333,17 +336,17 @@ function processData(){
         docSet = 2;
       }
       //Function to find the name of a document in the json.
-      var searchTest = function (varToSearch, jsonData) {
-        for (var key in jsonData) {
-          if (typeof jsonData[key] === "object") {
-            searchTest(varToSearch, jsonData[key]);
-          } else {
-            if (jsonData[key] == varToSearch) {
-              console.log("found", jsonData[key]);
-            }
-          }
-        }
-      };
+      // var searchTest = function (varToSearch, jsonData) {
+      //   for (var key in jsonData) {
+      //     if (typeof jsonData[key] === "object") {
+      //       searchTest(varToSearch, jsonData[key]);
+      //     } else {
+      //       if (jsonData[key] == varToSearch) {
+      //         console.log("found", jsonData[key]);
+      //       }
+      //     }
+      //   }
+      // };
 
       // Split the title into the date and actual title
       // console.log("docs")
@@ -374,7 +377,7 @@ function processData(){
   prevDocs = []
   for (var i = 0; i<participantData.length; i++){
     segI = i
-    var summary = summarize_segment(participantData[i], superlatives[segmentNumIdx][DS - 1][P - 1], segI);
+    var summary = summarize_segment(participantData[i], superlatives[segmentNumIdx][DS - 1][P - 1], segI, llmType, ["words "+applyHTMLColor("dubai","Search")+" words words. ","words orod. ", "shafdk alfdkk lsakfj"]);
     summary.pid = P;
     summary.dataset = DS
     summary.number = i
@@ -1476,9 +1479,9 @@ function segmentify(segments, interactions){
 
 
 //Argument: a segment from the array returned by segmentify
+//modified to include llm supports by including llmType (set by the radio button on the html and the text from llms)
 //Returns:  a json object
-function summarize_segment(segment, superlatives, segI) {
-
+function summarize_segment(segment, superlatives, segI, llmType, llmdescriptions) {
 ///////This is where I sub out "text" to the meaningful titles, maybe also adding the dates as a new attribute
 
   // console.log("Number of Segment: ", segI);
@@ -1975,14 +1978,47 @@ function summarize_segment(segment, superlatives, segI) {
     local_highlight_ratio: (total_interactions > 0) ? highlights.length/total_interactions:0,
 
     readings:readings_merged,
-    descriptions:descriptions,
+    descriptions:(llmType == "nonLLM") ? descriptions: llmdescriptions,
 
     displayedInfo: 0
   }
   return summary;
 }
 
+// function segment_summary_llm(segment=[], LLMEntities={}) {
+//   let descriptions = ["these are some words to know for sure.","At least some times."]
+//     var summary = {
+//      interesting: total_interactions > 0 ? true : false,
+//      total_interactions: total_interactions,
+//      all_interactions: all_interactions,
 
+//      opens: ListToCounts(opens),
+//      opens_list: opens,
+//      local_open_ratio:
+//        total_interactions > 0 ? numUniqueTitles / opens.length : 0,
+
+//      searches: ListToCounts(searches),
+//      searches_list: searches,
+//      local_search_ratio:
+//        total_interactions > 0 ? searches.length / superlatives.searchCount : 0,
+
+//      notes: ListToCounts(notes),
+//      notes_list: notes,
+//      local_note_ratio:
+//        total_interactions > 0 ? notes.length / total_interactions : 0,
+
+//      highlights: ListToCounts(highlights),
+//      highlights_list: highlights,
+//      local_highlight_ratio:
+//        total_interactions > 0 ? highlights.length / total_interactions : 0,
+
+//      readings: readings_merged,
+//      descriptions: descriptions,
+
+//      displayedInfo: 0,
+//    };
+//   return summary
+// }
 
 //Various helper stuff
 

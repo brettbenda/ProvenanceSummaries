@@ -22,3 +22,10 @@ scripts/newData/tfidf_d4.json
 scripts/NER/Documents_Dataset_4.json
 scripts/NER/.ipynb_checkpoints/*
 scripts/NER/Entities_Dataset_4.json
+
+
+data/LLMStages_3/0*
+data/LLMStages_6/0*
+data/LLMStages_9/0*
+data/LLMStages_11/0*
+data/LLMStages_12/0*

@@ -200,11 +200,11 @@ async function startup() {
                 //unwrap json
                 // Push a deep copy of json2 into llmSegments array
                 llmSegments = Object.assign({}, json2.segments);
-                llmSupers.push(Object.assign([], json2.superlatives));                
+                llmSupers = Object.assign([], json2.superlatives);                
               });
             }
           })
-        ).then(console.log("LLM things are loaded"))
+        ).then(console.log("LLM Manifests are loaded",llmSegments,llmSupers))
       //Setting data based on manifest files, looping through all of them
       .then(Promise.all([fetchManifest3, fetchManifest6, fetchManifest11, fetchManifest12]).then(
         async (mainSegPromise) => {
@@ -491,37 +491,43 @@ function drawOverview() {
   supers = superlatives[segmentNumIdx][DS-1][P-1]
   // console.log(supers)
 
+  if (llmType == "nonLLM") {
+    overviewHTMLContent = "They focused on <strong>" +
+      supers["topicCount"] +
+      "</strong> identified topics in this analysis session, exploring <strong>" +
+      Math.round(100 * supers["dataCoverage"]) +
+      "%</strong> of the dataset. The topics that received the most attention were <strong>" +
+      topicsToHighlightText(supers["topics"]) +
+      "</strong>. They started searching for <strong>" +
+      applyHTMLHighlight(supers["breakpointSearches"][0]) +
+      "</strong>, before transitioning to <strong>" +
+      applyHTMLHighlight(supers["breakpointSearches"][1]) +
+      "</strong> and finally looking for <strong>" +
+      applyHTMLHighlight(supers["breakpointSearches"][2]) +
+      "</strong>. In Segment <strong>" +
+      applyHTMLHighlightSegment(supers["newestSeg"]) +
+      "</strong> they opened the most different documents. Segment <strong>" +
+      applyHTMLHighlightSegment(supers["longSeg"]) +
+      "</strong> was the longest period where they <strong>" +
+      supers["longOpenRate"] +
+      "</strong>. They conducted <strong>" +
+      supers["searchCount"] +
+      "</strong> searches throughout their session, especially in segment <strong>" +
+      applyHTMLHighlightSegment(supers["mostSearchSeg"]) +
+      "</strong>."
+  } else {
+    accessIndex = (DS - 1) * 8 + (P - 1)
+    overviewHTMLContent = llmSupers[accessIndex];
+    console.log("🚀 ~ drawOverview ~ llmSupers:", llmSupers, accessIndex);
+  }
+
   d3.select("#overview")
     .selectAll("p")
     .remove()
   overview = d3
     .select("#overview")
     .append("p")
-    .html(
-      "They focused on <strong>" +
-        supers["topicCount"] +
-        "</strong> identified topics in this analysis session, exploring <strong>" +
-        Math.round(100 * supers["dataCoverage"]) +
-        "%</strong> of the dataset. The topics that received the most attention were <strong>" +
-        topicsToHighlightText(supers["topics"]) +
-        "</strong>. They started searching for <strong>" +
-        applyHTMLHighlight(supers["breakpointSearches"][0]) +
-        "</strong>, before transitioning to <strong>" +
-        applyHTMLHighlight(supers["breakpointSearches"][1]) +
-        "</strong> and finally looking for <strong>" +
-        applyHTMLHighlight(supers["breakpointSearches"][2]) +
-        "</strong>. In Segment <strong>" +
-        applyHTMLHighlightSegment(supers["newestSeg"]) +
-        "</strong> they opened the most different documents. Segment <strong>" +
-        applyHTMLHighlightSegment(supers["longSeg"]) +
-        "</strong> was the longest period where they <strong>" +
-        supers["longOpenRate"] +
-        "</strong>. They conducted <strong>" +
-        supers["searchCount"] +
-        "</strong> searches throughout their session, especially in segment <strong>" +
-        applyHTMLHighlightSegment(supers["mostSearchSeg"]) +
-        "</strong>."
-    );
+    .html(overviewHTMLContent);
 }
 
 function drawCards(startTime, endTime){

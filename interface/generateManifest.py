@@ -86,8 +86,8 @@ logsWithTitles = logs.copy()
 for datasetNum in range(1, len(setNames)+1):  # for each dataset
     documentPath = datasetsPath + str(datasetNum) + "/Documents/Documents_Dataset_" + str(datasetNum) + ".json"
     print("getting document titles from ",documentPath)
-    with open(documentPath) as documents:
-        docs = json.load(documents, encoding="utf8")
+    with open(documentPath, 'r', encoding="utf8") as documents:
+        docs = json.load(documents)
         documents.close()
         # print(docs[0]["id"])
     for participantNum in range(1, 9):  # 8 participants
@@ -364,6 +364,11 @@ final_json.update({"segments": segment_json})
 final_json.update({'interactionLogs' : logs})
 
 final_json.update({"superlatives" : superlatives})
+
+# final_json.update({"LLMSegmentDescriptions" : [""]})
+
+# #todo
+# # final_json.update({"LLMSuperlatives": [""]})
 
 
 with open(outputFileName, 'w') as json_file:

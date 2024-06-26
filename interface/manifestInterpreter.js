@@ -126,6 +126,8 @@ async function startup() {
   entities = [];
   logs = [];
   superlatives = [];
+  llmSegments = {};
+  llmSupers = []
   const fetch_d1 = await fetch(
     "../data/Dataset_1/Documents/Documents_Dataset_1.json"
   );
@@ -164,6 +166,11 @@ async function startup() {
     "./interface/ApplicationManifest_12.json"
   );
 
+  const fetchLLMs3 = await fetch("./interface/LLMManifest_3.json");
+  // const fetchLLMs6 = await fetch("./interface/LLMManifest_6.json");
+  // const fetchLLMs11 = await fetch("./interface/LLMManifest_11.json");
+  // const fetchLLMs12 = await fetch("./interface/LLMManifest_12.json");
+
   // Promise.all([fetch_d1, fetch_d2, fetch_d3, fetch_d4])
   Promise.all([fetch_d1, fetch_d2, fetch_d3])
     .then(async (responses) => {
@@ -182,6 +189,22 @@ async function startup() {
         }
       })
         .then(console.log("Entities are loaded:", entities))//Shows that the data is loaded
+        // load the LLMS content
+        .then(Promise.all([fetchLLMs3]).then(
+          async (LLMPromise) => {
+            // console.log(LLMPromise);
+            for (const res of LLMPromise) {
+              // console.log(`${res.url}: ${res.status}`); //Shows the response for each data file should be the file name and 200
+              await res.json().then((json2) => {
+                console.log(json2);
+                //unwrap json
+                // Push a deep copy of json2 into llmSegments array
+                llmSegments = Object.assign({}, json2.segments);
+                llmSupers.push(Object.assign([], json2.superlatives));                
+              });
+            }
+          })
+        ).then(console.log("LLM things are loaded"))
       //Setting data based on manifest files, looping through all of them
       .then(Promise.all([fetchManifest3, fetchManifest6, fetchManifest11, fetchManifest12]).then(
         async (mainSegPromise) => {
@@ -196,7 +219,6 @@ async function startup() {
               logs.push(json2.interactionLogs);
               segments.push(json2.segments);
               superlatives.push(json2.superlatives);
-              //todo: llm stuff here.
               //Wrapped another for loop to account for segments now being an array of all the versions)
               for (var version of segments) {
                 for (var seg of version){
@@ -377,7 +399,10 @@ function processData(){
   prevDocs = []
   for (var i = 0; i<participantData.length; i++){
     segI = i
-    var summary = summarize_segment(participantData[i], superlatives[segmentNumIdx][DS - 1][P - 1], segI, llmType, ["words "+applyHTMLColor("dubai","Search")+" words words. ","words orod. ", "shafdk alfdkk lsakfj"]);
+    let universalIndex = (DS - 1) * 8 * participantData.length + (P - 1) * participantData.length + i;
+    // console.log("🚀 ~ processData ~ getting llmSegments:",universalIndex, ": ",  llmSegments[universalIndex]);
+    llmSentences = llmSegments[universalIndex]["text"].split(" "); // Split the summaries from the llm because the summarize_segment function expects an array of sentences. So we just split on words and we should be fine.
+    var summary = summarize_segment(participantData[i], superlatives[segmentNumIdx][DS - 1][P - 1], segI, llmType, llmSentences);
     summary.pid = P;
     summary.dataset = DS
     summary.number = i

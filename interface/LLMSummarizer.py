@@ -3,6 +3,8 @@ import csv
 import sys
 import os # To move through the file tree to get to the .env file with the API Key
 import re
+import copy
+# import math
 import traceback  
 from dotenv import load_dotenv # Keeping API secrets 
 from openai import OpenAI, BadRequestError # Connect to LLM
@@ -605,8 +607,33 @@ def main():
 
     save_json_to_file(overall_summaries, LLMPartialsDirectory + f"LLM_superlative_summaries_{segmentsPath}.json")
 
+    # LLMStage = "06-Combine/"
+    universalCNTR = 0
+    combined_data = {}
 
+    # Adding superlatives.json to combined_data
+    combined_data['superlatives'] = copy.deepcopy(overall_summaries)
+    print("🚀 ~ combined_data:", len(combined_data["superlatives"]), type(combined_data))
     
+    combined_data["segments"]={}
+    for dataset in range(3):
+        datasetSegments = load_json_file(LLMPartialsDirectory+f"Highlighted_segment_summaries_DS_{dataset}.json")
+        for seg in range(len(datasetSegments)):
+            segmentText = datasetSegments[seg]
+            segmentNumber = (universalCNTR)%int(segmentsPath)
+            #todo figure out the calculation for PID
+            # pid = math.floor(universalCNTR/(int(segmentsPath)+int(participantCnt)))
+            # print("🚀 ~ pid:", pid, segmentNumber, universalCNTR)
+            combined_data["segments"][universalCNTR] = {
+                "text" : segmentText,
+                "segment" : segmentNumber,
+                "ds" : dataset,
+                # "pid" : pid
+                }
+            universalCNTR += 1 
+    combined_data["segmentLength"] = universalCNTR
+    # Step 3: Save combined_data to a JSON file (if needed)
+    save_json_to_file(combined_data, parentDirectory + f"/interface/LLMManifest_{segmentsPath}.json")
 
 # Call the final_todo function at the end of the main function
 main()

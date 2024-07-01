@@ -44,7 +44,7 @@ var colors = {
 //A map connecting keywords to an array listing the segments in which they appear
 const coOccurMap = new Map();
 //Index for accessing different manifest values (used in logs, json, originalJson, segments, and superlatives arrays)
-var segmentNumIdx = 0;
+var segmentNumIdx = 1;
 
 let numberPattern = /\d+/g;
 function applyHTMLColor(term, eventName, background = false) {
@@ -167,7 +167,7 @@ async function startup() {
   );
 
   const fetchLLMs3 = await fetch("./interface/LLMManifest_3.json");
-  // const fetchLLMs6 = await fetch("./interface/LLMManifest_6.json");
+  const fetchLLMs6 = await fetch("./interface/LLMManifest_6.json");
   // const fetchLLMs11 = await fetch("./interface/LLMManifest_11.json");
   // const fetchLLMs12 = await fetch("./interface/LLMManifest_12.json");
 
@@ -190,7 +190,7 @@ async function startup() {
       })
         .then(console.log("Entities are loaded:", entities))//Shows that the data is loaded
         // load the LLMS content
-        .then(Promise.all([fetchLLMs3]).then(
+        .then(Promise.all([fetchLLMs3,fetchLLMs6]).then(
           async (LLMPromise) => {
             // console.log(LLMPromise);
             for (const res of LLMPromise) {

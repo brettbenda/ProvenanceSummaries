@@ -13,7 +13,7 @@ from fuzzywuzzy import process
 
 load_dotenv()
 # A flag to turn off the GPT stuff while still testing. When ready to spend money, set this to true.
-useGPT = False
+useGPT = True
 
 def checkEventType (event, disqualifiedEvents = ["Think_aloud", "Topic_change", "Mouse_hover"]):
     if event["interactionType"] in disqualifiedEvents:
@@ -24,6 +24,7 @@ def checkEventType (event, disqualifiedEvents = ["Think_aloud", "Topic_change", 
 colors = {
   "Doc_open": "crimson",
   "Documents Opened": "crimson",
+  "Topics": "0096FF",
   "Search": "#009420",
   "Searches": "#009420",
   "Add note": "#4278f5",
@@ -44,25 +45,18 @@ parentDirectory = os.path.join(
     os.path.abspath(os.path.join(os.getcwd(), os.pardir)), os.getcwd()
 )
 
-segmentsPath = "3"
+segmentsPath = "6"
 participantCnt = "8"
 dataset_path = parentDirectory + f"/interface/ApplicationManifest_{segmentsPath}.json"
 LLMPartialsDirectory = parentDirectory+f"/data/LLMStages_{segmentsPath}/"
 
-
-outputFileName = (
-    parentDirectory
-    + "/interface/ApplicationManifest_"
-    + segmentsPath
-    + "-llms.json"
-)
 
 def load_json_file(file_path):
     with open(file_path, "r") as read_file:
         data = json.load(read_file)
     return data
 
-def save_json_to_file(data, filename, overwriteFiles = True, indent = False):
+def save_json_to_file(data, filename, overwriteFiles = True, indent = True):
     """
     Save a JSON object to a file.
 
@@ -72,8 +66,17 @@ def save_json_to_file(data, filename, overwriteFiles = True, indent = False):
     overwriteFiles (bool): Optional - if you are done testing the files and don't want to overwrite files already made, flip this False.
     """
     # Create the directory if it doesn't exist
-    os.makedirs(os.path.dirname(filename), exist_ok=True)
     if (overwriteFiles):
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
+        with open(filename, 'w') as file:
+            if(indent):
+                json.dump(data, file, indent=2)
+            else:
+                json.dump(data, file, separators=(',', ':'))
+    else:
+        # Make a file with test as the predicate so not to overwrite the version you like
+        filename = filename[:-5]+"-test.json"
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
         with open(filename, 'w') as file:
             if(indent):
                 json.dump(data, file, indent=2)
@@ -136,7 +139,6 @@ def return_blank_properties(obj):
     return obj
 
 def addContextToInteraction(interaction, allDocuments, allowable_types=["Reading","Doc_open","Highlight","Draging"], propertiesToAppend = ["summary","Geos","People","topics"], propertiesToRemove = ["id", "duration",   "dataset", "PID", "segment"]):
-    print(f"adding context to {interaction}")
     # Check if the interactionType is in the allowable types
     if interaction.get('interactionType') in allowable_types:
         # Find the corresponding object in the larger object using the 'id' property
@@ -156,7 +158,6 @@ def addContextToInteraction(interaction, allDocuments, allowable_types=["Reading
 
 
 def askGPTMultiple(prompt):
-    #todo fix - It's not returning I think
     print("✨ too long ❌ - asking in chunks")
 
     client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
@@ -196,6 +197,7 @@ def askGPTMultiple(prompt):
 
         # Update the assistant response for the next segment
         assistant_response = response.choices[0].message.content
+        print("assistant says:", assistant_response)
         # msg.append({"role": "assistant", "content": assistant_response}) # type: ignore
 
     return assistant_response
@@ -221,7 +223,7 @@ def askGPTMultiple_broken(prompt):
         prompt = prompt[split_index+1:] #get the portion of the string remaining
     chunks.append(prompt) #add remaining string
 
-    msg = [{"role": "system", "content": "Summarize as concisely as possible each chunk of interactions I give you. Update the summary to incorporrate each chunk into your summary."}]
+    msg = [{"role": "system", "content": "Summarize as concisely as possible each chunk of interactions I give you. Update the summary to incorporate each chunk into your summary."}]
     # Send each segment to the API
     print("preparing message")
     for chunk in range(len(chunks)):
@@ -308,7 +310,7 @@ def summarize_segment(segment_interactions):
     str: The summary of the segment.
     """
     interactions_text = "\n".join([str(interaction) for interaction in segment_interactions])
-    prompt = f"Here is a list of interactions from a user's investigation of data. Please summarize the following interactions and provide a 500 character explaination of the main events, topics covered, and findings:\n{interactions_text}"
+    prompt = f"Here is a list of interactions from a user's investigation of data. Please provide a concise 500-character explanation focusing on main topics and findings. Include actionable instructions, relevant keywords, and ensure accuracy and completeness. Highlight unique or unusual interactions from this set of user's data analysis, using specific words since this summary will be incorporated with a broader report on the work an individual did. These interactions are only a segment of the whole investigation:\n\n{interactions_text}"
     # print("🌕 summarize segment:", prompt)
     if useGPT:
         return askGPT(prompt)
@@ -326,43 +328,54 @@ def summarize_all_segments(segment_summaries):
     str: The summary of the segment.
     """
     interactions_text = "\n".join([str(summary) for summary in segment_summaries])
-    prompt = f"Here are {segmentsPath} summaries from sections of a user's investigation of data. Please combine and summarize into an overarching, 500 character string that explains the main events, topics covered, and findings. Consider including reference where different information comes from:\n{interactions_text}"
+    prompt = f"Here are {segmentsPath} summaries from sections of a user's investigation of data. Please combine and summarize into an overarching, 500 character string that explains the main events, topics covered, and findings. Consider including reference numbers for which index/segment different information comes from:\n{interactions_text}"
     # print("🌕 summarize segment:", prompt)
     if useGPT:
         return askGPT(prompt)
     else:
-        return "Overarching summary is now a bit longer and interasting but it refers to places like segment 3 and such."
+        return "Overarching summary is now a bit longer and interesting but it refers to places like segment 3 and such."
 
 def update_entities(entities, key, value):
+    # Convert the key to lowercase for case-insensitive matching
     key = key.lower()
+    
+    # Mapping of keys to entity types
+    # These mappings define how different keys should update the 'entities' dictionary
     cases = {
-        "search": "Search",
+        "search": "Search",             # Maps "search" and "searches" to "Search"
         "searches": "Search",
-        "topics": "Highlights",
-        "concepts": "Highlights",
-        "people": "PersonEnt",
+        "topics": "Doc_open",           # Maps "topics" to "Doc_open"
+        "concepts": "Highlights",       # Maps "concepts" to "Highlights"
+        "people": "PersonEnt",          # Maps "people" and "persons" to "PersonEnt"
         "persons": "PersonEnt",
-        "places": "GeoEnt",
+        "places": "GeoEnt",             # Maps "places" and "locations" to "GeoEnt"
         "locations": "GeoEnt",
-        "dates": "Dates",
-        "document titles": "Doc_open"
+        "dates": "Dates",               # Maps "dates" to "Dates"
+        "document titles": "Doc_open"   # Maps "document titles" to "Doc_open"
     }
 
+    # Check if the key is in the predefined mapping
     if key in cases:
         entity_key = cases[key]
         
+        # Ensure value is always a list, even if it's a single value
         if not isinstance(value, list):
             value = [value]
 
+        # Update entities dictionary based on entity_key
         if entity_key in entities:
             if isinstance(entities[entity_key], list):
+                # If entity_key already exists and is a list, extend it with new values
                 entities[entity_key].extend(value)
             else:
+                # If entity_key exists but is not a list, convert it to a list and add new values
                 entities[entity_key] = [entities[entity_key]] + value
         else:
+            # If entity_key does not exist in entities, initialize it with the new values
             entities[entity_key] = value
 
-def identify_entities(summary):
+
+def identify_entities(summary, attempts = 0, maxAttempts = 5):
     """
     Identifies entities in a summary.
 
@@ -373,7 +386,16 @@ def identify_entities(summary):
     dict: A dictionary of identified entities.
     """
     # Step 1: Construct a prompt
-    prompt = f"format your reply as a JSON object. Identify and list any of the 6 types of entities in the following text:\n{summary}\nEntities to look for: [search, topics, people, places, dates, document titles]. Make a dictionary with each of these Entities as keys and list any (or none) of the terms as values."
+    # prompt = f"format your reply as a JSON object. Identify and list any of the 6 types of entities in the following text:\n{summary}\nEntities to look for: [search, topics, people, places, dates, document titles]. Make a dictionary with each of these Entities as keys and list any (or none) of the terms as values."
+
+    prompt = f"Identify and make a short list of the following 4 kinds of information in the attached summary: [searches, highlights, people, places]. There should be less than 5 items in each list. Your response should be a JSON dictionary with arrays of string values. Make a dictionary with each entity type as keys and lists of exact terms as the values. If there is nothing applicable, you can provide an empty list for that entity type (e.g.,  ['']). Your response is valid JSON. Prioritize the most prominent and specific searches, highlights, people, and places the individual read about in the following summary:\n\n{summary}"
+
+    default_entities = {
+        "Search": [""],
+        "Highlights": [""],
+        "PersonEnt": [""],
+        "GeoEnt": [""],
+    }
 
     # Step 2: Use askGPT to get the response
     entities = {}
@@ -381,23 +403,23 @@ def identify_entities(summary):
         try:
             response = askGPT(prompt)
             structured_response = json.loads(response) #type: ignore
-            print(structured_response, type(structured_response))
+            print(structured_response, f"\033[32m{type(structured_response)}\033[0m")
             # Step 3: Parse the response to extract entities
             for key, value in structured_response.items():
                 update_entities(entities, key, value)
         except TypeError as e:
             print(f"Uh oh: {e}")
         except json.decoder.JSONDecodeError as f:
-            print(f"decode error This is not JSON - {f}::::{response}")
+            entities = default_entities            
+            #try again so long as it's not too many attempts.
+            # if attempts < maxAttempts :
+            print(f"decode error This is not JSON - \033[31m{f}\033[0m::::{response}")
+            #     attempts += 1
+            #     entities = identify_entities(summary, attempts, maxAttempts)
+            # else:
+
     else:
-        entities = {
-            "Search": ["the", "at"],
-            "Highlights": ["of"],
-            "PersonEnt": ["in"],
-            "GeoEnt": ["with"],
-            "Dates": ["may"],
-            "Documents Opened": ["summary"]
-        }
+        entities = default_entities
 
     return entities
 
@@ -428,7 +450,7 @@ def fuzzy_highlight_entities(summary, entities, threshold=80):
                     summary = summary.replace(match, highlighted_term)
     return summary
 
-def highlight_entities_case_sensitive(summary, entities):
+def highlight_entities(summary, entities):
     """
     Highlights entities in the summary text with HTML code.
 
@@ -442,11 +464,11 @@ def highlight_entities_case_sensitive(summary, entities):
     for entity_type, terms in entities.items():
         color = colors[entity_type]
         for term in terms:
-            newTerm = str(term).replace(" ", "_").lower()
-            summary = summary.replace(term, f"<span onmouseover=highlightSimilar('" + newTerm +"" + "') onmouseout=unhighlightCards() class='descriptionTerm "+entity_type+"' style='color:" + color + "; font-weight:bold' >" + term + "</span>")
+            noSpaceTerm = str(term).replace(" ", "_").lower()
+            summary = summary.replace(term, f"<span onmouseover=highlightSimilar('" + noSpaceTerm +"" + "') onmouseout=unhighlightCards() class='descriptionTerm "+entity_type+"' style='color:" + color + "; font-weight:bold' >" + term + "</span>")
     return summary
    
-def highlight_entities(summary, entities):
+def highlight_entities_case_insensitive(summary, entities):
     """
     Highlights entities in the summary text with HTML code.
 
@@ -506,32 +528,32 @@ def main():
     # print("🚀 ~ segment_interactions:", type(segment_interactions))
 
     # Iterate over interaction logs
-    # if True: #
-    for user in range(len(interaction_logs)):
-        # user = 0
-        documents_path = parentDirectory+"/data/Dataset_"+str(user+1)+"/Documents/Documents_Dataset_"+str(user+1)+".json"
-        entities_path = parentDirectory+"/data/Dataset_"+str(user+1)+"/Documents/Entities_Dataset_"+str(user+1)+".json"
-        print("🚀 ~ documents_path:", documents_path)
-        tempdocs = load_json_file(documents_path)
-        docs = []
+    # for user in range(len(interaction_logs)):
+    if True:
+        user = 0
+        # documents_path = parentDirectory+"/data/Dataset_"+str(user+1)+"/Documents/Documents_Dataset_"+str(user+1)+".json"
+        # entities_path = parentDirectory+"/data/Dataset_"+str(user+1)+"/Documents/Entities_Dataset_"+str(user+1)+".json"
+        # print("🚀 ~ documents_path:", documents_path)
+        # tempdocs = load_json_file(documents_path)
+        # docs = []
         
-        LLMStage = "01-summary/"
-        for doc in tempdocs:
-            if useGPT:
-                summaryString = askGPT('Please examine the content of this JSON record record and provide a 1 sentance summary of the content and a short list of the topics. Your response should have no additional characters or padding. return a json object with the form: {"summary":"Generate summary text here.","topics":["topic1","topic2","topic3"]}. Here is the record:\n\n'+str(doc))
-            else:
-                summaryString = '{"Summary":"This would be a summary from GPT", "topics":["one","two","three"]}'
-            # Parse JSON string to dictionary
-            summary = json.loads(str(summaryString))
-            doc.update(summary)
-            docs.append(doc)
-        save_json_to_file(docs, LLMPartialsDirectory+LLMStage+"documents"+str(user)+".json")
+        # LLMStage = "01-summary/"
+        # for doc in tempdocs:
+        #     if useGPT:
+        #         summaryString = askGPT('Please examine the content of this JSON record record and provide a 1 sentence summary of the content and a short list of the topics. Your response should have no additional characters or padding. return a json object with the form: {"summary":"Generate summary text here.","topics":["topic1","topic2","topic3"]}. Here is the record:\n\n'+str(doc))
+        #     else:
+        #         summaryString = '{"Summary":"This would be a summary from GPT", "topics":["one","two","three"]}'
+        #     # Parse JSON string to dictionary
+        #     summary = json.loads(str(summaryString))
+        #     doc.update(summary)
+        #     docs.append(doc)
+        # save_json_to_file(docs, LLMPartialsDirectory+LLMStage+"documents"+str(user)+".json")
 
         LLMStage = "02-merging/"
-        tempPeepPlace = load_json_file(entities_path)
-        documents = merge_json(docs,tempPeepPlace)
-        save_json_to_file(documents, LLMPartialsDirectory+LLMStage+"documents"+str(user)+".json")
-        # documents = load_json_file(LLMPartialsDirectory+LLMStage+"documents"+str(user)+".json")
+        # tempPeepPlace = load_json_file(entities_path)
+        # documents = merge_json(docs,tempPeepPlace)
+        # save_json_to_file(documents, LLMPartialsDirectory+LLMStage+"documents"+str(user)+".json")
+        documents = load_json_file(LLMPartialsDirectory+LLMStage+"documents"+str(user)+".json")
 
         # Iterate over each interaction of the user
         for interactions in interaction_logs[user]:
@@ -557,8 +579,7 @@ def main():
                 final_index = ds * int(participantCnt) * int(segmentsPath) + pid * int(segmentsPath) + lastsegment
                 segment_interactions.update({final_index: tempset})
     
-        # print(len(segment_interactions[2]))
-        # Print the results
+        # Clean up and Add Context to the interactions
         for idx in range(len(segment_interactions)):
             cntr = 0
             for interaction in segment_interactions[idx]:
@@ -567,18 +588,19 @@ def main():
     LLMStage = "03-ContextInteractions/"
     save_json_to_file(segment_interactions,LLMPartialsDirectory+LLMStage+"Segmented_Context_interactions.json")
     # segment_interactions = load_json_file(LLMPartialsDirectory+LLMStage+"Segmented_Context_interactions.json")
-
+    # print(len(segment_interactions))
 
     # Initialize a list to store overall summaries for each user
     overall_summaries = []
 
-    # if True: #
-    for user in range(len(interaction_logs)):
-        # user = 0
+    # for user in range(len(interaction_logs)):
+    if True: #
+        user = 0
         user_summaries = []
 
         LLMStage = "/04-segmentSummaries/Dataset_"+str(user)+"/"
         for idx in range(len(segment_interactions)):
+            print(f"-DS{user}-Summarizing segment_{idx}")
             segment = segment_interactions[idx]
             cleaned_interactions = [clean_interaction(interaction) for interaction in segment]
             summary = summarize_segment(cleaned_interactions)
@@ -616,7 +638,9 @@ def main():
     print("🚀 ~ combined_data:", len(combined_data["superlatives"]), type(combined_data))
     
     combined_data["segments"]={}
-    for dataset in range(3):
+    # for dataset in range(3):
+    if True:
+        dataset = 0
         datasetSegments = load_json_file(LLMPartialsDirectory+f"Highlighted_segment_summaries_DS_{dataset}.json")
         for seg in range(len(datasetSegments)):
             segmentText = datasetSegments[seg]

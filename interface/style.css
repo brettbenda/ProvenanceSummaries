@@ -65,7 +65,7 @@ input[type=checkbox]:checked + #iconKey {
 } 
 
 #overview{
-   max-width: 100em;
+   max-width: 84em;
     margin: 10px auto;
     border: beige;
     border-style: dotted;

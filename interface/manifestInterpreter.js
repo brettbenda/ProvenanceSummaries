@@ -11,8 +11,9 @@ var tooltip
 var card
 var cardDivs
 var cardField
-var cardWidth = 700
-var cardHeight = 200
+cardWidth = 450;
+cardHeight = 240;
+// cardHeight = 320;
 var transitionTime = 750
 var segI
 var DS = 1
@@ -334,8 +335,6 @@ function processData(){
   detailed = document.querySelector('input[name="detailed"]').checked;
   showNotes = document.querySelector('input[name="notes"]').checked;
   showTimeline = document.querySelector('input[name="timeline"]').checked;
-  cardWidth = 450;
-  cardHeight = 240;
   participantData = logs[segmentNumIdx][DS-1][P-1]
   // Make the "text" attribute the title for interactions of type "Doc_open" and "Reading" and add the date
   for (var i = 0; i<participantData.length; i++){
@@ -617,7 +616,7 @@ function drawCards(startTime, endTime){
       return (
         "<div>#" + (d.number + 1) +
         " <span style='color:white;padding:0.8em'> | </span>" +
-        IntToTime(segment.end - segment.start) +
+        IntToMinutes(segment.end - segment.start) +
         " minutes</div>"
       );
     })
@@ -2165,6 +2164,29 @@ function IntToTime(int) {
     if (sec.toString().length == 1) sec = "0" + sec.toString();
     return hour + ":" + min + ":" + sec;
 
+  }
+}
+
+function IntToMinutes(int) {
+  // console.log(DS, int)
+  if (DS == 4) {
+    int = int / 100;
+  }
+  if (int < 3600) {
+    var min = Math.floor(int / 60);
+    var sec = Math.floor(int % 60);
+
+    if (sec.toString().length == 1) sec = "0" + sec.toString();
+
+    return min;
+  } else {
+    // console.log("longer than an hour!")
+    var hour = Math.floor(int / 3600);
+    var min = Math.floor((int - 3600 * hour) / 60);
+    if (min.toString().length == 1) min = "0" + min.toString();
+    var sec = Math.floor(int % 60);
+    if (sec.toString().length == 1) sec = "0" + sec.toString();
+    return hour + ":" + min;
   }
 }
 

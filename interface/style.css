@@ -112,11 +112,11 @@ input[type=checkbox]:checked + #iconKey {
 
 
 .descriptionText{
-    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI","Roboto","Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
     font-size: 11pt;
     color: #3f4143;
     overflow-y: scroll;
-    height: 190px; /* to make sure the bottom line of text is just slightly cut off and can signal that it should be scrolled.*/
+    height: 85%; /* to make sure the bottom line of text is just slightly cut off and can signal that it should be scrolled.*/
 }
 
 span.highlightHTML:hover,

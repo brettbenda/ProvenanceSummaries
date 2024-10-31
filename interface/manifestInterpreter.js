@@ -268,6 +268,8 @@ function reload(){
 
 function loadData() {
   segmentNumIdx = document.getElementById("numCard").value;
+  //Alternative, based on url Parameter: 
+  // segmentNumIdx = getUrlParam("numCard", 6);
   json[segmentNumIdx] = Object.assign({}, orignaljson[segmentNumIdx])
   logs[segmentNumIdx] = json[segmentNumIdx].interactionLogs
   segments[segmentNumIdx] = json[segmentNumIdx].segments
@@ -327,15 +329,31 @@ function processData(){
   summary = []
   data=[]
   coOccurMap.clear();
-  var form = document.getElementById("controlForm")
-  DS = document.querySelector('input[name="dataset"]:checked').value;
-  P = document.querySelector('input[name="pid"]:checked').value;
-  llmType = document.querySelector('input[name="LLM"]:checked').value;
-  console.log("🚀 ~ processData ~ llmType:", llmType)
-  detailed = document.querySelector('input[name="detailed"]').checked;
-  showNotes = document.querySelector('input[name="notes"]').checked;
-  showTimeline = document.querySelector('input[name="timeline"]').checked;
-  participantData = logs[segmentNumIdx][DS-1][P-1]
+  // Standard control based parameter setting
+  // var form = document.getElementById("controlForm");
+  // DS = document.querySelector('input[name="dataset"]:checked').value;
+  // P = document.querySelector('input[name="pid"]:checked').value;
+  // llmType = document.querySelector('input[name="LLM"]:checked').value;
+  // console.log("🚀 ~ processData ~ llmType:", llmType)
+  // detailed = document.querySelector('input[name="detailed"]').checked;
+  // showNotes = document.querySelector('input[name="notes"]').checked;
+  // showTimeline = document.querySelector('input[name="timeline"]').checked;
+  // URL based parameter settings:
+  // Function to get URL parameter or set a default value
+  function getUrlParam(param, defaultValue) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.has(param) ? urlParams.get(param) : defaultValue;
+  }
+
+  // Define variables based on URL parameters, with default values
+  DS = getUrlParam("dataset", "1"); // if not included defaults to dataset 1
+  P = getUrlParam("pid", "1"); // if not included defaults to 1
+  llmType = getUrlParam("LLM", "nonLLM"); // if not included make it nonLLM instead.
+  detailed = getUrlParam("detailed", "false") === "true"; // true if detailed=true in URL
+  showNotes = getUrlParam("notes", "false") === "true"; // true if notes=true in URL
+  showTimeline = getUrlParam("timeline", "false") === "true"; // true if timeline=true in URL
+
+  participantData = logs[segmentNumIdx][DS - 1][P - 1];
   // Make the "text" attribute the title for interactions of type "Doc_open" and "Reading" and add the date
   for (var i = 0; i<participantData.length; i++){
     // console.log("participantData")

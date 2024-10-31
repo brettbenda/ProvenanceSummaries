@@ -34,6 +34,7 @@ xmlns:svg="http://www.w3.org/2000/svg"
   <body>
     <div id="controls" class="col-sm-12">
       <form id="controlForm">
+        <p id="parameterDisplay"></p> <!-- Element to display parameters -->
         <h5>Presentation Controls</h5>
         <div class="row">
 
@@ -163,6 +164,28 @@ xmlns:svg="http://www.w3.org/2000/svg"
       window.addEventListener("load", (e) => {
         detailBtn.focus(); // adding the focus
       });
+      // Get URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+
+    // Function to display all parameters in the console and on the page
+    function displayParams() {
+      const params = [];
+      
+      // Iterate through parameters and add them to params array
+      urlParams.forEach((value, key) => {
+        params.push(`${key}: ${value}`);
+      });
+
+      // Log parameters to the console
+      console.log('URL Parameters:', params.join(', '));
+
+      // Display parameters on the webpage
+      document.getElementById('parameterDisplay').textContent = params.join(', ');
+    }
+
+    // Run function to display parameters
+    displayParams();
+
     </script>
   </body>
 </html>

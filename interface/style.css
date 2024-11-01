@@ -28,36 +28,42 @@ div.tooltip {
     border: 3px solid navy;
 }
 
-#iconKey{
+#iconKey,
+#urlParamIconKey{
     padding: 0.5%;
     background-color: whitesmoke;
     overflow-y: hidden;
 }
-#iconKey ul {
+#iconKey ul,
+#urlParamIconKey ul {
     padding-left: 0px;
     margin-bottom: 0px;
     display: flex;
     flex-wrap: wrap;
 }
-#iconKey ul li {
+#iconKey ul li,
+#urlParamIconKey ul li {
     flex: 1 0 25%;
     padding: 0.8%;
     border: 1px solid #444;
     list-style-type: none;
 }
 
-#iconKey hr {
+#iconKey hr,
+#urlParamIconKey hr {
     margin: 0px 4px;
 }
 
-input[type=checkbox] + #iconKey {
+input[type=checkbox] + #iconKey,
+input[type=checkbox] + #urlParamIconKey {
     height: 0px;
     padding: 0px;
     transition-property: all;
     transition-duration: 1s;
 }
 
-input[type=checkbox]:checked + #iconKey {
+input[type=checkbox]:checked + #iconKey,
+input[type=checkbox] + #urlParamIconKey {
     height: 11em;
     padding: 0.5%;
     transition-property: all;

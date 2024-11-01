@@ -138,18 +138,29 @@ xmlns:svg="http://www.w3.org/2000/svg"
           </div>
           <div id="overview">
             <h4>Session Summary</h4>
-            <p>They focused on <<12>> main topics in this analysis session; exploring <<24%>> of the dataset.
+            <!-- <p>They focused on <<12>> main topics in this analysis session; exploring <<24%>> of the dataset.
             The topics that received the most attention throughout were <<minski, leonid, and lagos>>.
             They started searching for <<disease>>, before transitioning to <<dubai>> and finally looking for <<burj>>.
             The segment with the most new content was segment <<4>>.
             Segment <<5>> was the longest period of time where they opened <<many more documents>> than usual.
             The shortest segment (#<<2>>) focused almost entirely on <<Kenya>>.
-            They conducted <<13>> searches throughout their session, especially in segment <<5>>. </p>
+            They conducted <<13>> searches throughout their session, especially in segment <<5>>. </p> -->
+            <p>Loading summary... <br> you may need to reload the page if this takes more than a minute</p>
           </div>
           <div id="chart">
             <div style="padding-top:3%;max-width:500px;margin:0 auto" id="chartArea">
               <p> Please wait... The data is loading</p>
             </div>
+          </div>
+          <div id="urlParamIconKey" style="display:none" class="col-sm-10 offset-sm-1">
+            <h3>Icon Descriptions</h3>
+            <ul>
+              <li>🔎 - number of unique searches vs. the total number of searches in session.</li>
+              <li>🔖 - number of highlight events in a segment vs. the whole session.</li>
+              <li>📝 - number of notes made in the segment vs. the whole session.</li>
+              <li>🦄 - number of unique documents opened vs. all documents opened in this segment.</li>
+              <li>📖 - answers: "Is the number of documents opened in this segment above or below average?" Average calculated from the sum of all document open events divided by the number of segments.</li>
+            </ul>
           </div>
         </div>
       </div>
@@ -164,28 +175,15 @@ xmlns:svg="http://www.w3.org/2000/svg"
       window.addEventListener("load", (e) => {
         detailBtn.focus(); // adding the focus
       });
-      // Get URL parameters
-    const urlParams = new URLSearchParams(window.location.search);
+    </script>
+    <script>
+         // Get URL parameters
+      const urlParams = new URLSearchParams(window.location.search);
 
-    // Function to display all parameters in the console and on the page
-    function displayParams() {
-      const params = [];
-      
-      // Iterate through parameters and add them to params array
-      urlParams.forEach((value, key) => {
-        params.push(`${key}: ${value}`);
-      });
-
-      // Log parameters to the console
-      console.log('URL Parameters:', params.join(', '));
-
-      // Display parameters on the webpage
-      document.getElementById('parameterDisplay').textContent = params.join(', ');
-    }
-
-    // Run function to display parameters
-    displayParams();
-
+      // Check if there are any URL parameters
+      console.log("🚀 ~ urlParams.toString():", urlParams.toString())
+      if (urlParams.toString()) {// Hide the control panel if parameters are present
+        document.getElementById('controls').style.display = 'none';}
     </script>
   </body>
 </html>

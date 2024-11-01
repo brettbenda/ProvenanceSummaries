@@ -324,34 +324,43 @@ function saveData(){
     document.body.removeChild(a);
   }
 }
-
+function getUrlParam(param, defaultValue) {
+  const urlParams = new URLSearchParams(window.location.search);
+  console.log("js looked for param:",param,"value is:", urlParams.get(param), " (",typeof(urlParams.get(param)),")")
+  return urlParams.has(param) ? urlParams.get(param) : defaultValue;
+} 
+  
 function processData(){
   summary = []
   data=[]
   coOccurMap.clear();
-  // Standard control based parameter setting
-  // var form = document.getElementById("controlForm");
-  // DS = document.querySelector('input[name="dataset"]:checked').value;
-  // P = document.querySelector('input[name="pid"]:checked').value;
-  // llmType = document.querySelector('input[name="LLM"]:checked').value;
-  // console.log("🚀 ~ processData ~ llmType:", llmType)
-  // detailed = document.querySelector('input[name="detailed"]').checked;
-  // showNotes = document.querySelector('input[name="notes"]').checked;
-  // showTimeline = document.querySelector('input[name="timeline"]').checked;
+  const urlParams = new URLSearchParams(window.location.search);
+
+if (urlParams.toString()) {
   // URL based parameter settings:
   // Function to get URL parameter or set a default value
-  function getUrlParam(param, defaultValue) {
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.has(param) ? urlParams.get(param) : defaultValue;
-  }
-
+  console.log(window.location.search); //what are the url parameters?
   // Define variables based on URL parameters, with default values
   DS = getUrlParam("dataset", "1"); // if not included defaults to dataset 1
   P = getUrlParam("pid", "1"); // if not included defaults to 1
-  llmType = getUrlParam("LLM", "nonLLM"); // if not included make it nonLLM instead.
   detailed = getUrlParam("detailed", "false") === "true"; // true if detailed=true in URL
+  detailed
+    ? (document.getElementById("urlParamIconKey").style.display = "block")
+    : (document.getElementById("urlParamIconKey").style.display = "none"); //Set the property in the html so the notes are shown too.
+  llmType = getUrlParam("LLM", "nonLLM"); // if not included make it nonLLM instead.
   showNotes = getUrlParam("notes", "false") === "true"; // true if notes=true in URL
   showTimeline = getUrlParam("timeline", "false") === "true"; // true if timeline=true in URL
+} else {
+  // Standard control based parameter setting
+  var form = document.getElementById("controlForm");
+  DS = document.querySelector('input[name="dataset"]:checked').value;
+  P = document.querySelector('input[name="pid"]:checked').value;
+  llmType = document.querySelector('input[name="LLM"]:checked').value;
+  console.log("🚀 ~ processData ~ llmType:", llmType)
+  detailed = document.querySelector('input[name="detailed"]').checked;
+  showNotes = document.querySelector('input[name="notes"]').checked;
+  showTimeline = document.querySelector('input[name="timeline"]').checked;
+}
 
   participantData = logs[segmentNumIdx][DS - 1][P - 1];
   // Make the "text" attribute the title for interactions of type "Doc_open" and "Reading" and add the date
@@ -417,7 +426,7 @@ function processData(){
   for (var i = 0; i<participantData.length; i++){
     segI = i
     let universalIndex = (DS - 1) * 8 * participantData.length + (P - 1) * participantData.length + i;
-    // console.log("🚀 ~ processData ~ getting llmSegments:",universalIndex, ": ",  llmSegments[universalIndex]);
+    console.log("🚀 ~ processData ~ getting llmSegments:",universalIndex, ": ",  llmSegments[universalIndex]);
     llmSentences = llmSegments[universalIndex]["text"].split(" "); // Split the summaries from the llm because the summarize_segment function expects an array of sentences. So we just split on words and we should be fine.
     var summary = summarize_segment(participantData[i], superlatives[segmentNumIdx][DS - 1][P - 1], segI, llmType, llmSentences);
     summary.pid = P;
